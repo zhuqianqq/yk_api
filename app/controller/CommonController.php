@@ -56,7 +56,7 @@ class CommonController extends BaseController
      */
     public function sendSmsCode()
     {
-        if($this->request->isGet()){
+        if($this->request->isPost()){
             $mobile = $this->request->param("mobile",'',"trim");
             $type = $this->request->param("type",'login',"trim");
 
