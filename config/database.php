@@ -19,11 +19,11 @@ return [
     'connections'     => [
         'mysql' => [
             // 数据库类型
-            'type'              => env('database.type', 'mysql'),
+            'type'              => 'mysql',
             // 服务器地址
             'hostname'          => env('database.hostname', '127.0.0.1'),
             // 数据库名
-            'database'          => env('database.database', ''),
+            'database'          => env('database.database', 'live_shop'),
             // 用户名
             'username'          => env('database.username', 'root'),
             // 密码

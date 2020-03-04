@@ -1,13 +1,14 @@
 <?php
-// [ 前台入网认证入口文件 ]
+// 入口文件
 namespace think;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $http = (new App())->http;
 
-$response = $http->run();
+define('APP_ENV', \think\facade\Env::get("APP_ENV","test")); //应用环境 prod(生产),test(测试)
 
+$response = $http->run();
 $response->send();
 
 $http->end($response);
