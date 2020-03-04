@@ -12,8 +12,6 @@ class IndexController extends BaseController
 
     public function hello()
     {
-        $name = session('name');
-
-        return 'hello,'.$name.'!';
+        return 'hello';
     }
 }

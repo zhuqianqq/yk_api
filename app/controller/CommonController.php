@@ -18,7 +18,7 @@ class CommonController extends BaseController
     {
         $file_path = $this->app->getRootPath()."public/logo.jpg";
         $res = CosHelper::upload($file_path);
-        print_r($res);
+        return json($res);
     }
 
     /**
@@ -45,7 +45,8 @@ class CommonController extends BaseController
 //                return $this->outJson(200, '保存文件失败');
 //            }
 
-            return CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
+            $ret = CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
+            return json($ret);
         }
 
         return $this->outJson(200, "非法请求");
