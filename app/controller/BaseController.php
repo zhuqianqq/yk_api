@@ -2,6 +2,7 @@
 /**
  * 管理后台控制器基础类
  */
+
 namespace app\controller;
 
 use think\App;
@@ -17,11 +18,6 @@ abstract class BaseController
      * @var int 每页记录条数
      */
     public static $pageSize = 20;
-
-    /**
-     * @var 入口文件url
-     */
-    protected $entranceUrl;
 
     /**
      * @var bool 是否检测登录
@@ -53,13 +49,31 @@ abstract class BaseController
     protected $middleware = [];
 
     /**
+     * 是否开启跨域 默认开启
+     * @var bool
+     */
+    protected $cors = true;
+
+    /**
+     * 用户唯一标识的key
+     * @var
+     */
+    protected $openID;
+
+    /**
+     * @var 应用渠道
+     */
+    protected $channel;
+
+
+    /**
      * 构造方法
      * @access public
-     * @param  App  $app  应用对象
+     * @param App $app 应用对象
      */
     public function __construct(App $app)
     {
-        $this->app     = $app;
+        $this->app = $app;
         $this->request = $this->app->request;
 
         // 控制器初始化
@@ -69,21 +83,21 @@ abstract class BaseController
     // 初始化
     protected function initialize()
     {
-        $this->entranceUrl = $this->request->baseFile();
-        if ($this->checkLogin && !$this->isLogin()) {
-            if($this->request->isAjax()){
-                $ret = $this->outJson(9999,'登录会话超时，请退出重新登录',["url" => $this->entranceUrl . '/login/index']);
-                exit(json_encode($ret,JSON_UNESCAPED_UNICODE));
-            }else{
-                $this->redirect($this->entranceUrl . '/login');
-            }
+        if ($this->cors) {
+            header("Access-Control-Allow-Origin:*");
+            header("Access-Control-Allow-Credentials: true");
+            header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With,appVersion,channelId,gid,osVersion");
+            header("Content-Type: application/json; charset=utf-8");
         }
 
-        $lang = app()->lang->getLangSet();
-        View::assign([
-            'entranceUrl' => $this->entranceUrl, //入口文件
-            'g_lang' => $lang,
-        ]);
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == "OPTIONS") {
+            header("HTTP/1.1 204 No Content"); //跨域options请求
+            exit;
+        }
+
+        $this->openID = $this->request->header('gid', '');
+        $this->channel = $this->request->header('channel', '');
     }
 
     /**
@@ -108,10 +122,10 @@ abstract class BaseController
     /**
      * 验证数据
      * @access protected
-     * @param  array        $data     数据
-     * @param  string|array $validate 验证器名或者验证规则数组
-     * @param  array        $message  提示信息
-     * @param  bool         $batch    是否批量验证
+     * @param array $data 数据
+     * @param string|array $validate 验证器名或者验证规则数组
+     * @param array $message 提示信息
+     * @param bool $batch 是否批量验证
      * @return array|string|true
      * @throws ValidateException
      */
@@ -126,7 +140,7 @@ abstract class BaseController
                 [$validate, $scene] = explode('.', $validate);
             }
             $class = false !== strpos($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
-            $v     = new $class();
+            $v = new $class();
             if (!empty($scene)) {
                 $v->scene($scene);
             }
@@ -151,7 +165,7 @@ abstract class BaseController
      */
     protected function outJson($code = 0, $msg = '', $data = [])
     {
-        return Tools::outJson($code,$msg,$data);
+        return Tools::outJson($code, $msg, $data);
     }
 
     /**
