@@ -165,7 +165,7 @@ abstract class BaseController
      */
     protected function outJson($code = 0, $msg = '', $data = [])
     {
-        return Tools::outJson($code, $msg, $data);
+        return json(Tools::outJson($code, $msg, $data));
     }
 
     /**

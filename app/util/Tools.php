@@ -2,7 +2,10 @@
 /**
  * 工具类
  */
+
 namespace app\util;
+
+use think\facade\Db;
 
 class Tools
 {
@@ -15,7 +18,7 @@ class Tools
     {
         $content = '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n";
         $log_name = $file . "_" . date('Ymd') . ".log";
-        $log_file = LOG_PATH . ltrim($log_name, "/"); //保存在runtime/log/目录下
+        $log_file = app()->getRuntimePath()."log/" . ltrim($log_name, "/"); //保存在runtime/log/目录下
         $path = dirname($log_file);
         !is_dir($path) && @mkdir($path, 0755, true); //创建目录
 
@@ -35,7 +38,7 @@ class Tools
         $page_num = $page_size > 0 ? ceil($total / $page_size) : 0;
 
         $page_html = Pager::instance(['total' => $total, 'limit' => $page_size])
-               ->render($page, $page_num, $request->get());
+            ->render($page, $page_num, $request->get());
 
         return $page_html;
     }
@@ -123,6 +126,135 @@ class Tools
     public static function getMicroTime()
     {
         list($usec, $sec) = explode(" ", microtime());
-        return ((float) $usec + (float) $sec);
+        return ((float)$usec + (float)$sec);
+    }
+
+    /**
+     * 获取随机字符串，不包括数字0和字母O因为他们太像了
+     * @param int $length
+     * @return string
+     */
+    public static function randStr($length = 16)
+    {
+        $chars = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
+        $str = "";
+        for ($i = 0; $i < $length; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
+
+    /**
+     * 获取随机数字串
+     * @param int $length
+     * @param bool $includeZero 是否包含0
+     * @return string
+     */
+    public static function randNumber($length = 16, $includeZero = true)
+    {
+        if ($includeZero) {
+            $chars = "012356789";
+        } else {
+            $chars = "12356789";
+        }
+        $str = "";
+        for ($i = 0; $i < $length; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
+
+    /**
+     * @param $filename
+     * @return mixed
+     */
+    public static function getExtension($filename)
+    {
+        return pathinfo($filename, PATHINFO_EXTENSION);
+    }
+
+    /**
+     * 手机号脱敏
+     * @param string $str
+     * @return string
+     */
+    public static function maskMobile($str)
+    {
+        if (empty($str) || strlen($str) < 11) {
+            return $str;
+        }
+        $str1 = substr($str, 0, 3);
+        $str2 = substr($str, -4, 4);
+        return $str1 . '****' . $str2;
+    }
+
+    /**
+     * 发送post请求
+     * @param $url
+     * @param string $data
+     * @param bool $is_json
+     * @param array $header
+     * @return mixed
+     */
+    public static function curlPost($url, $data = '', $is_json = true, $header = array())
+    {
+        if ($is_json) {
+            array_push($header, "Content-Type:application/json");
+            if (is_array($data)) {
+                $data = json_encode($data);
+            }
+        } else {
+            array_push($header, "Content-Type: application/x-www-form-urlencoded");
+            if (is_array($data)) {
+                $data = http_build_query($data);
+            }
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); //设置头信息的地方
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
+        $out = json_decode($output, true);
+
+        return $out;
+    }
+
+    /**
+     * 发送短信验证码
+     * @param string $phone
+     * @param string $msg
+     * @return array
+     */
+    public static function sendSmsMessage($phone, $msg)
+    {
+        $param = [
+            'account' => 'N7370168',
+            'password' => 'h7EKyenI7',
+            'phone' => trim($phone),
+            'msg' => $msg,
+            'report' => 'true',
+        ];
+        $res = self::curlPost('http://smssh1.253.com/msg/send/json', json_encode($param,JSON_UNESCAPED_UNICODE));
+
+        if (isset($res['code']) && $res['code'] == '0') {
+            $log_data = [
+                "phone" => $phone,
+                "msg" => $msg,
+                "create_time" => date("Y-m-d H:i:s"),
+            ];
+            Db::table("t_sms_log")->insert($log_data);
+
+            return self::outJson(0, "发送成功");
+        }
+        $err_msg = $res['errorMsg'] ?? '发送失败';
+
+        return self::outJson(500, $err_msg);
     }
 }
