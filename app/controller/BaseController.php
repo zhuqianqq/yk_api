@@ -169,6 +169,30 @@ abstract class BaseController
     }
 
     /**
+     * 输出json数组
+     * @param int $code
+     * @param string $msg
+     * @param array $data
+     * @return array
+     */
+    protected function successJson($data = [],$code = 0, $msg = 'success')
+    {
+        return json(Tools::outJson($code, $msg, $data));
+    }
+
+    /**
+     * 输出json数组
+     * @param int $code
+     * @param string $msg
+     * @param array $data
+     * @return array
+     */
+    protected function failJson($code = -1, $msg = '', $data = [])
+    {
+        return json(Tools::outJson($code, $msg, $data));
+    }
+
+    /**
      * 返回当前登录登录用户名
      * @return string
      */

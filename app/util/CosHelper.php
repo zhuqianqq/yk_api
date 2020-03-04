@@ -41,7 +41,7 @@ class CosHelper
                 ]);
             }
 
-            return Tools::outJson(200, "上传失败");
+            return Tools::outJson(-1, "上传失败");
         } catch (\Exception $ex) {
             return Tools::outJson(500, "上传失败:" . $ex->getMessage());
         }

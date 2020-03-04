@@ -18,7 +18,7 @@ class Tools
     {
         $content = '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n";
         $log_name = $file . "_" . date('Ymd') . ".log";
-        $log_file = app()->getRuntimePath()."log/" . ltrim($log_name, "/"); //保存在runtime/log/目录下
+        $log_file = app()->getRuntimePath() . "log/" . ltrim($log_name, "/"); //保存在runtime/log/目录下
         $path = dirname($log_file);
         !is_dir($path) && @mkdir($path, 0755, true); //创建目录
 
@@ -41,6 +41,30 @@ class Tools
             ->render($page, $page_num, $request->get());
 
         return $page_html;
+    }
+
+    /*
+     * 统一成功输出json
+     */
+    public static function success($data = [], $code = 200, $msg = 'success')
+    {
+        return json_encode([
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /*
+     * 统一错误输出json
+     */
+    public static function error($code = -1, $msg = 'error', $data = [])
+    {
+        return json_encode([
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -218,6 +242,40 @@ class Tools
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
+        $out = json_decode($output, true);
+
+        return $out;
+    }
+
+    /**
+     * get 请求
+     * @param $url
+     * @param array $postData
+     * @return mixed
+     */
+    public static function curlGet($url, $data = [])
+    {
+        $ch = curl_init();
+        if(!empty($data)){
+            $data = http_build_query($data);
+            if(strpos($url,"?") !== false){
+                $url .= "&".$data;
+            }else{
+                $url .= "?".$data;
+            }
+        }
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
         $output = curl_exec($ch);
         curl_close($ch);
         self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
@@ -241,7 +299,7 @@ class Tools
             'msg' => $msg,
             'report' => 'true',
         ];
-        $res = self::curlPost('http://smssh1.253.com/msg/send/json', json_encode($param,JSON_UNESCAPED_UNICODE));
+        $res = self::curlPost('http://smssh1.253.com/msg/send/json', json_encode($param, JSON_UNESCAPED_UNICODE));
 
         if (isset($res['code']) && $res['code'] == '0') {
             $log_data = [

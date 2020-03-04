@@ -13,7 +13,6 @@ class CommonController extends BaseController
 {
     protected $checkLogin = false;
 
-
     public function test()
     {
         $file_path = $this->app->getRootPath()."public/logo.jpg";
@@ -40,16 +39,11 @@ class CommonController extends BaseController
                 return $this->outJson(100, '图片大小不能超过10Mb');
             }
 
-//            $file_path = $this->getSavePath($file["name"]);
-//            if (!move_uploaded_file($file["tmp_name"], $file_path)) {
-//                return $this->outJson(200, '保存文件失败');
-//            }
-
             $ret = CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
             return json($ret);
         }
 
-        return $this->outJson(200, "非法请求");
+        return $this->outJson(-1, "非法请求");
     }
 
     /**
