@@ -44,7 +44,7 @@ class ProductController extends BaseController
      */
     public function upCount()
     {
-        $user_id = $this->user_id;
+        $user_id = $this->request->param("user_id",0,"intval");
 
         if($user_id <= 0){
             return $this->outJson(100, "user_id无效");
