@@ -9,6 +9,10 @@ use app\model\TProduct;
 
 class ProductController extends BaseController
 {
+    protected $middleware = [
+        'access_check' 	=> ['only' 	=> ['up','down','del'] ],
+    ];
+
     /**
      * 商品列表
      */
@@ -41,7 +45,7 @@ class ProductController extends BaseController
     public function up()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->request->post("user_id",0,"intval");
+        $user_id = $this->user_id;
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
@@ -67,7 +71,7 @@ class ProductController extends BaseController
     public function down()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->request->post("user_id",0,"intval");
+        $user_id = $this->user_id;
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
@@ -93,7 +97,7 @@ class ProductController extends BaseController
     public function del()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->request->post("user_id",0,"intval");
+        $user_id = $this->user_id;
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
