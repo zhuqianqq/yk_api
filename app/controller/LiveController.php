@@ -8,6 +8,7 @@ namespace app\controller;
 use app\model\TMember;
 use app\model\TPrebroadcast;
 use app\model\TRoom;
+use app\model\TRoomHistory;
 use app\util\Tools;
 use think\facade\Config;
 use think\facade\Db;
@@ -88,4 +89,32 @@ class LiveController extends BaseController
         return $this->outJson(0, "开播成功！", $room);
     }
 
+    /**
+     * 关播
+     */
+    public function closeRoom()
+    {
+        $room_id = $this->request->param("room_id", '', "trim");
+
+        if (empty($room_id)) {
+            return $this->outJson(100, "room_id不能为空");
+        }
+
+        $data = TRoom::where(["room_id" => $room_id])->find();
+        if (empty($data)) {
+            return $this->outJson(100, "room_id未开播");
+        }
+        if($data->user_id != $this->user_id){
+            return $this->outJson(100, "你无权关闭该直播");
+        }
+        $data = $data->toArray();
+        unset($data["id"]);
+
+        Db::startTrans();
+        Db::table("t_room")->where(["room_id" => $room_id,"user_id" => $this->user_id])->delete();
+        Db::table("t_room_history")->insert($data);
+        Db::commit();
+
+        return $this->outJson(0, "下播成功");
+    }
 }
