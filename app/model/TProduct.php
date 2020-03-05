@@ -28,7 +28,7 @@ class TProduct extends BaseModel
     public static function getList($page, $page_size, $where = [])
     {
         $where["is_del"] = 0; //已删除的不显示
-        $query = Db::table("t_product")->field("prod_id,prod_name,price,stock,first_img,user_id,is_online")
+        $query = Db::table("t_product")->field("prod_id,prod_name,price,stock,first_img,user_id,is_online,weight")
             ->where($where);
 
         $total = $query->count(); //总记录条数
@@ -38,7 +38,8 @@ class TProduct extends BaseModel
         if($total > 0){
             $offset = ($page - 1) * $page_size;
             $list = $query->limit($offset, $page_size + 1)//多查一条
-            ->select();
+                    ->order("weight","desc")
+                    ->select();
 
             self::checkHasNextPage($list,$page_size,$has_next);
         }
