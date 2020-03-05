@@ -33,28 +33,17 @@ class LiveController extends BaseController
     public function getInfo()
     {
         $room_id = $this->request->param("room_id", 0, "intval");
+        $user_id = $this->request->param("user_id", 0, "intval");
 
-        if ($room_id <= 0) {
-            return $this->outJson(100, "room_id无效");
+        if ($room_id > 0) {
+            $where = ['room_id' => $room_id];
+        }elseif ($user_id > 0) {
+            $where = ['user_id' => $user_id];
+        }else{
+            return $this->outJson(100, "user_id或room_id无效");
         }
 
-        $data = TRoom::where('room_id', $room_id)->find();
-
-        return $this->outJson(0, "success", $data);
-    }
-
-    /**
-     * 根据user_id查询直播详情
-     */
-    public function getInfoByUid()
-    {
-        $user_id = $this->request->param("user_id", 1, "intval");
-
-        if ($user_id <= 0) {
-            return $this->outJson(100, "user_id无效");
-        }
-
-        $data = TRoom::where('user_id', $user_id)->find();
+        $data = TRoom::where($where)->find();
 
         return $this->outJson(0, "success", $data);
     }
