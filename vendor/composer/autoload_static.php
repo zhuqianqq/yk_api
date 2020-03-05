@@ -30,6 +30,10 @@ class ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea
         array (
             'app\\' => 4,
         ),
+        'T' => 
+        array (
+            'TencentCloud\\' => 13,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php72\\' => 23,
@@ -86,6 +90,10 @@ class ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea
         'app\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
+        ),
+        'TencentCloud\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/tencentcloud/tencentcloud-sdk-php/src/TencentCloud',
         ),
         'Symfony\\Polyfill\\Php72\\' => 
         array (
@@ -167,6 +175,10 @@ class ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea
         0 => __DIR__ . '/../..' . '/extend',
     );
 
+    public static $classMap = array (
+        'QcloudApi' => __DIR__ . '/..' . '/tencentcloud/tencentcloud-sdk-php/src/QcloudApi/QcloudApi.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
@@ -174,6 +186,7 @@ class ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea
             $loader->prefixDirsPsr4 = ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea::$prefixesPsr0;
             $loader->fallbackDirsPsr0 = ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit5a586f1ee9e17106b0c1cfa3d28304ea::$classMap;
 
         }, null, ClassLoader::class);
     }
