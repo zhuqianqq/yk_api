@@ -7,4 +7,5 @@ return [
     'type'    => 'Console',
     // 读取的日志通道名
     'channel' => '',
+    'show_trace' => false, //是否显示trace
 ];

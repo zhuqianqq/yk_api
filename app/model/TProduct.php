@@ -26,7 +26,7 @@ class TProduct extends BaseModel
      */
     public static function getList($page, $page_size, $where = [])
     {
-        $where["is_del"] = 0;
+        $where["is_del"] = 0; //已删除的不显示
         $query = Db::table("t_product")->field("prod_id,prod_name,price,stock,first_img,user_id,is_online")
             ->where($where);
 
