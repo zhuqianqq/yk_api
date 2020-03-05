@@ -55,16 +55,14 @@ abstract class BaseController
     protected $cors = true;
 
     /**
-     * 用户唯一标识的key
-     * @var
-     */
-    protected $openID;
-
-    /**
      * @var 应用渠道
      */
     protected $channel;
 
+    /**
+     * @var 当前用户id
+     */
+    protected $user_id = 0;
 
     /**
      * 构造方法
@@ -96,7 +94,8 @@ abstract class BaseController
             exit;
         }
 
-        $this->openID = $this->request->header('gid', '');
+        $user_id = $this->request->header('user_id') ?? $this->request->param('user_id');
+        $this->user_id = intval($user_id);
         $this->channel = $this->request->header('channel', '');
     }
 
@@ -193,31 +192,11 @@ abstract class BaseController
     }
 
     /**
-     * 返回当前登录登录用户名
-     * @return string
-     */
-    protected function getCurrentUserName()
-    {
-        $cur_user = Session::get('admin');
-        return empty($cur_user) ? '' : $cur_user["username"];
-    }
-
-    /**
      * 返回当前登录登录用户uid
      * @return int
      */
     protected function getCurrentUserId()
     {
-        $cur_user = Session::get('admin');
-        return empty($cur_user) ? '' : $cur_user["uid"];
-    }
-
-    /**
-     * 判断用户是否已经登录
-     * @return bool
-     */
-    protected function isLogin()
-    {
-        return Session::has('admin');
+        return $this->getCurrentUserId();
     }
 }

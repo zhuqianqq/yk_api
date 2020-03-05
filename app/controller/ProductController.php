@@ -9,6 +9,10 @@ use app\model\TProduct;
 
 class ProductController extends BaseController
 {
+    protected $middleware = [
+        'access_check' 	=> ['only' 	=> ['up','down','del'] ],
+    ];
+
     /**
      * 商品列表
      */
