@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use app\util\SmsHelper;
 use app\util\Tools;
 use app\util\CosHelper;
 use think\facade\Cache;
@@ -59,20 +60,20 @@ class CommonController extends BaseController
                 return $this->outJson(100,"手机号不能为空");
             }
 
-            $vcode_cache_key = "smscode:{$type}:".$mobile; //缓存key
-            $request_id = Cache::get($vcode_cache_key);
+            $cache_key = SmsHelper::getCacheKey($mobile,$type);
+            $vcode = Cache::get($cache_key);
             $mask_mobile = Tools::maskMobile($mobile);
             //判断是否已发送过
-            if ($request_id) {
+            if ($vcode) {
                 return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
             }
-            $vcode = mt_rand(1000,999999);
 
-            $result = Tools::sendSmsMessage($mobile,"【文影科技】短信验证码：{$vcode}，有效期5分钟");
+            $vcode = mt_rand(1000,999999);
+            $result = SmsHelper::sendSmsMessage($mobile,"【文影科技】短信验证码：{$vcode}，有效期5分钟");
             if ($result['code'] != 0) {
                 return $this->outJson($result["code"],$result['msg']);
             }
-            Cache::set($vcode_cache_key,$vcode, 5 * 60); //5分钟有效
+            Cache::set($cache_key,$vcode, 5 * 60); //5分钟有效
 
             return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
         }else{

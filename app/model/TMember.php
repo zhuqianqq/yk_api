@@ -4,6 +4,7 @@
  */
 namespace app\model;
 
+use app\util\Tools;
 use think\facade\Db;
 
 class TMember extends BaseModel
@@ -25,6 +26,33 @@ class TMember extends BaseModel
         "1" => "是",
         "0" => "否"
     ];
+
+
+    /**
+     * @param $phone
+     */
+    public static function getByPhone($phone,$field = "*")
+    {
+        $data = self::where("phone",$phone)->field($field)->find();
+
+        return $data ? $data->toArray() : null;
+    }
+
+    /**
+     * @param $phone
+     */
+    public static function registerByPhone($phone)
+    {
+        $data = [
+            'phone'  =>  $phone,
+            'nick_name' =>  "nick_".Tools::randStr(10),
+            'last_login_time' => date("Y-m-d H:i:s"),
+            'create_time' => date("Y-m-d H:i:s"),
+        ];
+        $user_id = Db::table("t_member")->insert($data);
+
+        return $user_id;
+    }
 
 
     /**
