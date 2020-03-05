@@ -75,18 +75,14 @@ class Tools
      */
     public static function outJson($code = 0, $msg = '', $data = [])
     {
-        if (!$data) {
-            return [
-                "code" => $code,
-                "msg" => $msg
-            ];
-        } else {
-            return [
-                "code" => $code,
-                "msg" => $msg,
-                "data" => $data
-            ];
+        if($data === []){
+            $data = new \stdClass();
         }
+        return [
+            "code" => $code,
+            "msg" => $msg,
+            "data" => $data
+        ];
     }
 
     /**
@@ -314,5 +310,16 @@ class Tools
         $err_msg = $res['errorMsg'] ?? '发送失败';
 
         return self::outJson(500, $err_msg);
+    }
+
+    /**
+     * 生成唯一值
+     * @param string $type 类型前缀
+     * @return string
+     */
+    public static function getGuider($type = "")
+    {
+        $t = self::getMicroTime(); //毫秒
+        return $type.$t.mt_rand(1000,9999);
     }
 }

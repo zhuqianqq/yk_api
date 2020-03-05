@@ -12,25 +12,13 @@ class LoginController extends BaseController
 {
     protected $checkLogin = false;
 
-    // 登录页
-    public function index()
-    {
-        if ($this->isLogin()) {
-            $this->redirect($this->entranceUrl . "/index");
-        }
-
-        return view("index",[
-            "data" => [],
-        ]);
-    }
-
     /**
-     * 登录提交
+     * 手机号登录&注册
      */
-    public function sendLogin()
+    public function loginByPhone()
     {
-        if ($this->request->isAjax()) {
-            $userModel = new \app\model\UserModel();
+        if ($this->request->isPost()) {
+
             $data = $this->request->post();
             if ($userModel->sendLogin($data)) {
                 return $this->outJson(0,'登录成功',[
@@ -56,14 +44,5 @@ class LoginController extends BaseController
                 'url' => $this->entranceUrl . "/login/index"
             ]);
         }
-    }
-
-    /**
-     * 验证码
-     */
-    public function captcha()
-    {
-        $captcha = new CaptchaHelper(Config::get('captcha'));
-        $captcha->entry();
     }
 }
