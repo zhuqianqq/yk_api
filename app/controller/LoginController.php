@@ -4,6 +4,7 @@
  */
 namespace app\controller;
 
+use think\facade\Config;
 use think\Session;
 use app\util\ValidateHelper;
 use app\model\TMember;
@@ -11,6 +12,7 @@ use think\facade\Db;
 use think\facade\Cache;
 use app\util\AccessKeyHelper;
 use app\util\SmsHelper;
+use app\util\TLSSigAPIv2;
 
 class LoginController extends BaseController
 {
@@ -29,34 +31,44 @@ class LoginController extends BaseController
         }
 
         if(SmsHelper::checkVcode($phone,$vcode,"login") == false){
-            //return $this->outJson(100,"验证码错误");
+            return $this->outJson(100,"验证码错误");
         }
 
         try{
             Db::startTrans();
-            $user_data = TMember::getByPhone($phone);
-            if(!$user_data){
+            $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
+            $data = TMember::getByPhone($phone,$fields);
+            if(!$data){
                 //注册
                 $user_id = TMember::registerByPhone($phone);
                 if($user_id <= 0){
                     return $this->outJson(200,"注册失败");
                 }
-                $user_data = TMember::getByPhone($phone);
+                $data = TMember::getByPhone($phone,$fields);
             }
-            if ($user_data["is_lock"] == 1) {
+            if ($data["is_lock"] == 1) {
                 return $this->outJson(200,"账号已被锁定");
             }
-            unset($user_data["password"]);
-
+            $display_code = 100000 + intval($data["user_id"]);//显示编码
             TMember::where([
-                "user_id" => $user_data["user_id"],
+                "user_id" => $data["user_id"],
             ])->update([
+                "display_code" => $display_code, //显示编码
                 "last_login_time" => date("Y-m-d H:i:s")
             ]);
             Db::commit();
-            $user_data["access_key"] = AccessKeyHelper::generateAccessKey($user_data["user_id"]); //生成access_key
+            $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
-            return $this->outJson(0,"登录成功",$user_data);
+            $im_config = Config::get('im');
+            $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
+            $user_sign = $api->genSig($display_code);
+
+            $data["room_sign"] = [
+                "sdk_appID" => intval($im_config["IM_SDKAPPID"]),
+                "user_id" => $display_code,
+                "user_sign" => $user_sign
+            ];
+            return $this->outJson(0,"登录成功",$data);
         }catch (\Exception $ex){
             Db::rollback();
             return $this->outJson(500,"接口异常:".$ex->getMessage());
