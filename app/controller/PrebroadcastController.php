@@ -49,7 +49,7 @@ class PrebroadcastController extends BaseController
 
     public function prebroadcastDetail()
     {
-        $id = $this->request->post("id",0,"intval");
+        $id = $this->request->get("id",0,"intval");
         if($id<=0)
         {
             return $this->outJson(1, "参数错误！");
