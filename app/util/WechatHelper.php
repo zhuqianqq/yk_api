@@ -6,7 +6,7 @@ namespace app\util;
 use think\facade\Cache;
 use think\facade\Db;
 
-class SmsHelper
+class WechatHelper
 {
 
     public static function getWechatOpenId($code)
