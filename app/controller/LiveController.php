@@ -5,9 +5,11 @@
 
 namespace app\controller;
 
+use app\model\TMember;
 use app\model\TPrebroadcast;
 use app\model\TRoom;
 use app\util\Tools;
+use think\facade\Config;
 use think\facade\Db;
 
 class LiveController extends BaseController
@@ -51,12 +53,17 @@ class LiveController extends BaseController
 
     public function addRoom()
     {
+        $im_config = Config::get('im');
         $user_id = $this->request->param("user_id", 0, "intval");
+        $user = TMember::find($user_id);
+
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
         $frontcover = $this->request->param("frontcover");
         $location = $this->request->param("location");
         $push_url = $this->request->param("push_url");
+        //$mixed_play_url = $this->request->param("mixed_play_url");
+        $mixed_play_url = "http://live.laotouge.cn/live/".$im_config["IM_SDKAPPID"]."_".$user->display_code.".flv";
         $show_product = $this->request->param("show_product");
         $prebroadcast_id = $this->request->param("prebroadcast_id",0, "intval");
         $room = new TRoom();
@@ -66,6 +73,7 @@ class LiveController extends BaseController
         $room->frontcover = $frontcover;
         $room->location = $location;
         $room->push_url = $push_url;
+        $room->mixed_play_url = $mixed_play_url;
         $room->show_product = $show_product;
         $room->save();
         if($prebroadcast_id>0) {
