@@ -16,7 +16,7 @@ use think\facade\Db;
 class LiveController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['']],
+        'access_check' => ['only' => ['closeRoom','addRoom']],
     ];
 
     /**
@@ -88,7 +88,7 @@ class LiveController extends BaseController
     }
 
     /**
-     * 关播
+     * 直播关播
      */
     public function closeRoom()
     {
