@@ -21,7 +21,7 @@ class AccessCheck
         $access_key = $request->header('access-key','');
 
         if($user_id <= 0 || empty($access_key)){
-            return json(Tools::outJson(9001,"缺少access-key和user-id参数"));
+            return json(Tools::outJson(9001,"缺少access-key和user-id请求头"));
         }
 
         $check = AccessKeyHelper::validateAccessKey($user_id,$access_key);
