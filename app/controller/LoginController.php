@@ -83,7 +83,7 @@ class LoginController extends BaseController
         $city = $this->request->post("city");
         $country = $this->request->post("country");
         $gender = $this->request->post("gender");
-        $nickName = $this->request->post("nickName");
+        $nick_name = $this->request->post("nick_name");
         $province = $this->request->post("province");
 
         $openid = WechatHelper::getWechatOpenId($code);
@@ -92,7 +92,7 @@ class LoginController extends BaseController
         }
         $data = TMember::getByOpenId($openid);
         if(!$data){
-            $user_id = TMember::registerByOpenId($openid,$avatar,$city,$country,$gender,$nickName,$province);
+            $user_id = TMember::registerByOpenId($openid,$avatar,$city,$country,$gender,$nick_name,$province);
             if($user_id <= 0){
                 return $this->outJson(200,"注册失败");
             }
