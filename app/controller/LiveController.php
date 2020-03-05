@@ -5,7 +5,6 @@
 
 namespace app\controller;
 
-use App\Models\Cfund\Project;
 use app\model\TRoom;
 use app\util\Tools;
 use think\facade\Db;
@@ -33,7 +32,7 @@ class LiveController extends BaseController
      */
     public function getInfo()
     {
-        $room_id = $this->request->param("room_id", 1, "intval");
+        $room_id = $this->request->param("room_id", 0, "intval");
 
         if ($room_id <= 0) {
             return $this->outJson(100, "room_id无效");
