@@ -6,6 +6,7 @@ namespace app\model;
 
 use think\Model;
 use think\facade\Db;
+use think\Collection;
 
 abstract class BaseModel extends Model
 {
@@ -36,5 +37,20 @@ abstract class BaseModel extends Model
             $total = intval(current($res[0]));
         }
         return $total;
+    }
+
+    /**
+     * 是否有下一页记录
+     * @param Collection $list
+     * @param int $page_size 每页记录条数
+     * @param int $next 是否有下一页 0-无，1-有
+     */
+    public static function checkHasNextPage(&$list,$page_size,&$next)
+    {
+        $next = 0;
+        if (count($list) > $page_size){
+            $list = $list->slice(0,$page_size);
+            $next = 1;
+        }
     }
 }

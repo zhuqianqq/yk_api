@@ -49,7 +49,7 @@ class CommonController extends BaseController
     /**
      * 发送短信验证码
      */
-    public function sendSmsCode()
+    public function smsCode()
     {
         if($this->request->isPost()){
             $mobile = $this->request->param("mobile",'',"trim");

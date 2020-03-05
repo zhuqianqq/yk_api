@@ -315,4 +315,15 @@ class Tools
 
         return self::outJson(500, $err_msg);
     }
+
+    /**
+     * 生成唯一值
+     * @param string $type 类型前缀
+     * @return string
+     */
+    public static function getGuider($type = "")
+    {
+        $t = self::getMicroTime(); //毫秒
+        return $type.$t.mt_rand(1000,9999);
+    }
 }
