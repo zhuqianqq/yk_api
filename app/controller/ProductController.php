@@ -19,19 +19,24 @@ class ProductController extends BaseController
     ];
 
     /**
-     * 商品列表
+     * 用户商品列表
      */
     public function prodList()
     {
         $page = $this->request->param("page", 1, "intval");
         $page_size = $this->request->param("page_size", 10, "intval");
         $user_id = $this->request->param("user_id", 0, "intval");
+        $scece = $this->request->param("scece","","trim"); //场景
 
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
         }
 
         $where["user_id"] = $user_id;
+        if($scece == "live"){
+            $where["is_online"] = 1; //直播间用户商品只返回上架的
+        }
+
         list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where);
 
         $data = [

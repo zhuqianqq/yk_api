@@ -32,13 +32,14 @@ class TProduct extends BaseModel
             ->where($where);
 
         $total = $query->count(); //总记录条数
-
-        $offset = ($page - 1) * $page_size;
-        $list = $query->limit($offset, $page_size + 1)//多查一条
-                ->select();
-
+        $list = [];
         $has_next = 0; //是否有下一页 0:无，1：有
-        self::checkHasNextPage($list,$page_size,$has_next);
+        if($total > 0){
+            $offset = ($page - 1) * $page_size;
+            $list = $query->limit($offset, $page_size + 1)//多查一条
+            ->select();
+            self::checkHasNextPage($list,$page_size,$has_next);
+        }
 
         return [$list, $total, $has_next];
     }
