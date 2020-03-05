@@ -61,6 +61,9 @@ class PrebroadcastController extends BaseController
         if($prebroadcast==null){
             return $this->outJson(0, "查找预播失败！");
         }
+
+        $prebroadcast['is_live'] = TRoom::where(['user_id'=>$prebroadcast['user_id']])->count();
+
         return $this->outJson(0, "查找成功！",$prebroadcast);
     }
 }
