@@ -46,6 +46,7 @@ class TMember extends BaseModel
 
 
     /**
+     * 按手机号注册
      * @param $phone
      */
     public static function registerByPhone($phone)
