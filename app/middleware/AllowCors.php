@@ -1,4 +1,7 @@
 <?php
+/**
+ * 跨域中间件
+ */
 namespace app\middleware;
 
 use think\middleware\AllowCrossDomain;
