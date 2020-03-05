@@ -281,38 +281,6 @@ class Tools
     }
 
     /**
-     * 发送短信验证码
-     * @param string $phone
-     * @param string $msg
-     * @return array
-     */
-    public static function sendSmsMessage($phone, $msg)
-    {
-        $param = [
-            'account' => 'N7370168',
-            'password' => 'h7EKyenI7',
-            'phone' => trim($phone),
-            'msg' => $msg,
-            'report' => 'true',
-        ];
-        $res = self::curlPost('http://smssh1.253.com/msg/send/json', json_encode($param, JSON_UNESCAPED_UNICODE));
-
-        if (isset($res['code']) && $res['code'] == '0') {
-            $log_data = [
-                "phone" => $phone,
-                "msg" => $msg,
-                "create_time" => date("Y-m-d H:i:s"),
-            ];
-            Db::table("t_sms_log")->insert($log_data);
-
-            return self::outJson(0, "发送成功");
-        }
-        $err_msg = $res['errorMsg'] ?? '发送失败';
-
-        return self::outJson(500, $err_msg);
-    }
-
-    /**
      * 生成唯一值
      * @param string $type 类型前缀
      * @return string
