@@ -31,7 +31,7 @@ class LoginController extends BaseController
         }
 
         if(SmsHelper::checkVcode($phone,$vcode,"login") == false){
-            return $this->outJson(100,"验证码错误");
+            //return $this->outJson(100,"验证码错误");
         }
 
         try{
@@ -65,7 +65,7 @@ class LoginController extends BaseController
 
             $data["room_sign"] = [
                 "sdk_appID" => intval($im_config["IM_SDKAPPID"]),
-                "user_id" => $display_code,
+                "display_code" => $display_code,
                 "user_sign" => $user_sign
             ];
             return $this->outJson(0,"登录成功",$data);
