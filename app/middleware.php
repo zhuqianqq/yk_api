@@ -5,4 +5,5 @@ return [
     // \think\middleware\CheckRequestCache::class,
     // Session初始化
     // \think\middleware\SessionInit::class,
+    \app\middleware\AllowCors::class,
 ];

@@ -83,10 +83,10 @@ abstract class BaseController
     {
         if ($this->cors) {
             //header("Access-Control-Allow-Origin:*");
-            header("Access-Control-Allow-Credentials: true");
-            header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With,user-id,access-key");
-            header("Content-Type: application/json; charset=utf-8");
+//            header("Access-Control-Allow-Credentials: true");
+//            header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+//            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With,user-id,access-key");
+//            header("Content-Type: application/json; charset=utf-8");
         }
 
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == "OPTIONS") {
