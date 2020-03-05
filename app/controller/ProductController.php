@@ -154,4 +154,25 @@ class ProductController extends BaseController
             return $this->outJson(200,"商品不存在");
         }
     }
+
+    /**
+     * 商品新增
+     * @return array
+     */
+    public function add()
+    {
+        $prod_id = $this->request->param("prod_id",0,"intval");
+
+        if($prod_id <= 0){
+            return $this->outJson(100,"参数错误");
+        }
+
+        $data = TProduct::getDetail($prod_id);
+
+        if($data){
+            return $this->outJson(0,"success",$data);
+        }else{
+            return $this->outJson(200,"商品不存在");
+        }
+    }
 }
