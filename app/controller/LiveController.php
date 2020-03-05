@@ -12,6 +12,7 @@ use app\model\TRoomHistory;
 use app\util\Tools;
 use think\facade\Config;
 use think\facade\Db;
+use think\Model;
 
 class LiveController extends BaseController
 {
@@ -25,8 +26,9 @@ class LiveController extends BaseController
     public function getList()
     {
         $page_size = $this->request->param("page_size", 10, "intval");
+        $page = $this->request->param("page", 1, "intval");
 
-        $list = Db::name('t_room')->order('id', 'desc')->paginate($page_size);
+        $list = Db::query('SELECT a.*,b.nick_name,b.avatar FROM `t_room` a left join `t_member` b on a.user_id=b.user_id order by a.id desc limit '. ($page-1)*$page_size.','.$page_size);
 
         return $this->outJson(0, "success", $list);
     }
