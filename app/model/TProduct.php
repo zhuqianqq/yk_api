@@ -5,6 +5,7 @@
 
 namespace app\model;
 
+use app\util\Tools;
 use think\facade\Db;
 
 class TProduct extends BaseModel

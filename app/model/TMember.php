@@ -38,7 +38,15 @@ class TMember extends BaseModel
         return $data ? $data->toArray() : null;
     }
 
+
+    public static function getByOpenId($openid, $field = "*"){
+        $data = self::where("openid",$openid)->field($field)->find();
+        return $data ? $data->toArray() : null;
+    }
+
+
     /**
+     * 按手机号注册
      * @param $phone
      */
     public static function registerByPhone($phone)
@@ -54,6 +62,17 @@ class TMember extends BaseModel
         return $user_id;
     }
 
+    public static function registerByOpenId($openid)
+    {
+        $data = [
+            'openid' => $openid,
+            'nick_name' =>  "nick_".Tools::randStr(10),
+            'last_login_time' => date("Y-m-d H:i:s"),
+            'create_time' => date("Y-m-d H:i:s"),
+        ];
+        $user_id = Db::table("t_member")->insert($data);
+        return $user_id;
+    }
 
     /**
      * 商品详情
