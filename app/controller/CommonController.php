@@ -27,6 +27,7 @@ class CommonController extends BaseController
     public function upload()
     {
         if ($this->request->isPost()) {
+            set_time_limit(0);
             $file = isset($_FILES["file"]) ? $_FILES["file"] : null;
 
             if (empty($file)) {
