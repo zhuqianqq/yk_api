@@ -3,6 +3,7 @@ namespace app\controller;
 
 use app\model\TPrebroadcast;
 use think\facade\Db;
+use app\model\TRoom;
 
 class PrebroadcastController extends BaseController
 {
