@@ -31,18 +31,19 @@ class PrebroadcastController extends BaseController
         {
             return $this->outJson(1, "参数错误！");
         }
-        $items = TPrebroadcast::where(" user_id = ".$user_id." and playtime>now() ")->order("createtime asc")->select();
+        $items = TPrebroadcast::where(" user_id = ".$user_id." and playtime>now() ")->order("playtime asc")->select();
         return $this->outJson(0, "查询成功！", $items);
     }
 
     public function removePrebroadcast()
     {
         $id = $this->request->post("id",0,"intval");
+        $user_id = $this->request->post("user_id",0,"intval");
         if($id<=0)
         {
             return $this->outJson(1, "参数错误！");
         }
-        TPrebroadcast::destroy($id);
+        TPrebroadcast::where(" id = ".$id." and user_id=".$user_id)->delete();
         return $this->outJson(0, "删除成功！");
     }
 
