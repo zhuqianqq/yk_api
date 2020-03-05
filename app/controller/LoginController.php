@@ -17,7 +17,9 @@ use app\util\TLSSigAPIv2;
 
 class LoginController extends BaseController
 {
-    protected $checkLogin = false;
+    protected $middleware = [
+        'access_check' => ['only' => ['loginOut']],
+    ];
 
     /**
      * 手机号登录&注册
@@ -32,7 +34,7 @@ class LoginController extends BaseController
         }
 
         if(SmsHelper::checkVcode($phone,$vcode,"login") == false){
-            //return $this->outJson(100,"验证码错误");
+            return $this->outJson(100,"验证码错误");
         }
 
         try{
@@ -76,6 +78,10 @@ class LoginController extends BaseController
         }
     }
 
+    /**
+     * 小程序登录
+     * @return array
+     */
     public function loginByMinWechat()
     {
         $code = $this->request->post("code");
@@ -130,21 +136,14 @@ class LoginController extends BaseController
         return $this->outJson(0, "登录成功", $data);
     }
 
-
-
     /**
      * 退出登录
      */
     public function loginOut()
     {
-        if ($this->request->isAjax()) {
-            if($this->getCurrentUserId() != ''){
-                @Session::clear();
-                @Session::destroy();
-            }
-            return $this->outJson(0,'退出成功',[
-                'url' => $this->entranceUrl . "/login/index"
-            ]);
+        if($this->user_id){
+            AccessKeyHelper::forgetAccessKey($this->user_id);
         }
+        return $this->outJson(0, "success");
     }
 }
