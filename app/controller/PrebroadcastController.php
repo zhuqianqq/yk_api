@@ -12,6 +12,8 @@ class PrebroadcastController extends BaseController
         $title = $this->request->post("title");
         $fontcover = $this->request->post("fontcover");
         $playtime = $this->request->post("playtime");
+        $show_product = $this->request->post("show_product",0,"intval");
+
         $nowTime = time();
         $time = date('Y-m-d H:i:s', $nowTime);
         $item = new TPrebroadcast();
@@ -20,6 +22,7 @@ class PrebroadcastController extends BaseController
         $item->fontcover = $fontcover;
         $item->playtime = $playtime;
         $item->createtime = $time;
+        $item->show_product = $show_product;
         $item->save();
         return $this->outJson(0, "保存成功！",$item);
     }
@@ -31,7 +34,7 @@ class PrebroadcastController extends BaseController
         {
             return $this->outJson(1, "参数错误！");
         }
-        $items = TPrebroadcast::where(" user_id = ".$user_id." and playtime>now() ")->order("playtime asc")->select();
+        $items = TPrebroadcast::where(" user_id = ".$user_id." and playtime>now() and status = 0 ")->order("playtime asc")->select();
         return $this->outJson(0, "查询成功！", $items);
     }
 
