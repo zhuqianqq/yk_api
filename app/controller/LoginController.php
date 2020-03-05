@@ -64,7 +64,7 @@ class LoginController extends BaseController
             $user_sign = $api->genSig($display_code);
 
             $data["room_sign"] = [
-                "sdk_appID" => intval($im_config["IM_SDKAPPID"]),
+                "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
                 "display_code" => $display_code,
                 "user_sign" => $user_sign
             ];
