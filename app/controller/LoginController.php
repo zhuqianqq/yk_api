@@ -12,6 +12,7 @@ use think\facade\Db;
 use think\facade\Cache;
 use app\util\AccessKeyHelper;
 use app\util\SmsHelper;
+use app\util\WechatHelper;
 use app\util\TLSSigAPIv2;
 
 class LoginController extends BaseController
@@ -74,6 +75,48 @@ class LoginController extends BaseController
             return $this->outJson(500,"接口异常:".$ex->getMessage());
         }
     }
+
+    public function loginByMinWechat()
+    {
+        $code = $this->request->post("code");
+        $avatar = $this->request->post("avatar");
+        $city = $this->request->post("city");
+        $country = $this->request->post("country");
+        $gender = $this->request->post("gender");
+        $nickName = $this->request->post("nickName");
+        $province = $this->request->post("province");
+
+        $openid = WechatHelper::getWechatOpenId($code);
+        if ($openid == "") {
+            return $this->outJson(200, "获取微信信息失败！");
+        }
+        $data = TMember::getByOpenId($openid);
+        if(!$data){
+            $user_id = TMember::registerByOpenId($openid,$avatar,$city,$country,$gender,$nickName,$province);
+            if($user_id <= 0){
+                return $this->outJson(200,"注册失败");
+            }
+            $data = TMember::getByOpenId($openid);
+        }
+        if ($data["is_lock"] == 1) {
+            return $this->outJson(200,"账号已被锁定");
+        }
+
+        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
+
+        $im_config = Config::get('im');
+        $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
+        $user_sign = $api->genSig($display_code);
+
+        $data["room_sign"] = [
+            "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
+            "display_code" => $display_code,
+            "user_sign" => $user_sign
+        ];
+        return $this->outJson(0, "登录成功", $data);
+    }
+
+
 
     /**
      * 退出登录
