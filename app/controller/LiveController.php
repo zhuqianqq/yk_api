@@ -32,7 +32,7 @@ class LiveController extends BaseController
      */
     public function getInfo()
     {
-        $room_id = $this->request->param("room_id", 0, "intval");
+        $room_id = $this->request->param("room_id");
         $user_id = $this->request->param("user_id", 0, "intval");
 
         if ($room_id > 0) {
