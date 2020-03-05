@@ -10,7 +10,6 @@ use app\model\TProduct;
 use app\util\Tools;
 use think\facade\Db;
 use app\model\TProductProperty;
-use app\model\TProductDetail;
 
 class ProductController extends BaseController
 {
