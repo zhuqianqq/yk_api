@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use app\model\TPrebroadcast;
 use app\model\TRoom;
 use app\util\Tools;
 use think\facade\Db;
@@ -37,9 +38,9 @@ class LiveController extends BaseController
 
         if ($room_id > 0) {
             $where = ['room_id' => $room_id];
-        }elseif ($user_id > 0) {
+        } elseif ($user_id > 0) {
             $where = ['user_id' => $user_id];
-        }else{
+        } else {
             return $this->outJson(100, "user_id或room_id无效");
         }
 
@@ -50,22 +51,34 @@ class LiveController extends BaseController
 
     public function addRoom()
     {
-        $user_id = $this->request->param("user_id", 1, "intval");
+        $user_id = $this->request->param("user_id", 0, "intval");
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
         $frontcover = $this->request->param("frontcover");
         $location = $this->request->param("location");
         $push_url = $this->request->param("push_url");
         $show_product = $this->request->param("show_product");
+        $prebroadcast_id = $this->request->param("prebroadcast_id",0, "intval");
         $room = new TRoom();
-        $room->user_id = $room_id;
+        $room->user_id = $user_id;
+        $room->room_id = $room_id;
         $room->title = $title;
         $room->frontcover = $frontcover;
         $room->location = $location;
         $room->push_url = $push_url;
         $room->show_product = $show_product;
         $room->save();
-        return $this->outJson(0, "保存成功！", $room);
+        if($prebroadcast_id>0) {
+            TPrebroadcast::where([
+                "id" => $prebroadcast_id,
+            ])->update([
+                'status' => 1
+            ]);
+        }
+
+
+
+        return $this->outJson(0, "开播成功！", $room);
     }
 
 }
