@@ -30,20 +30,23 @@ class TProductProperty extends BaseModel
 
     /**
      * 新增商品规格
-     * @param int $proj_id
+     * @param int $prod_id
      * @param string $prop_list
-     * @return bool
+     * @return integer
      */
-    public static function addPropList($proj_id,$prop_list)
+    public static function addPropList($prod_id,$prop_list)
     {
+        $tbl = Db::table("t_product_property");
+        $tbl->where('prod_id', $prod_id)->delete();
         $prop_list = json_decode($prop_list,true);
+        $data = [];
         foreach($prop_list as $prop){
-            $prop_model = new TProductProperty();
-            $prop_model->prod_id = $proj_id;
-            $prop_model->prop_name = $prop["prop_name"];
-            $prop_model->prop_value = $prop["prop_value"];
-            $prop_model->save();
+            $data[] = [
+                "prod_id" => $prod_id,
+                "prop_name" => $prop["prop_name"],
+                "prop_value" => json_encode($prop["prop_value"],JSON_UNESCAPED_UNICODE),
+            ];
         }
-        return true;
+        return $tbl->insertAll($data);
     }
 }

@@ -184,6 +184,7 @@ class ProductController extends BaseController
         $head_img = $this->request->param("head_img", '', "trim"); //头部图片地址,json数组格式
         $prop_list = $this->request->param("prop_list", '', "trim"); //商品规格属性
         $detail = $this->request->param("detail", '', "trim"); //图文详情，json格式，前端自定义格式
+        $detail = $detail == "null" ? '' : $detail;
 
         Tools::addLog("prod_save",$this->request->getInput());
 
@@ -207,60 +208,59 @@ class ProductController extends BaseController
         try {
             $head_img_arr = json_decode($head_img, true);
             $first_img = $head_img_arr ? $head_img_arr[0] : ''; //首图
+
+            $tb_prod = Db::table("t_product");
+            $tb_detail = Db::table("t_product_detail");
             if ($prod_id > 0) {
                 //编辑
-                $prod_model = TProduct::where("prod_id", $prod_id)->find();
+                $prod_model = $tb_prod->where("prod_id", $prod_id)->find();
                 if (empty($prod_model)) {
                     return $this->outJson(200, "商品不存在");
                 }
-                if ($prod_model->user_id != $this->user_id) {
+                if ($prod_model["user_id"] != $this->user_id) {
                     return $this->outJson(200, "你无权编辑该商品");
                 }
-                //编辑后，要变成上架状态
-                $prod_model->prod_name = $prod_name;
-                $prod_model->price = $price;
-                $prod_model->stock = $stock;
-                $prod_model->weight = $weight;
-                $prod_model->wechat = $wechat;
-                $prod_model->first_img = $first_img; //首图
-                $prod_model->update_time = date("Y-m-d H:i:s");
-                $prod_model->save();
+                $tb_prod->where("prod_id",$prod_id)->update([
+                    "prod_name" => $prod_name,
+                    "price" => $price,
+                    "stock" => $stock,
+                    "weight" => $weight,
+                    "wechat" => $wechat,
+                    "first_img" => $first_img,  //首图
+                    "update_time" => date("Y-m-d H:i:s"),
+                ]);
 
-                TProductProperty::where('proj_id', $prod_id)->delete();
                 //商品规则
-                TProductProperty::addPropList($prop_list);
+                TProductProperty::addPropList($prod_id,$prop_list);
                 //商品详情
-                TProductDetail::update([
+                $tb_detail->where("prod_id",$prod_id)->update([
                     "head_img" => $head_img,
                     "detail" => $detail,
-                ], ["prod_id" => $prod_id]);
+                ]);
             } else {
                 //新增
-                $prod_model = new TProduct();
-                $prod_model->user_id = $this->user_id;
-                $prod_model->prod_name = $prod_name;
-                $prod_model->price = $price;
-                $prod_model->stock = $stock;
-                $prod_model->weight = $weight;
-                $prod_model->wechat = $wechat;
-                $prod_model->first_img = $first_img; //首图
-                $prod_model->create_time = date("Y-m-d H:i:s");
-
-                $prod_model->save();
-
+                $prod_id = $tb_prod->insertGetId([
+                    "user_id" => $this->user_id,
+                    "prod_name" => $prod_name,
+                    "price" => $price,
+                    "stock" => $stock,
+                    "weight" => $weight,
+                    "wechat" => $wechat,
+                    "first_img" => $first_img,  //首图
+                    "create_time" => date("Y-m-d H:i:s"),
+                ]);
                 //商品规则
-                TProductProperty::addPropList($prop_list);
-
+                TProductProperty::addPropList($prod_id,$prop_list);
                 //详情
-                $detail_model = new TProductDetail();
-                $detail_model->prod_id = $prod_model->prod_id;
-                $detail_model->head_img = $head_img;
-                $detail_model->detail = $detail;
-                $detail_model->save();
+                $tb_detail->insertGetId([
+                    "prod_id" => $prod_id,
+                    "head_img" => $head_img,
+                    "detail" => $detail,
+                ]);
             }
 
             Db::commit();
-            return $this->outJson(0, "success", ["prod_id" => $prod_model->prod_id]);
+            return $this->outJson(0, "success", ["prod_id" => $prod_id]);
         } catch (\Exception $ex) {
             Db::rollback();
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
