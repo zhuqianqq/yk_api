@@ -26,7 +26,7 @@ class MemberController extends BaseController
 
     public function memberDetail()
     {
-        $user_id = $this->request->post("user_id", '', "intval");
+        $user_id = $this->request->get("user_id", '', "intval");
         $member = TMember::where("user_id",$user_id)->field("nick_name,avatar,sex,front_cover,is_broadcaster")->find();
         if($member==null){
             return $this->outJson(1, "指定的用户不存在！");
