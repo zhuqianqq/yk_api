@@ -21,7 +21,7 @@ class PrebroadcastController extends BaseController
         $item->playtime = $playtime;
         $item->createtime = $time;
         $item->save();
-        return $this->outJson(0, "保存成功！");
+        return $this->outJson(0, "保存成功！",$item);
     }
 
     public function listPrebroadcast()
