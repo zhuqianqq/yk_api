@@ -75,18 +75,14 @@ class Tools
      */
     public static function outJson($code = 0, $msg = '', $data = [])
     {
-        if (!$data) {
-            return [
-                "code" => $code,
-                "msg" => $msg
-            ];
-        } else {
-            return [
-                "code" => $code,
-                "msg" => $msg,
-                "data" => $data
-            ];
+        if($data === []){
+            $data = new \stdClass();
         }
+        return [
+            "code" => $code,
+            "msg" => $msg,
+            "data" => $data
+        ];
     }
 
     /**
