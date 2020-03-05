@@ -7,6 +7,10 @@ use app\model\TRoom;
 
 class PrebroadcastController extends BaseController
 {
+    /**
+     * 创建预播
+     * @return array
+     */
     public function add()
     {
         $user_id = $this->request->post("user_id",0,"intval");
@@ -28,17 +32,32 @@ class PrebroadcastController extends BaseController
         return $this->outJson(0, "保存成功！",$item);
     }
 
+    /**
+     * 预播列表
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     public function listPrebroadcast()
     {
-        $user_id = $this->request->post("user_id",0,"intval");
-        if($user_id<=0)
-        {
+        $user_id = $this->request->post("user_id", 0, "intval");
+        if ($user_id <= 0) {
             return $this->outJson(1, "参数错误！");
         }
-        $items = TPrebroadcast::where(" user_id = ".$user_id." and playtime>now() and status = 0 ")->order("playtime asc")->select();
+        $items = TPrebroadcast::where([
+            ['user_id', '=', $user_id],
+            ['playtime', '>=', date('Y-m-d H:i:s',time())],
+            ['status', '=', 0]
+        ])->order("playtime asc")->select();
         return $this->outJson(0, "查询成功！", $items);
     }
 
+    /**
+     * 删除预播
+     * @return array
+     * @throws \Exception
+     */
     public function removePrebroadcast()
     {
         $id = $this->request->post("id",0,"intval");
@@ -51,6 +70,13 @@ class PrebroadcastController extends BaseController
         return $this->outJson(0, "删除成功！");
     }
 
+    /**
+     * 详情
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     public function prebroadcastDetail()
     {
         $id = $this->request->get("id",0,"intval");
