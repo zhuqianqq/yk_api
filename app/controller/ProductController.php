@@ -40,6 +40,24 @@ class ProductController extends BaseController
     }
 
     /**
+     * 上架商品数
+     */
+    public function upCount()
+    {
+        $user_id = $this->user_id;
+
+        if($user_id <= 0){
+            return $this->outJson(100, "user_id无效");
+        }
+
+        $data = [
+            "total" => TProduct::count(['user_id'=>$user_id])
+        ];
+
+        return $this->outJson(0,"success",$data);
+    }
+
+    /**
      * 上架
      */
     public function up()

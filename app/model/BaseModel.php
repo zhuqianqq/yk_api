@@ -40,6 +40,20 @@ abstract class BaseModel extends Model
     }
 
     /**
+     * 记录数
+     * @param mixed $where  查询条件
+     * @return int
+     */
+    public static function count($where)
+    {
+        $model = new static();
+
+        $query = $model->db();
+
+        return $query->where($where)->count();
+    }
+
+    /**
      * 是否有下一页记录
      * @param Collection $list
      * @param int $page_size 每页记录条数
