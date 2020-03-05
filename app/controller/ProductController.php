@@ -45,7 +45,7 @@ class ProductController extends BaseController
     public function up()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->user_id;
+        $user_id = $this->request->post("user_id",0,"intval");
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
@@ -71,7 +71,7 @@ class ProductController extends BaseController
     public function down()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->user_id;
+        $user_id = $this->request->post("user_id",0,"intval");
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
@@ -97,7 +97,7 @@ class ProductController extends BaseController
     public function del()
     {
         $prod_id = $this->request->post("prod_id",0,"intval");
-        $user_id = $this->user_id;
+        $user_id = $this->request->post("user_id",0,"intval");
 
         if($prod_id <= 0 || $user_id <= 0){
             return $this->outJson(100,"参数错误");
