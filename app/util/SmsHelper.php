@@ -53,11 +53,11 @@ class SmsHelper
             ];
             Db::table("t_sms_log")->insert($log_data);
 
-            return self::outJson(0, "发送成功");
+            return Tools::outJson(0, "发送成功");
         }
         $err_msg = $res['errorMsg'] ?? '发送失败';
 
-        return self::outJson(500, $err_msg);
+        return Tools::outJson(500, $err_msg);
     }
 
     /**
