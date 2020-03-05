@@ -55,7 +55,7 @@ class LiveController extends BaseController
     {
         $im_config = Config::get('im');
         $user_id = $this->request->param("user_id", 0, "intval");
-        $user = TMember::find($user_id);
+        $user = TMember::where(["user_id"=>$user_id])->find();
 
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
@@ -83,9 +83,6 @@ class LiveController extends BaseController
                 'status' => 1
             ]);
         }
-
-
-
         return $this->outJson(0, "开播成功！", $room);
     }
 
