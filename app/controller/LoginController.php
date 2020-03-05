@@ -90,14 +90,28 @@ class LoginController extends BaseController
         if ($openid == "") {
             return $this->outJson(200, "获取微信信息失败！");
         }
-        $data = TMember::getByOpenId($openid);
+        $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
+        $data = TMember::getByOpenId($openid,$fields);
         if(!$data){
-            $user_id = TMember::registerByOpenId($openid,$avatar,$city,$country,$gender,$nick_name,$province);
+            $user_id = TMember::registerByOpenId($openid);
             if($user_id <= 0){
                 return $this->outJson(200,"注册失败");
             }
-            $data = TMember::getByOpenId($openid);
+            $data = TMember::getByOpenId($openid,$fields);
         }
+        $display_code = 100000 + intval($data['user_id']);//显示编码
+        TMember::where([
+            "user_id" => $data["user_id"],
+        ])->update([
+            'nick_name' => $nick_name,
+            'avatar' => $avatar,
+            'city' => $city,
+            'country' => $country,
+            'sex' => $gender,
+            'province' => $province,
+            "display_code" => $display_code, //显示编码
+            "last_login_time" => date("Y-m-d H:i:s")
+        ]);
         if ($data["is_lock"] == 1) {
             return $this->outJson(200,"账号已被锁定");
         }

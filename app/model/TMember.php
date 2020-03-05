@@ -40,7 +40,7 @@ class TMember extends BaseModel
 
 
     public static function getByOpenId($openid, $field = "*"){
-        $data = self::where("phone",$phone)->field($field)->find();
+        $data = self::where("openid",$openid)->field($field)->find();
         return $data ? $data->toArray() : null;
     }
 
@@ -62,27 +62,15 @@ class TMember extends BaseModel
         return $user_id;
     }
 
-    public static function registerByOpenId($openid,$avatar,$city,$country,$gender,$nick_name,$province)
+    public static function registerByOpenId($openid)
     {
         $data = [
             'openid' => $openid,
-            'nick_name' => $nick_name,
-            'avatar' => $avatar,
-            'city' => $city,
-            'country' => $country,
-            'sex' => $gender,
-            'province' => $province,
+            'nick_name' =>  "nick_".Tools::randStr(10),
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
         $user_id = Db::table("t_member")->insert($data);
-        $display_code = 100000 + intval($user_id);//显示编码
-            TMember::where([
-                "user_id" => $data["user_id"],
-            ])->update([
-                "display_code" => $display_code, //显示编码
-                "last_login_time" => date("Y-m-d H:i:s")
-            ]);
         return $user_id;
     }
 
