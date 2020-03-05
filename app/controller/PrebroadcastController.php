@@ -27,8 +27,14 @@ class PrebroadcastController extends BaseController
 
     public function ListPrebroadcast($userid)
     {
-        $items = TPrebroadcast::where("userid", $userid)->order("createtime asc");
+        $items = TPrebroadcast::where(" userid = ".$userid." and playtime>now() ")->order("createtime asc")->select();
         return $this->outJson(0, "查询成功！", $items);
+    }
+
+    public function RemovePrebroadcast($id)
+    {
+        $items = TPrebroadcast::destroy($id);
+        return $this->outJson(0, "删除成功！", $items);
     }
 
 }
