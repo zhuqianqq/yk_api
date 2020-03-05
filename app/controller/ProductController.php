@@ -51,7 +51,11 @@ class ProductController extends BaseController
         }
 
         $data = [
-            "total" => TProduct::count(['user_id'=>$user_id])
+            "total" => TProduct::count([
+                'user_id'=>$user_id,
+                'is_online'=>1,
+                'is_del'=>0
+            ])
         ];
 
         return $this->outJson(0,"success",$data);
