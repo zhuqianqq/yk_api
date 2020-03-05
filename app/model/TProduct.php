@@ -67,28 +67,4 @@ class TProduct extends BaseModel
         }
         return $data;
     }
-
-    public static function addProduct()
-    {
-
-    }
-
-    public static function editProduct($prod_id)
-    {
-        $prod_model = TProduct::where("prod_id",$prod_id)->find();
-        if(empty($prod_model)){
-            return Tools::outJson(200,"商品不存在");
-        }
-        if($prod_model->user_id != $this->user_id){
-            return Tools::outJson(200,"你无权编辑该商品");
-        }
-        //编辑后，要变成上架状态
-        $prod_model->prod_name = $prod_name;
-        $prod_model->price = $price;
-        $prod_model->stock = $stock;
-        $prod_model->weight = $weight;
-        $prod_model->wechat = $wechat;
-        $prod_model->first_img = $first_img; //首图
-        $prod_model->update_time = date("Y-m-d H:i:s");
-    }
 }

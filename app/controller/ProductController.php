@@ -7,6 +7,7 @@ namespace app\controller;
 
 use App\Models\Cfund\Project;
 use app\model\TProduct;
+use app\util\Tools;
 use think\facade\Db;
 use app\model\TProductProperty;
 use app\model\TProductDetail;
@@ -14,7 +15,7 @@ use app\model\TProductDetail;
 class ProductController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['up', 'down', 'del']],
+        'access_check' => ['only' => ['up', 'down', 'del','save']],
     ];
 
     /**
@@ -178,6 +179,8 @@ class ProductController extends BaseController
         $head_img = $this->request->param("head_img", '', "trim"); //头部图片地址,json数组格式
         $prop_list = $this->request->param("prop_list", '', "trim"); //商品规格属性
         $detail = $this->request->param("detail", '', "trim"); //图文详情，json格式，前端自定义格式
+
+        Tools::addLog("prod_save",$this->request->getInput());
 
         if (empty($prod_name)) {
             return $this->outJson(100, "商品名称不能为空");
