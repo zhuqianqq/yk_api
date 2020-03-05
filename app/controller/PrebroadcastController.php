@@ -47,4 +47,17 @@ class PrebroadcastController extends BaseController
         return $this->outJson(0, "删除成功！");
     }
 
+    public function prebroadcastDetail()
+    {
+        $id = $this->request->post("id",0,"intval");
+        if($id<=0)
+        {
+            return $this->outJson(1, "参数错误！");
+        }
+        $prebroadcast =  TPrebroadcast::find($id);
+        if($prebroadcast==null){
+            return $this->outJson(0, "查找预播失败！");
+        }
+        return $this->outJson(0, "查找成功！",$prebroadcast);
+    }
 }
