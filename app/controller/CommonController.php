@@ -53,33 +53,34 @@ class CommonController extends BaseController
      */
     public function smsCode()
     {
-        if($this->request->isPost()){
-            $mobile = $this->request->param("mobile",'',"trim");
-            $type = $this->request->param("type",'login',"trim");
-
-            if(empty($mobile)){
-                return $this->outJson(100,"手机号不能为空");
-            }
-
-            $cache_key = SmsHelper::getCacheKey($mobile,$type);
-            $vcode = Cache::get($cache_key);
-            $mask_mobile = Tools::maskMobile($mobile);
-            //判断是否已发送过
-            if ($vcode) {
-                return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
-            }
-
-            $vcode = mt_rand(1000,999999);
-            $result = SmsHelper::sendSmsMessage($mobile,"【文影科技】短信验证码：{$vcode}，有效期5分钟");
-            if ($result['code'] != 0) {
-                return $this->outJson($result["code"],$result['msg']);
-            }
-            Cache::set($cache_key,$vcode, 5 * 60); //5分钟有效
-
-            return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
-        }else{
+        if(!$this->request->isPost()){
             return $this->outJson(500,"非法请求");
         }
+
+        $mobile = $this->request->post("mobile",'',"trim");
+        $type = $this->request->post("type",'login',"trim");
+
+        if(empty($mobile)){
+            return $this->outJson(100,"手机号不能为空");
+        }
+
+        $cache_key = SmsHelper::getCacheKey($mobile,$type);
+        $vcode = Cache::get($cache_key);
+        $mask_mobile = Tools::maskMobile($mobile);
+        //判断是否已发送过
+        if ($vcode) {
+            return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
+        }
+
+        $vcode = mt_rand(1000,999999);
+        $result = SmsHelper::sendSmsMessage($mobile,"【文影科技】短信验证码：{$vcode}，有效期5分钟");
+        if ($result['code'] != 0) {
+            return $this->outJson($result["code"],$result['msg']);
+        }
+        $expire = APP_ENV == "test" ? 2 * 3600 : 5 * 60; //5分钟有效
+        Cache::set($cache_key,$vcode, $expire);
+
+        return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
     }
 
     /**

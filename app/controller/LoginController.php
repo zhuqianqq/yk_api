@@ -34,7 +34,7 @@ class LoginController extends BaseController
         }
 
         if(SmsHelper::checkVcode($phone,$vcode,"login") == false){
-            return $this->outJson(100,"验证码错误");
+            return $this->outJson(100,"验证码无效");
         }
 
         try{
@@ -52,7 +52,7 @@ class LoginController extends BaseController
             if ($data["is_lock"] == 1) {
                 return $this->outJson(200,"账号已被锁定");
             }
-            $display_code = 100000 + intval($data["user_id"]);//显示编码
+            $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
             TMember::where([
                 "user_id" => $data["user_id"],
             ])->update([
@@ -105,7 +105,7 @@ class LoginController extends BaseController
             }
             $data = TMember::getByOpenId($openid,$fields);
         }
-        $display_code = 100000 + intval($data['user_id']);//显示编码
+        $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
