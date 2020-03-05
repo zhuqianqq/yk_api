@@ -57,6 +57,7 @@ class LiveController extends BaseController
         $frontcover = $this->request->param("frontcover");
         $location = $this->request->param("location");
         $push_url = $this->request->param("push_url");
+        $mixed_play_url = $this->request->param("mixed_play_url");
         $show_product = $this->request->param("show_product");
         $prebroadcast_id = $this->request->param("prebroadcast_id",0, "intval");
         $room = new TRoom();
@@ -66,6 +67,7 @@ class LiveController extends BaseController
         $room->frontcover = $frontcover;
         $room->location = $location;
         $room->push_url = $push_url;
+        $room->mixed_play_url = $mixed_play_url;
         $room->show_product = $show_product;
         $room->save();
         if($prebroadcast_id>0) {
