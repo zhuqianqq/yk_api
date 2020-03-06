@@ -97,29 +97,29 @@ class LoginController extends BaseController
             return $this->outJson(200, "获取微信信息失败！");
         }
         $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
-        $data = TMember::getByOpenId($openid,$fields);
-        if(!$data){
+        $data = TMember::getByOpenId($openid, $fields);
+        if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
-            if($user_id <= 0){
-                return $this->outJson(200,"注册失败");
+            if ($user_id <= 0) {
+                return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid,$fields);
+            $data = TMember::getByOpenId($openid, $fields);
         }
         $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
-            'nick_name' => empty($data['nick_name'])? $nick_name:$data['nick_name'],
-            'avatar' => empty($data['avatar'])? $avatar:$data['avatar'],
-            'city' => empty($data['city'])? $city:$data['city'],
-            'country' => empty($data['country'])? $country:$data['country'],
-            'sex' => $data['sex']>0?$data['sex']:$gender,
-            'province' =>  empty($data['province'])? $province:$data['province'],
-            "display_code" =>  empty($data['display_code'])? $display_code:$data['display_code'],
+            'nick_name' => empty($data['nick_name']) ? $nick_name : $data['nick_name'],
+            'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
+            'city' => empty($data['city']) ? $city : $data['city'],
+            'country' => empty($data['country']) ? $country : $data['country'],
+            'sex' => $data['sex'] > 0 ? $data['sex'] : $gender,
+            'province' => empty($data['province']) ? $province : $data['province'],
+            "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
         if ($data["is_lock"] == 1) {
-            return $this->outJson(200,"账号已被锁定");
+            return $this->outJson(200, "账号已被锁定");
         }
 
         $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
@@ -146,29 +146,29 @@ class LoginController extends BaseController
         $province = $this->request->post("province");
         $openid = $this->request->post("openid");
         $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
-        $data = TMember::getByOpenId($openid,$fields);
-        if(!$data){
+        $data = TMember::getByOpenId($openid, $fields);
+        if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
-            if($user_id <= 0){
-                return $this->outJson(200,"注册失败");
+            if ($user_id <= 0) {
+                return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid,$fields);
+            $data = TMember::getByOpenId($openid, $fields);
         }
         $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
-            'nick_name' => empty($data['nick_name'])? $nick_name:$data['nick_name'],
-            'avatar' => empty($data['avatar'])? $avatar:$data['avatar'],
-            'city' => empty($data['city'])? $city:$data['city'],
-            'country' => empty($data['country'])? $country:$data['country'],
-            'sex' => $data['sex']>0?$data['sex']:$gender,
-            'province' =>  empty($data['province'])? $province:$data['province'],
-            "display_code" =>  empty($data['display_code'])? $display_code:$data['display_code'],
+            'nick_name' => empty($data['nick_name']) ? $nick_name : $data['nick_name'],
+            'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
+            'city' => empty($data['city']) ? $city : $data['city'],
+            'country' => empty($data['country']) ? $country : $data['country'],
+            'sex' => $data['sex'] > 0 ? $data['sex'] : $gender,
+            'province' => empty($data['province']) ? $province : $data['province'],
+            "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
         if ($data["is_lock"] == 1) {
-            return $this->outJson(200,"账号已被锁定");
+            return $this->outJson(200, "账号已被锁定");
         }
 
         $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key

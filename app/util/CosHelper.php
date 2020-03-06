@@ -29,24 +29,24 @@ class CosHelper
                 ]));
 
         $bucket = $cos_conf["COSKEY_BUCKET"];
-        $key = self::generateKey($file_path,$file_ext);
+        $key = self::generateKey($file_path, $file_ext);
         try {
             $result = $cosClient->upload($bucket,
                 $key = $key,
                 $body = fopen($file_path, 'rb')
             );
 
-            Tools::addLog(self::$logName,"key:{$key},res:".json_encode($result,JSON_UNESCAPED_UNICODE));
+            Tools::addLog(self::$logName, "key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
             if ($result && !empty($result["Location"])) {
                 return Tools::outJson(0, "上传成功", [
-                    "url" => $result["Location"],
+                    "url" => strpos($result["Location"], "http") == 0 ? $result["Location"] : "http://" . $result["Location"],
                     "key" => $key,
                 ]);
             }
             return Tools::outJson(-1, "上传失败");
         } catch (\Exception $ex) {
-            Tools::addLog(self::$logName,"upload_fail,line:".$ex->getLine().",message:".$ex->getMessage());
+            Tools::addLog(self::$logName, "upload_fail,line:" . $ex->getLine() . ",message:" . $ex->getMessage());
             return Tools::outJson(500, "上传失败:" . $ex->getMessage());
         }
     }
