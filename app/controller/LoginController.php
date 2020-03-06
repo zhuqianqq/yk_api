@@ -119,10 +119,10 @@ class LoginController extends BaseController
             "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
+        $data = TMember::getByOpenId($openid, $fields);
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
         }
-
         $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
         $im_config = Config::get('im');
