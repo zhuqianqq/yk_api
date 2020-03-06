@@ -47,7 +47,7 @@ class PrebroadcastController extends BaseController
         }
         $items = TPrebroadcast::where([
             ['user_id', '=', $user_id],
-            ['playtime', '>=', date('Y-m-d H:i:s',time())],
+           // ['playtime', '>=', date('Y-m-d H:i:s',time())],
             ['status', '=', 0]
         ])->order("playtime asc")->select();
         return $this->outJson(0, "查询成功！", $items);
