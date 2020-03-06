@@ -8,6 +8,7 @@ namespace app\controller;
 use app\util\SmsHelper;
 use app\util\Tools;
 use app\util\CosHelper;
+use app\util\WechatHelper;
 use think\facade\Cache;
 
 class CommonController extends BaseController
@@ -83,6 +84,19 @@ class CommonController extends BaseController
         return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
     }
 
+    /**
+     * 生成小程序二维码
+     */
+    public function genMiniQr()
+    {
+        $page = $this->request->param("page", '', "trim");
+        $scene = $this->request->param("scene", '', "trim");
+        $width =  $this->request->param("width", '430', "int");
+        $accessToken = WechatHelper::getAccessToken();
+        //var_dump($accessToken);
+        $res = WechatHelper::getMiniQr($page, $scene, $width, $accessToken);
+        return $this->outJson(0,"生成成功！",$res);
+    }
     /**
      * 返回logo图片地址
      * @return string
