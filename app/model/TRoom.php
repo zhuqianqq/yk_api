@@ -41,7 +41,6 @@ class TRoom extends BaseModel
         if($data["user_id"] != $user_id){
             return Tools::outJson(100, "你无权关闭该直播");
         }
-        $data = $data->toArray();
         unset($data["id"]);
 
         Db::startTrans();
