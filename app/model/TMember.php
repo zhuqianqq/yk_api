@@ -9,6 +9,12 @@ use think\facade\Db;
 
 class TMember extends BaseModel
 {
+    /**
+     * 是否主播
+     */
+    const IS_BROADCASTER_YES = 1; // 是
+    const IS_BROADCASTER_NO = 0;  // 否
+
     protected $table = "t_member";
 
     /**

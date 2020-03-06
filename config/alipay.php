@@ -10,5 +10,5 @@ return [
     'ali_public_key_path' => 'alipay_key/alipay_public_key.pem', // 支付宝公钥
     'sign_type' => 'RSA2',    // 签名方式
     'input_charset' => "UTF-8",    // 字符编码格式 目前支持 gbk 或 utf-8
-    'notify_url' => env('APP_URL') . '/pay/alipayNotify',
+    'notify_url' => env("APP_URL").'/pay/alipayNotify',
 ];

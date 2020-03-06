@@ -10,6 +10,9 @@ use think\Collection;
 
 abstract class BaseModel extends Model
 {
+    const IS_DEL_NO = 0; //否
+    const IS_DEL_YES = 1;//是
+
     /**
      * @var string 错误信息
      */
