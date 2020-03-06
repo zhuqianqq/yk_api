@@ -162,7 +162,7 @@ class AlipayService
             $request->setReturnUrl($map["return_url"]);  //支付成功回跳页面
         }
 
-        $sign_body = $aop->pageExecute($request, "POST"); //获取get请求支付url
+        $sign_body = $aop->pageExecute($request, "GET"); //获取get请求支付url
 
         $data = [
             "user_id" => $user_id,
