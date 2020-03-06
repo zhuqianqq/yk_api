@@ -72,7 +72,7 @@ class PayController extends BaseController
 
             $res = (new AlipayService())->wapPay($data);
 
-            return $this->outJson(0, "success", $res);
+            return json($res);
         } catch (\Exception $ex) {
             Tools::addLog("ali_pay", "error:" . $ex->getMessage() . PHP_EOL . $ex->getTraceAsString(), $this->request->getInput());
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
