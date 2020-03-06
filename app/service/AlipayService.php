@@ -19,7 +19,7 @@ use app\util\Tools;
 use app\model\TAlipayMobilePay;
 use think\facade\Db;
 use App\Models\Cfund\UserPay;
-use think\facade\Env;
+use app\model\TInviteOrder;
 
 class AlipayService
 {
@@ -282,15 +282,8 @@ class AlipayService
             Db::table('t_alipay_mobile_pay')->where($where)->update($up_data);
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
-                // 更新user_pay订单状态
-//                $userPay = UserPay::find($order_num);
-//                $userPay->pay_status = 1; //支付成功
-//                $userPay->pay_method = UserPay::PAY_METHOD_ALIPAY; //0：支付宝；1：微信；2：线下付款；3：新浪支付
-//                $userPay->arrived_account_money = $amount;
-//                $userPay->finish_payment_time = date('Y-m-d H:i:s');
-//                $userPay->save();
-//
-//                $userPay->afterPaySuccess();
+
+                TInviteOrder::finishInviteOrder($order_num);
             }
             $this->log('支付宝回调通知success');
 
