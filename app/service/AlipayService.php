@@ -135,18 +135,14 @@ class AlipayService
      * 生成支付宝移动支付跳转form表单的html（包含自动提交脚本）
      * https://docs.open.alipay.com/203/107090/
      * @param array $map
+     * @return array
      */
     public function wapPay($map)
     {
         $user_id = $map['user_id'];
-        $user_pay_id = @$map['$user_pay_id']; //订单编号
+        $user_pay_id = $map['user_pay_id']; //订单编号
         $amount = floatval($map['amount']);  //付款金额（元）
-        $subject = @$map['subject']; //商品描述字符串
-
-        if (!$user_id) {
-            $this->log("支付宝付款pay,缺失user_id参数");
-            return false;
-        }
+        $subject = $map['subject'] ?? ''; //商品描述字符串
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         require_once 'Alipay2/aop/request/AlipayTradeWapPayRequest.php';
