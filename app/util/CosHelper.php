@@ -40,7 +40,7 @@ class CosHelper
 
             if ($result && !empty($result["Location"])) {
                 return Tools::outJson(0, "上传成功", [
-                    "url" => strpos($result["Location"], "https") == 0 ? $result["Location"] : "https://" . $result["Location"],
+                    "url" => "https://" . $result["Location"],
                     "key" => $key,
                 ]);
             }
