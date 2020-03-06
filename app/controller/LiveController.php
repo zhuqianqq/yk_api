@@ -27,10 +27,9 @@ class LiveController extends BaseController
     {
         $page_size = $this->request->param("page_size", 10, "intval");
         $page = $this->request->param("page", 1, "intval");
-
-        $list = Db::query('SELECT a.*,b.nick_name,b.avatar FROM `t_room` a left join `t_member` b on a.user_id=b.user_id order by a.id desc limit '. ($page-1)*$page_size.','.$page_size);
-
-        return $this->outJson(0, "success", $list);
+        $page = $page ? $page : 1;
+        $data = TRoom::getList($page,$page_size);
+        return $this->outJson(0, "success", $data);
     }
 
     /**
