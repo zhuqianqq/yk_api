@@ -10,7 +10,5 @@ return [
     'ali_public_key_path' => 'alipay_key/alipay_public_key.pem', // 支付宝公钥
     'sign_type' => 'RSA2',    // 签名方式
     'input_charset' => "UTF-8",    // 字符编码格式 目前支持 gbk 或 utf-8
-    'cacert' => 'cacert.pem',    // ca证书路径地址，用于curl中ssl校验,请保证cacert.pem文件在当前文件夹目录中
-    'transport' => "http",  // 访问模式
     'notify_url' => env('APP_URL') . '/pay/alipayNotify',
 ];

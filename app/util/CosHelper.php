@@ -39,8 +39,11 @@ class CosHelper
             Tools::addLog(self::$logName, "key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
             if ($result && !empty($result["Location"])) {
+                if(stripos($result["Location"],"http") === false){
+                    $result["Location"] = "https://".$result["Location"];
+                }
                 return Tools::outJson(0, "上传成功", [
-                    "url" => "https://" . $result["Location"],
+                    "url" => $result["Location"],
                     "key" => $key,
                 ]);
             }

@@ -72,14 +72,9 @@ class AlipayService
     public function pay($map)
     {
         $user_id = $map['user_id'];
-        $user_pay_id = @$map['user_pay_id']; //用户业务订单号
+        $order_num = $map['order_num']; //用户业务订单号
         $amount = floatval($map['amount']);  //付款金额（元）
-        $subject = @$map['subject']; //商品描述字符串
-
-        if (!$user_id) {
-            $this->log("支付宝付款pay,缺失user_id参数");
-            return false;
-        }
+        $subject = $map['subject'] ?? ''; //商品描述字符串
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         require_once 'alipay2/aop/request/AlipayTradeAppPayRequest.php';
@@ -88,11 +83,10 @@ class AlipayService
         $it_b_pay = "30m"; //30分钟
 
         // 生成alipay_mobile_pay订单
-        $alipayMobilePay = TAlipayMobilePay::where('user_pay_id', $user_pay_id)->find();
+        $alipayMobilePay = TAlipayMobilePay::where('out_trade_no', $order_num)->find();
         if (empty($alipayMobilePay)) {
             $alipayMobilePay = new TAlipayMobilePay();
-            $alipayMobilePay->user_pay_id = $user_pay_id;  //用户支付业务订单号
-            $alipayMobilePay->out_trade_no = $user_pay_id; //业务订单号
+            $alipayMobilePay->out_trade_no = $order_num; //业务订单号
             $alipayMobilePay->app_id = $this->alipay_config['app_id']; //应用id
             $alipayMobilePay->partner = $this->alipay_config['partner'] ?? '';
             $alipayMobilePay->input_charset = $this->alipay_config["input_charset"];
@@ -112,7 +106,7 @@ class AlipayService
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
         $bizcontent = "{\"body\":\"" . $subject . "\","
             . "\"subject\": \"" . $subject . "\","
-            . "\"out_trade_no\": \"" . $user_pay_id . "\","
+            . "\"out_trade_no\": \"" . $order_num . "\","
             . "\"timeout_express\": \"" . $it_b_pay . "\","
             . "\"total_amount\": \"" . $amount . "\","
             . "\"product_code\":\"QUICK_MSECURITY_PAY\""
@@ -135,18 +129,14 @@ class AlipayService
      * 生成支付宝移动支付跳转form表单的html（包含自动提交脚本）
      * https://docs.open.alipay.com/203/107090/
      * @param array $map
+     * @return array
      */
     public function wapPay($map)
     {
         $user_id = $map['user_id'];
-        $user_pay_id = @$map['$user_pay_id']; //订单编号
+        $order_num = $map['order_num']; //订单编号
         $amount = floatval($map['amount']);  //付款金额（元）
-        $subject = @$map['subject']; //商品描述字符串
-
-        if (!$user_id) {
-            $this->log("支付宝付款pay,缺失user_id参数");
-            return false;
-        }
+        $subject = $map['subject'] ?? ''; //订单标题
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         require_once 'Alipay2/aop/request/AlipayTradeWapPayRequest.php';
@@ -154,22 +144,20 @@ class AlipayService
         $it_b_pay = "30m"; //30分钟
 
         // 生成alipay_mobile_pay订单
-        $alipayMobilePay = TAlipayMobilePay::where('user_pay_id', $user_pay_id)->find();
+        $alipayMobilePay = TAlipayMobilePay::where('out_trade_no', $order_num)->find();
 
         if (empty($alipayMobilePay)) {
             $alipayMobilePay = new TAlipayMobilePay();
-            $alipayMobilePay->user_pay_id = $user_pay_id;
-            $alipayMobilePay->out_trade_no = $user_pay_id;
-            $alipayMobilePay->partner = $this->alipay_config['partner'];
+            $alipayMobilePay->out_trade_no = $order_num;
+            $alipayMobilePay->app_id = $this->alipay_config['app_id'];
+            $alipayMobilePay->partner = $this->alipay_config['partner'] ?? '';
             $alipayMobilePay->input_charset = $this->alipay_config["input_charset"];;
             $alipayMobilePay->req_sign_type = $this->alipay_config["sign_type"];
             $alipayMobilePay->notify_url = $this->alipay_config['notify_url'];
-            $alipayMobilePay->app_id = $this->alipay_config['app_id'];
             $alipayMobilePay->subject = $subject;
             $alipayMobilePay->payment_type = 1; //支付类型。默认值为：1（商品购买）。
             $alipayMobilePay->seller_id = $this->alipay_config['seller_id'];
             $alipayMobilePay->total_fee = $amount;
-            $alipayMobilePay->body = $subject;
             $alipayMobilePay->it_b_pay = $it_b_pay; //该笔订单允许的最晚付款时间
             $alipayMobilePay->save();
         }
@@ -180,7 +168,7 @@ class AlipayService
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
         $bizcontent = "{\"body\":\"" . $subject . "\","
             . "\"subject\": \"" . $subject . "\","
-            . "\"out_trade_no\": \"" . $user_pay_id . "\","
+            . "\"out_trade_no\": \"" . $order_num . "\","
             . "\"timeout_express\": \"" . $it_b_pay . "\","
             . "\"total_amount\": " . $amount . ","
             . "\"product_code\":\"QUICK_WAP_WAY\""
@@ -197,7 +185,7 @@ class AlipayService
 
         $info = [
             "user_id" => $user_id,
-            "order_num" => $user_pay_id, //业务订单号
+            "order_num" => $order_num, //业务订单号
             "sign_body" => $sign_body,  //前台回跳支付页面地址
         ];
 
@@ -241,12 +229,12 @@ class AlipayService
             }
 
             $where = [
-                "user_pay_id" => $order_num,
+                "out_trade_no" => $order_num,
             ];
             // 更新alipay_mobile_pay订单状态
             $alipay_data = Db::table('t_alipay_mobile_pay')->where($where)->find();
             if (empty($alipay_data)) {
-                $this->log('alipayNotify: 没有user_pay_id=' . $order_num . '支付宝回调记录');
+                $this->log('alipayNotify: 没有out_trade_no=' . $order_num . '支付宝回调记录');
                 return false;
             }
             if ($alipay_data["notify_trade_status"] == 'TRADE_SUCCESS') {
@@ -292,25 +280,16 @@ class AlipayService
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
                 // 更新user_pay订单状态
-                $userPay = UserPay::find($order_num);
-                if (empty($userPay)) {
-                    $this->log("alipayNotify: 没有user_pay_id={$order_num}交易记录");
-                    return false;
-                }
-                if ($userPay->pay_status == 1) {
-                    $this->log("alipayNotify: user_pay_id={$order_num}交易记录，已为成功状态");
-                    return true;
-                }
-                $userPay->pay_status = 1; //支付成功
-                $userPay->pay_method = UserPay::PAY_METHOD_ALIPAY; //0：支付宝；1：微信；2：线下付款；3：新浪支付
-                $userPay->arrived_account_money = $amount;
-                $userPay->finish_payment_time = date('Y-m-d H:i:s');
-                $userPay->save();
-
-                $userPay->afterPaySuccess();
+//                $userPay = UserPay::find($order_num);
+//                $userPay->pay_status = 1; //支付成功
+//                $userPay->pay_method = UserPay::PAY_METHOD_ALIPAY; //0：支付宝；1：微信；2：线下付款；3：新浪支付
+//                $userPay->arrived_account_money = $amount;
+//                $userPay->finish_payment_time = date('Y-m-d H:i:s');
+//                $userPay->save();
+//
+//                $userPay->afterPaySuccess();
             }
-
-            $this->log('支付宝回调 支付： alipay_notify 返回 true');
+            $this->log('支付宝回调通知success');
 
             Db::commit();
             return true;
