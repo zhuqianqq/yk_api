@@ -60,6 +60,7 @@ class LoginController extends BaseController
                 "last_login_time" => date("Y-m-d H:i:s")
             ]);
             Db::commit();
+            $data = TMember::getByPhone($phone,$fields);
             $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
             $im_config = Config::get('im');
