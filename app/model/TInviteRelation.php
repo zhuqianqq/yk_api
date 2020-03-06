@@ -20,7 +20,7 @@ class TInviteRelation extends BaseModel
         $map = array_column($relations,'inviter_uid', 'invite_order_id');
         $orderIds = array_keys($map);
         $state = TInviteOrder::STATE_PAYED;
-        $order = TInviteOrder::where(" id in (" . implode(',', $orderIds) . ") and `state` = {$state} ")->field('id')->find()->toArray();
+        $order = TInviteOrder::where(" id in (" . implode(',', $orderIds) . ") and `state` = {$state} ")->field('id')->find();
         if (empty($order)) {
             return [];
         }
@@ -28,7 +28,7 @@ class TInviteRelation extends BaseModel
         if (empty($inviter_uid)) {
             return [];
         }
-        $user = TMember::where(['user_id' => $inviter_uid])->find()->toArray();
+        $user = TMember::where(['user_id' => $inviter_uid])->find();
         return !empty($user) ? $user : [];
     }
 
