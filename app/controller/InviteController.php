@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use Inkeservice\Script\ktv\Tmp;
 use think\facade\Db;
 use app\model\TInviteProduct;
 use app\model\TMember;
@@ -43,22 +44,35 @@ class InviteController extends BaseController
     {
         $state = $this->request->param("state", -1, "intval");
         $page = $this->request->param("page", 1, "intval");
-        $page_size = $this->request->param("page_size", 10, "intval");
+        $page_size = $this->request->param("page_size", 20, "intval");
         if (!in_array($state, array_merge(array_keys(TInviteOrder::$stateLabels), [-1]))) {
             return $this->outJson(100, "参数错误");
         }
 
-        $where = ['inviter_uid' => $this->user_id];
+        $where = ['t_invite_relation.inviter_uid' => $this->user_id];
         if ($state != -1) {
-            $where['state'] = $state;
+            $where['order.state'] = $state;
         }
 
-        $query = TInviteOrder::where($where);
+        $query = TInviteRelation::where($where)->withJoin(['order' => ['order_no','state']]);
         $total = $query->count();
-        $list = $query->order('id', 'desc')->limit(($page - 1) * $page_size, $page_size)->select();
+        $list = $query->order('t_invite_relation.id', 'desc')->limit(($page - 1) * $page_size, $page_size)->select();
+        if (!empty($list[0]->id)) {
+            $user_ids = array_column($list->toArray(), 'user_id');
+            $users = TMember::where(" user_id in (" . implode(',', $user_ids) . ") ")->field('user_id,nick_name')->select();
+            $usersMap = [];
+            if (!empty($users[0]->user_id)) {
+                $usersMap = array_column($users->toArray(), null, 'user_id');
+            }
+            foreach ($list as &$item) {
+                $item['state'] = $item['order']['state'];
+                $item['nick_name'] = isset($usersMap[$item['user_id']]['nick_name']) ? $usersMap[$item['user_id']]['nick_name'] : '';
+                $item['date'] = date('Y-m-d', strtotime($item['create_time']));
+            }
+        }
 
-        $total_count = TInviteOrder::where(['inviter_uid' => $this->user_id])->count();
-        $pay_count = TInviteOrder::where(['inviter_uid' => $this->user_id, 'state' => TInviteOrder::STATE_PAYED])->count();
+        $total_count = TInviteRelation::where(['inviter_uid' => $this->user_id])->count();
+        $pay_count = TInviteRelation::where(['t_invite_relation.inviter_uid' => $this->user_id,'order.state' => TInviteOrder::STATE_PAYED])->withJoin('order')->count();
         $unpay_count = $total_count - $pay_count;
 
         // 查找我的邀请人
@@ -140,15 +154,20 @@ class InviteController extends BaseController
             ];
             $order->save($order_data);
 
-            $relation = new TInviteRelation();
-            $relation_data = [
-                'inviter_uid' => $inviter_uid,
-                'user_id' => $this->user_id,
-                'invite_order_id' => $order->id,
-                'create_time' => $now_time,
-                'update_time' => $now_time,
-            ];
-            $relation->save($relation_data);
+            $existRelation = TInviteRelation::where(['inviter_uid' => $inviter_uid,'user_id' => $this->user_id])->find();
+            if (!empty($existRelation->id)) {
+                TInviteRelation::where(['id' => $existRelation->id])->update(['invite_order_id' => $order->id,'update_time' => $now_time]);
+            } else {
+                $relation = new TInviteRelation();
+                $relation_data = [
+                    'inviter_uid' => $inviter_uid,
+                    'user_id' => $this->user_id,
+                    'invite_order_id' => $order->id,
+                    'create_time' => $now_time,
+                    'update_time' => $now_time,
+                ];
+                $relation->save($relation_data);
+            }
             Db::commit();
             return $this->outJson(0, "success", ["order_id" => $order->order_no]);
         } catch (\Exception $ex) {
