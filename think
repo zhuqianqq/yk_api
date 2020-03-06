@@ -7,4 +7,8 @@ namespace think;
 require __DIR__ . '/vendor/autoload.php';
 
 // 应用初始化
-(new App())->console->run();
+$con = (new App())->console;
+
+define('APP_ENV', \think\facade\Env::get("APP_ENV","test")); //应用环境 prod(生产),test(测试)
+
+$con->run();
