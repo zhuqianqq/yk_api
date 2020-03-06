@@ -5,7 +5,6 @@
 
 namespace app\controller;
 
-use app\model\TUserPay;
 use think\facade\Config;
 use think\facade\Db;
 use think\facade\Cache;
@@ -71,6 +70,8 @@ class PayController extends BaseController
             $data['return_url'] = $return_url;
 
             $res = (new AlipayService())->wapPay($data);
+
+            Tools::addLog("ali_pay","param:".json_encode($data,JSON_UNESCAPED_UNICODE).PHP_EOL."res:".json_encode($res));
 
             return json($res);
         } catch (\Exception $ex) {
