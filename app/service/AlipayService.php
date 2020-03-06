@@ -190,6 +190,7 @@ class AlipayService
         $alipayMobilePay->total_fee = $amount;
         $alipayMobilePay->service = $service;
         $alipayMobilePay->notify_url = $this->notify_url;
+        $alipayMobilePay->pay_status = 0;
         $alipayMobilePay->create_time = date("Y-m-d H:i:s");
 
         $alipayMobilePay->save();
@@ -276,13 +277,16 @@ class AlipayService
             ];
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
+                $up_data['pay_status'] = TAlipayMobilePay::PAY_STATUS_SUCCESS; //支付成功
                 $up_data["finish_time"] = date('Y-m-d H:i:s'); // 收到支付宝完成通知时间
+            }else{
+                $up_data['pay_status'] = TAlipayMobilePay::PAY_STATUS_FAIL; //支付失败
             }
 
             Db::table('t_alipay_mobile_pay')->where($where)->update($up_data);
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
-
+                //更新业务订单状态
                 TInviteOrder::finishInviteOrder($order_num);
             }
             $this->log('支付宝回调通知success');

@@ -20,7 +20,7 @@ class PayController extends BaseController
      */
     public function alipayNotify()
     {
-        Tools::addLog("aliapy_notify", "支付宝回调开始:" . $this->request->getInput());
+        Tools::addLog("aliapy_notify", "支付宝回调开始,praram:" . $this->request->getInput());
         $aliPay = new AlipayService();
         //首先必需验证签名，然后验证是否是支付宝发来的通知。
         $verify_result = $aliPay->verifyNotify();
