@@ -95,7 +95,8 @@ class CommonController extends BaseController
         $accessToken = WechatHelper::getAccessToken();
         //var_dump($accessToken);
         $res = WechatHelper::getMiniQr($page, $scene, $width, $accessToken);
-        return $this->outJson(0,"生成成功！",$res);
+        return $res;
+        //return $this->outJson(0,"生成成功！",$res);
     }
     /**
      * 返回logo图片地址

@@ -44,6 +44,8 @@ class WechatHelper
         $header = array();
         $url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" . $access_token;
         $res = Tools::curlPost($url, $data, true, $header, false);
-        return base64_encode($res);
+        //$path = 'D:\h.jpg';
+        //file_put_contents($path, $res);
+        return $res;
     }
 }
