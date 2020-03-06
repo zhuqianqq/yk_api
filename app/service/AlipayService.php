@@ -118,7 +118,7 @@ class AlipayService
 
         $info = [
             "user_id" => $user_id,
-            "order_num" => $user_pay_id, //业务订单号
+            "order_num" => $order_num, //业务订单号
             "sign_body" => $sign_body,  //该参数会提交给hbuilder的plus5+支付接口
         ];
 
