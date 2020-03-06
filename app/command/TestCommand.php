@@ -13,6 +13,7 @@ class TestCommand extends BaseCommand
      */
     protected function _execute()
     {
+
         $this->output->writeln("This is test command");
         //do someting
         $this->log("write some log");
