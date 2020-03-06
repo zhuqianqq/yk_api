@@ -74,7 +74,7 @@ class PayController extends BaseController
 
             return $this->outJson(0, "success", $res);
         } catch (\Exception $ex) {
-            Tools::addLog("invite_order", "error:" . $ex->getMessage() . PHP_EOL . $ex->getTraceAsString(), $this->request->getInput());
+            Tools::addLog("ali_pay", "error:" . $ex->getMessage() . PHP_EOL . $ex->getTraceAsString(), $this->request->getInput());
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
         }
     }

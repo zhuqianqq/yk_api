@@ -47,7 +47,6 @@ class AlipayService
     public function __construct()
     {
         $this->alipay_config = Config::get('alipay');
-        print_r($this->alipay_config);
     }
 
     /**
@@ -88,7 +87,6 @@ class AlipayService
             $alipayMobilePay = new TAlipayMobilePay();
             $alipayMobilePay->out_trade_no = $order_num; //业务订单号
             $alipayMobilePay->app_id = $this->alipay_config['app_id']; //应用id
-            $alipayMobilePay->partner = $this->alipay_config['partner'] ?? '';
             $alipayMobilePay->input_charset = $this->alipay_config["input_charset"];
             $alipayMobilePay->req_sign_type = $this->alipay_config["sign_type"] ?? '';
             $alipayMobilePay->notify_url = $this->alipay_config['notify_url'];  //支付回调通知地址
@@ -118,7 +116,7 @@ class AlipayService
 
         $info = [
             "user_id" => $user_id,
-            "order_num" => $user_pay_id, //业务订单号
+            "order_num" => $order_num, //业务订单号
             "sign_body" => $sign_body,  //该参数会提交给hbuilder的plus5+支付接口
         ];
 
@@ -150,7 +148,6 @@ class AlipayService
             $alipayMobilePay = new TAlipayMobilePay();
             $alipayMobilePay->out_trade_no = $order_num;
             $alipayMobilePay->app_id = $this->alipay_config['app_id'];
-            $alipayMobilePay->partner = $this->alipay_config['partner'] ?? '';
             $alipayMobilePay->input_charset = $this->alipay_config["input_charset"];;
             $alipayMobilePay->req_sign_type = $this->alipay_config["sign_type"];
             $alipayMobilePay->notify_url = $this->alipay_config['notify_url'];
@@ -159,6 +156,7 @@ class AlipayService
             $alipayMobilePay->seller_id = $this->alipay_config['seller_id'];
             $alipayMobilePay->total_fee = $amount;
             $alipayMobilePay->it_b_pay = $it_b_pay; //该笔订单允许的最晚付款时间
+            $alipayMobilePay->create_time = date("Y-m-d H:i:s");
             $alipayMobilePay->save();
         }
         $alipayMobilePay->service = $request->getApiMethodName();//wap支付

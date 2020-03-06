@@ -245,8 +245,9 @@ class Tools
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $output = curl_exec($ch);
         curl_close($ch);
-        self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
+
         if ($ret_json) {
+            self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
             $out = json_decode($output, true);
             return $out;
         }else{
