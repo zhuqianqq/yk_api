@@ -25,9 +25,9 @@ class InviteController extends BaseController
     {
         $today_time = date('Y-m-d 00:00:00');
         $state = TInviteOrder::STATE_PAYED;
-        $orders = TInviteOrder::where(" inviter_uid = {$this->user_id} and update_time >= '{$today_time}' and state = {$state} ")->field('sum(reward_amount) as reward_amount')->find()->toArray();
+        $orders = TInviteOrder::where(" inviter_uid = {$this->user_id} and update_time >= '{$today_time}' and state = {$state} ")->field('sum(reward_amount) as reward_amount')->find();
         $today_reward = !empty($orders['reward_amount']) ? floatval($orders['reward_amount']) : 0;
-        $orders = TInviteOrder::where(" inviter_uid = {$this->user_id} and state = {$state} ")->field('sum(reward_amount) as reward_amount')->find()->toArray();
+        $orders = TInviteOrder::where(" inviter_uid = {$this->user_id} and state = {$state} ")->field('sum(reward_amount) as reward_amount')->find();
         $total_reward = !empty($orders['reward_amount']) ? floatval($orders['reward_amount']) : 0;
 
         return $this->outJson(0, "成功", [
@@ -55,7 +55,7 @@ class InviteController extends BaseController
 
         $query = TInviteOrder::where($where);
         $total = $query->count();
-        $list = $query->order('id', 'desc')->limit(($page - 1) * $page_size, $page_size)->select()->toArray();
+        $list = $query->order('id', 'desc')->limit(($page - 1) * $page_size, $page_size)->select();
 
         $total_count = TInviteOrder::where(['inviter_uid' => $this->user_id])->count();
         $pay_count = TInviteOrder::where(['inviter_uid' => $this->user_id, 'state' => TInviteOrder::STATE_PAYED])->count();
@@ -81,7 +81,7 @@ class InviteController extends BaseController
      */
     public function getInviteProduct()
     {
-        $product = TInviteProduct::where('is_del', TInviteProduct::IS_DEL_NO)->find()->toArray();
+        $product = TInviteProduct::where('is_del', TInviteProduct::IS_DEL_NO)->find();
         return !empty($product) ? $this->outJson(0, "成功", $product) : $this->outJson(500, "查询失败");
     }
 
@@ -119,7 +119,7 @@ class InviteController extends BaseController
         }
 
         $product = TInviteProduct::find($invite_product_id);
-        if (empty($product)) {
+        if (empty($product->id)) {
             return $this->outJson(100, "开播产品不存在");
         }
 
@@ -167,5 +167,5 @@ class InviteController extends BaseController
         $result = isset($user->is_broadcaster) && $user->is_broadcaster == TMember::IS_BROADCASTER_YES ? 1 : 0;
         return $this->outJson(0, "成功", $result);
     }
-    
+
 }
