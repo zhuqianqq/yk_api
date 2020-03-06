@@ -19,6 +19,7 @@ use app\util\Tools;
 use app\model\TAlipayMobilePay;
 use think\facade\Db;
 use App\Models\Cfund\UserPay;
+use think\facade\Env;
 
 class AlipayService
 {
@@ -40,7 +41,7 @@ class AlipayService
     public function __construct()
     {
         $this->alipay_config = Config::get('alipay');
-        $this->notify_url = env("APP_URL").$this->alipay_config["notify_url"];
+        $this->notify_url = $this->alipay_config["notify_url"];
     }
 
     /**
@@ -128,7 +129,7 @@ class AlipayService
         $subject = $map['subject'] ?? ''; //订单标题
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        require_once 'Alipay2/aop/request/AlipayTradeWapPayRequest.php';
+        require_once 'alipay2/aop/request/AlipayTradeWapPayRequest.php';
         $request = new AlipayTradeWapPayRequest();
         $it_b_pay = "120m"; //120分钟
 
