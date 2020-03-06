@@ -19,6 +19,7 @@ use app\util\Tools;
 use app\model\TAlipayMobilePay;
 use think\facade\Db;
 use App\Models\Cfund\UserPay;
+use app\model\TInviteOrder;
 
 class AlipayService
 {
@@ -286,6 +287,7 @@ class AlipayService
 //                $userPay->save();
 //
 //                $userPay->afterPaySuccess();
+                TInviteOrder::finishInviteOrder($order_num);
             }
             $this->log('支付宝回调通知success');
 
