@@ -110,11 +110,11 @@ class LoginController extends BaseController
             "user_id" => $data["user_id"],
         ])->update([
             'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
-            'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
-            'city' => empty($data['city']) ? $city : $data['city'],
-            'country' => empty($data['country']) ? $country : $data['country'],
-            'sex' => $data['sex'] > 0 ? $data['sex'] : $gender,
-            'province' => empty($data['province']) ? $province : $data['province'],
+            'avatar' => empty($avatar) ? $data['avatar'] : $avatar,
+            'city' => empty($city) ? $data['city'] : $city,
+            'country' => empty($country) ? $data['country'] : $country,
+            'sex' => $gender > 0 ? $gender : $data['sex'],
+            'province' => empty($province) ? $data['province'] : $province,
             "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);

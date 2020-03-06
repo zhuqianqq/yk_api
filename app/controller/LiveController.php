@@ -68,16 +68,32 @@ class LiveController extends BaseController
         $mixed_play_url = "http://live.laotouge.cn/live/".$im_config["IM_SDKAPPID"]."_".$user->display_code.".flv";
         $show_product = $this->request->param("show_product");
         $prebroadcast_id = $this->request->param("prebroadcast_id",0, "intval");
-        $room = new TRoom();
-        $room->user_id = $user_id;
-        $room->room_id = $room_id;
-        $room->title = $title;
-        $room->frontcover = $frontcover;
-        $room->location = $location;
-        $room->push_url = $push_url;
-        $room->mixed_play_url = $mixed_play_url;
-        $room->show_product = $show_product;
-        $room->save();
+        //$room = new TRoom();
+        $room = TRoom::where(["user_id"=>$user_id])->find();
+        if($room==null) {
+            $room = new TRoom();
+            $room->user_id = $user_id;
+            $room->room_id = $room_id;
+            $room->title = $title;
+            $room->frontcover = $frontcover;
+            $room->location = $location;
+            $room->push_url = $push_url;
+            $room->mixed_play_url = $mixed_play_url;
+            $room->show_product = $show_product;
+            $room->save();
+        }else {
+            TRoom::where([
+                "user_id" => $user_id,
+            ])->update([
+                'title' => $title,
+                'frontcover' => $frontcover,
+                'location' => $location,
+                'push_url' => $push_url,
+                'mixed_play_url' => $mixed_play_url,
+                'show_product' => $show_product
+            ]);
+        }
+
         if($prebroadcast_id>0) {
             TPrebroadcast::where([
                 "id" => $prebroadcast_id,
