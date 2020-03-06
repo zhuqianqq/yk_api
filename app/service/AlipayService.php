@@ -150,7 +150,7 @@ class AlipayService
             $alipayMobilePay = new TAlipayMobilePay();
             $alipayMobilePay->out_trade_no = $order_num;
             $alipayMobilePay->app_id = $this->alipay_config['app_id'];
-            $alipayMobilePay->partner = $this->alipay_config['partner'];
+            $alipayMobilePay->partner = $this->alipay_config['partner'] ?? '';
             $alipayMobilePay->input_charset = $this->alipay_config["input_charset"];;
             $alipayMobilePay->req_sign_type = $this->alipay_config["sign_type"];
             $alipayMobilePay->notify_url = $this->alipay_config['notify_url'];
