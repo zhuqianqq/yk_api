@@ -1,6 +1,7 @@
 <?php
 namespace app\model;
 
+use app\util\Tools;
 use think\facade\Db;
 
 class TRoom extends BaseModel
@@ -26,4 +27,28 @@ class TRoom extends BaseModel
     }
 
 
+    /**
+     * 下播
+     * @param $room_id
+     * @param $user_id
+     */
+    public static function closeRoom($room_id,$user_id)
+    {
+        $data = Db::table("t_room")->where(["room_id" => $room_id])->find();
+        if (empty($data)) {
+            return Tools::outJson(100, "room_id未开播");
+        }
+        if($data["user_id"] != $user_id){
+            return Tools::outJson(100, "你无权关闭该直播");
+        }
+        $data = $data->toArray();
+        unset($data["id"]);
+
+        Db::startTrans();
+        Db::table("t_room")->where(["room_id" => $room_id,"user_id" => $user_id])->delete();
+        Db::table("t_room_history")->insert($data);
+        Db::commit();
+
+        return Tools::outJson(0, "下播成功");
+    }
 }

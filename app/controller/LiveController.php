@@ -99,21 +99,6 @@ class LiveController extends BaseController
             return $this->outJson(100, "room_id不能为空");
         }
 
-        $data = TRoom::where(["room_id" => $room_id])->find();
-        if (empty($data)) {
-            return $this->outJson(100, "room_id未开播");
-        }
-        if($data->user_id != $this->user_id){
-            return $this->outJson(100, "你无权关闭该直播");
-        }
-        $data = $data->toArray();
-        unset($data["id"]);
-
-        Db::startTrans();
-        Db::table("t_room")->where(["room_id" => $room_id,"user_id" => $this->user_id])->delete();
-        Db::table("t_room_history")->insert($data);
-        Db::commit();
-
-        return $this->outJson(0, "下播成功");
+        return json(TRoom::closeRoom($room_id,$this->user_id));
     }
 }
