@@ -101,8 +101,7 @@ class AlipayService
             . "\"product_code\":\"QUICK_MSECURITY_PAY\""
             . "}";  //product_code销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
 
-        $notify_url = urlencode($this->notify_url);  // 异步通知地址
-        $request->setNotifyUrl($notify_url);
+        $request->setNotifyUrl($this->notify_url); // 异步通知地址
         $request->setBizContent($bizcontent);
         $sign_body = $aop->sdkExecute($request);
 
@@ -156,15 +155,14 @@ class AlipayService
             . "\"total_amount\": " . $amount . ","
             . "\"product_code\":\"QUICK_WAP_WAY\""
             . "}";  //product_code销售产品码，商家和支付宝签约的产品码，为固定值QUICK_WAP_WAY
-        $notify_url = urlencode($this->notify_url);  // 异步通知地址
-        $request->setNotifyUrl($notify_url);
+        $request->setNotifyUrl($this->notify_url); // 异步通知地址
         $request->setBizContent($bizcontent);
 
         if (isset($map["return_url"]) && !empty($map["return_url"])) {
             $request->setReturnUrl($map["return_url"]);  //支付成功回跳页面
         }
 
-        $sign_body = $aop->pageExecute($request, "POST"); //获取get请求支付url
+        $sign_body = $aop->pageExecute($request, "GET"); //获取get请求支付url
 
         $data = [
             "user_id" => $user_id,

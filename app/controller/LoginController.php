@@ -60,6 +60,7 @@ class LoginController extends BaseController
                 "last_login_time" => date("Y-m-d H:i:s")
             ]);
             Db::commit();
+            $data = TMember::getByPhone($phone,$fields);
             $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
             $im_config = Config::get('im');
@@ -109,19 +110,19 @@ class LoginController extends BaseController
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
-            'nick_name' => empty($data['nick_name']) ? $nick_name : $data['nick_name'],
-            'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
-            'city' => empty($data['city']) ? $city : $data['city'],
-            'country' => empty($data['country']) ? $country : $data['country'],
-            'sex' => $data['sex'] > 0 ? $data['sex'] : $gender,
-            'province' => empty($data['province']) ? $province : $data['province'],
+            'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
+            'avatar' => empty($avatar) ? $data['avatar'] : $avatar,
+            'city' => empty($city) ? $data['city'] : $city,
+            'country' => empty($country) ? $data['country'] : $country,
+            'sex' => $gender > 0 ? $gender : $data['sex'],
+            'province' => empty($province) ? $data['province'] : $province,
             "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
+        $data = TMember::getByOpenId($openid, $fields);
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
         }
-
         $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
         $im_config = Config::get('im');
@@ -158,15 +159,16 @@ class LoginController extends BaseController
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
-            'nick_name' => empty($data['nick_name']) ? $nick_name : $data['nick_name'],
-            'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
-            'city' => empty($data['city']) ? $city : $data['city'],
-            'country' => empty($data['country']) ? $country : $data['country'],
-            'sex' => $data['sex'] > 0 ? $data['sex'] : $gender,
-            'province' => empty($data['province']) ? $province : $data['province'],
+            'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
+            'avatar' => empty($avatar) ? $data['avatar'] : $avatar,
+            'city' => empty($city) ? $data['city'] : $city,
+            'country' => empty($country) ? $data['country'] : $country,
+            'sex' => $gender > 0 ? $gender : $data['sex'],
+            'province' => empty($province) ? $data['province'] : $province,
             "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
+        $data = TMember::getByOpenId($openid, $fields);
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
         }
