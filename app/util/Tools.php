@@ -220,7 +220,7 @@ class Tools
      * @param array $header
      * @return mixed
      */
-    public static function curlPost($url, $data = '', $is_json = true, $header = array())
+    public static function curlPost($url, $data = '', $is_json = true, $header = array(),$ret_json=true)
     {
         if ($is_json) {
             array_push($header, "Content-Type:application/json");
@@ -246,9 +246,12 @@ class Tools
         $output = curl_exec($ch);
         curl_close($ch);
         self::addLog("api_log", "{$url}\nparam:{$data}\nres:{$output}");
-        $out = json_decode($output, true);
-
-        return $out;
+        if ($ret_json) {
+            $out = json_decode($output, true);
+            return $out;
+        }else{
+            return $output;
+        }
     }
 
     /**
