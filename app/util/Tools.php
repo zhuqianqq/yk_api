@@ -13,10 +13,14 @@ class Tools
      * 记录业务日志
      * @param string $file 日志文件名称(不带后缀)
      * @param string $msg 日志内容
+     * @param array $context 上下文信息
      */
-    public static function addLog($file, $msg)
+    public static function addLog($file, $msg, $context = [])
     {
         $content = '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n";
+        if(!empty($context)){
+            $content .= "context:".json_encode($content,JSON_UNESCAPED_UNICODE);
+        }
         $log_name = $file . "_" . date('Ymd') . ".log";
         $log_file = app()->getRuntimePath() . "log/" . ltrim($log_name, "/"); //保存在runtime/log/目录下
         $path = dirname($log_file);
@@ -156,7 +160,7 @@ class Tools
      */
     public static function randStr($length = 16)
     {
-        $chars = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
+        $chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         $str = "";
         for ($i = 0; $i < $length; $i++) {
             $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);

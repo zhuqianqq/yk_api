@@ -185,21 +185,26 @@ class ProductController extends BaseController
         $detail = $this->request->param("detail", '', "trim"); //图文详情，json格式，前端自定义格式
         $detail = $detail == "null" ? '' : $detail;
 
-        Tools::addLog("prod_save",$this->request->getInput());
+        $input = $this->request->getInput();
 
         if (empty($prod_name)) {
+            Tools::addLog("prod_save","商品名称不能为空",$input);
             return $this->outJson(100, "商品名称不能为空");
         }
         if ($price <= 0) {
+            Tools::addLog("prod_save","价格不能为空",$input);
             return $this->outJson(100, "价格不能为空");
         }
         if ($stock <= 0) {
+            Tools::addLog("prod_save","库存不能为空",$input);
             return $this->outJson(100, "库存不能为空");
         }
         if (empty($head_img)) {
+            Tools::addLog("prod_save","头部图片不能为空",$input);
             return $this->outJson(100, "头部图片不能为空");
         }
         if (empty($prop_list)) {
+            Tools::addLog("prod_save","商品规则不能为空",$input);
             return $this->outJson(100, "商品规则不能为空");
         }
 
@@ -214,9 +219,11 @@ class ProductController extends BaseController
                 //编辑
                 $prod_model = $tb_prod->where("prod_id", $prod_id)->find();
                 if (empty($prod_model)) {
+                    Tools::addLog("prod_save","商品不存在",$input);
                     return $this->outJson(200, "商品不存在");
                 }
                 if ($prod_model["user_id"] != $this->user_id) {
+                    Tools::addLog("prod_save","你无权编辑该商品",$input);
                     return $this->outJson(200, "你无权编辑该商品");
                 }
                 $tb_prod->where("prod_id",$prod_id)->update([
@@ -257,11 +264,13 @@ class ProductController extends BaseController
                     "detail" => $detail,
                 ]);
             }
-
             Db::commit();
+            Tools::addLog("prod_save","success,projd_id:{$prod_id}",$input);
+
             return $this->outJson(0, "success", ["prod_id" => $prod_id]);
         } catch (\Exception $ex) {
             Db::rollback();
+            Tools::addLog("prod_save","save_error:".$ex->getMessage().PHP_EOL.$ex->getTraceAsString(),$input);
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
         }
     }
