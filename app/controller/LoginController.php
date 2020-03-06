@@ -109,7 +109,7 @@ class LoginController extends BaseController
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
-            'nick_name' => empty($data['nick_name']) ? $nick_name : $data['nick_name'],
+            'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
             'avatar' => empty($data['avatar']) ? $avatar : $data['avatar'],
             'city' => empty($data['city']) ? $city : $data['city'],
             'country' => empty($data['country']) ? $country : $data['country'],
