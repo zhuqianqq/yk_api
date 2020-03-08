@@ -74,7 +74,7 @@ class PayController extends BaseController
 
             $res = (new AlipayService())->wapPay($data);
 
-            Tools::addLog("ali_pay","param:".json_encode($data,JSON_UNESCAPED_UNICODE).PHP_EOL."res:".json_encode($res));
+            Tools::addLog("ali_pay","param:".json_encode($data,JSON_UNESCAPED_UNICODE).PHP_EOL."res:".json_encode($res).PHP_EOL);
 
             return json($res);
         } catch (\Exception $ex) {
