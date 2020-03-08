@@ -177,7 +177,7 @@ class InviteController extends BaseController
                 $relation->save($relation_data);
             }
             Db::commit();
-            return $this->outJson(0, "success", ["order_id" => $order->order_no]);
+            return $this->outJson(0, "success", ["order_id" => $order->order_no,"trade_busi_code" => TInviteOrder::TRADE_BUSI_CODE]);
         } catch (\Exception $ex) {
             Db::rollback();
             return $this->outJson(500, "接口异常:" . $ex->getMessage());

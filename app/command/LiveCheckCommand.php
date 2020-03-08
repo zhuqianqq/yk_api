@@ -39,7 +39,6 @@ class LiveCheckCommand extends BaseCommand
 
             if(!empty($not_online_list)){
                 $not_online_list = $not_online_list->toArray();
-                print_r($not_online_list);
                 foreach($not_online_list as $item){
                     $ret = TRoom::closeRoom($item["room_id"],$item["user_id"]);
                     $this->log("关闭直播:room_id:".$item["room_id"].",ret:".json_encode($ret,JSON_UNESCAPED_UNICODE));
