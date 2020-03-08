@@ -104,7 +104,7 @@ class CommonController extends BaseController
     public function startInfo()
     {
         //小程序已上线为1 ，未上线为0
-        $data = array(["MiniWechatIsPublish"] => 0);
+        $data["MiniWechatIsPublish"] = 0;
         return $this->outJson(0, "", $data);
     }
 
