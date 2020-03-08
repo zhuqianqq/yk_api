@@ -10,6 +10,7 @@ use app\util\Tools;
 use app\util\CosHelper;
 use app\util\WechatHelper;
 use think\facade\Cache;
+use think\Image;
 
 class CommonController extends BaseController
 {
@@ -41,8 +42,22 @@ class CommonController extends BaseController
             if ($file['size'] > 10 * 1024 * 1024) {
                 return $this->outJson(100, '图片大小不能超过10Mb');
             }
+            Tools::addLog("upload",json_encode($file,JSON_UNESCAPED_UNICODE));
 
-            $ret = CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
+            if($file["size"] > 800 * 1014){
+                //大于800Kb时进行图片压缩
+                $file_path = $this->getSavePath($file["tmp_name"]);
+                $image = Image::open($file["tmp_name"]);
+                $image->thumb(1024,800)->save($file_path);
+
+                $ret = CosHelper::upload($file_path);
+                if($ret["code"] === 0){
+                    @unlink($file_path);
+                }
+            }else{
+                $ret = CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
+            }
+
             return json($ret);
         }
 
@@ -99,7 +114,7 @@ class CommonController extends BaseController
     }
 
     /**
-     * 返回logo图片地址
+     * 返回图片保存地址
      * @return string
      */
     private function getSavePath($file_name)
@@ -108,7 +123,9 @@ class CommonController extends BaseController
         if (!file_exists($save_path)) {
             @mkdir($save_path, 0755, true); //创建目录
         }
+        $info = @getimagesize($file_name);
+        $img_type = image_type_to_extension($info[2], true); //图片类型
 
-        return $save_path . DIRECTORY_SEPARATOR . date('YmdHis') . "_".$file_name;
+        return $save_path . DIRECTORY_SEPARATOR . Tools::getGuider("image").$img_type;
     }
 }
