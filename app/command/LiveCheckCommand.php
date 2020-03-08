@@ -47,8 +47,9 @@ class LiveCheckCommand extends BaseCommand
                 }
                 unset($item);
             }
+            $this->log(PHP_EOL);
 
-            sleep(10);
+            sleep(20);
         }
         $this->log("done");
     }
@@ -67,11 +68,11 @@ class LiveCheckCommand extends BaseCommand
         $client = new LiveClient($cred, "");
 
         $online_room_ids = []; //所有在线room_ids
-        $req = new DescribeLiveStreamOnlineListRequest(); // 实例化一个请求对象
         $page_num = 1;
         $page_size = 100;
         try{
             do{
+                $req = new DescribeLiveStreamOnlineListRequest(); // 实例化一个请求对象
                 //$req->AppName = "live";
                 $req->PageNum = $page_num; //取得第几页，默认1。
                 $req->PageSize = $page_size;//每页大小，最大100。取值：10~100之间的任意整数。默认值：10。
@@ -85,14 +86,16 @@ class LiveCheckCommand extends BaseCommand
                 //print_r($arr);
                 $this->log("pagenum:{$page_num},page_size:{$page_size},res:\n".json_encode($arr,JSON_UNESCAPED_UNICODE));
 
+                $total_page = $arr['TotalPage']; //总页数
                 $OnlineInfo = $arr['OnlineInfo'] ?? []; //正在推送流的信息列表
-                if(empty($OnlineInfo)){
-                    break;
-                }
                 foreach($OnlineInfo as $item){
                     $arr = explode("_",$item['StreamName']); //1400319314_101062
                     $room_id = "room_".$arr[1];
                     $online_room_ids[] = $room_id;
+                }
+
+                if($page_num >= $total_page){
+                    break;
                 }
                 $page_num ++;
             }while(true);
