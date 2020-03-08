@@ -140,23 +140,31 @@ class InviteController extends BaseController
         Db::startTrans();
         try {
             $now_time = date('Y-m-d H:i:s');
-            $order = new TInviteOrder();
-            $order_data = [
-                'order_no' => TInviteOrder::createOrderNo('YGIV'),
-                'inviter_uid' => $inviter_uid,
-                'amount' => $amount,
-                'reward_amount' => $product->reward_amount,
-                'invite_product_id' => $product->id,
-                'invite_product_snapshot' => json_encode($product->toArray()),
-                'state' => TInviteOrder::STATE_UNPAY,
-                'create_time' => $now_time,
-                'update_time' => $now_time,
-            ];
-            $order->save($order_data);
+            $relation = TInviteRelation::where(['inviter_uid' => $inviter_uid,'user_id' => $this->user_id])->find();
+            $order = null;
+            if (!empty($relation->invite_order_id)) {
+                $order = TInviteOrder::where(['id' => $relation->invite_order_id])->find();
+            }
+            if (!empty($order->id)) {
+                TInviteOrder::where(['id' => $relation->invite_order_id])->update(['update_time' => $now_time]);
+            } else {
+                $order = new TInviteOrder();
+                $order_data = [
+                    'order_no' => TInviteOrder::createOrderNo('YGIV'),
+                    'inviter_uid' => $inviter_uid,
+                    'amount' => $amount,
+                    'reward_amount' => $product->reward_amount,
+                    'invite_product_id' => $product->id,
+                    'invite_product_snapshot' => json_encode($product->toArray()),
+                    'state' => TInviteOrder::STATE_UNPAY,
+                    'create_time' => $now_time,
+                    'update_time' => $now_time,
+                ];
+                $order->save($order_data);
+            }
 
-            $existRelation = TInviteRelation::where(['inviter_uid' => $inviter_uid,'user_id' => $this->user_id])->find();
-            if (!empty($existRelation->id)) {
-                TInviteRelation::where(['id' => $existRelation->id])->update(['invite_order_id' => $order->id,'update_time' => $now_time]);
+            if (!empty($relation->id)) {
+                TInviteRelation::where(['id' => $relation->id])->update(['invite_order_id' => $order->id,'update_time' => $now_time]);
             } else {
                 $relation = new TInviteRelation();
                 $relation_data = [
@@ -185,6 +193,14 @@ class InviteController extends BaseController
         $user = TMember::where('user_id', $this->user_id)->field('is_broadcaster')->find();
         $result = isset($user->is_broadcaster) && $user->is_broadcaster == TMember::IS_BROADCASTER_YES ? 1 : 0;
         return $this->outJson(0, "成功", $result);
+    }
+
+    public function test()
+    {
+        $order = null;
+        if (empty($order->id)) {
+            echo 111;
+        }
     }
 
 }
