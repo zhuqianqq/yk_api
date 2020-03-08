@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use app\model\TInviteOrder;
 use think\facade\Config;
 use think\facade\Db;
 use think\facade\Cache;
@@ -67,7 +68,7 @@ class PayController extends BaseController
             $data['user_id'] = $user_id;
             $data['order_num'] = $order_num;
             $data['amount'] = $amount;
-            $data['trade_busi_code'] = $trade_busi_code;
+            $data['trade_busi_code'] = !empty($trade_busi_code) ? $trade_busi_code : TInviteOrder::TRADE_BUSI_CODE;
             $data['subject'] = !empty($subject) ? $subject : '映购主播开通付款';
             $data['return_url'] = $return_url;
 
