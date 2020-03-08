@@ -132,7 +132,7 @@ class LoginController extends BaseController
         ]);
 
         $this->setOtherInfo($data);
-
+        $data = TMember::getByOpenId($openid);
         return $this->outJson(0, "登录成功", $data);
     }
 
