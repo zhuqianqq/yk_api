@@ -88,13 +88,14 @@ class LiveCheckCommand extends BaseCommand
 
                 $total_page = $arr['TotalPage']; //总页数
                 $OnlineInfo = $arr['OnlineInfo'] ?? []; //正在推送流的信息列表
-                if($page_num >= $total_page || empty($OnlineInfo)){
-                    break;
-                }
                 foreach($OnlineInfo as $item){
                     $arr = explode("_",$item['StreamName']); //1400319314_101062
                     $room_id = "room_".$arr[1];
                     $online_room_ids[] = $room_id;
+                }
+
+                if($page_num >= $total_page){
+                    break;
                 }
                 $page_num ++;
             }while(true);
