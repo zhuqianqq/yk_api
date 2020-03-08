@@ -68,6 +68,10 @@ class TProduct extends BaseModel
             $data["head_img"] = $data["head_img"] ? json_decode($data["head_img"],true) : [];
             $data["detail"] = $data["detail"] ? json_decode($data["detail"],true) : null;
             $data["prop_list"] = TProductProperty::getPropertyList($prod_id);
+
+            $user_info = TMember::where("user_id",$data["user_id"])->field("nick_name,avatar")->find();
+            $data["nick_name"] = $user_info["nick_name"] ?? '';
+            $data['avatar'] = $user_info['avatar'] ?? '';
         }
         return $data;
     }
