@@ -133,8 +133,8 @@ class LoginController extends BaseController
         ]);
 
         $this->setOtherInfo($data);
-
-        return $this->outJson(0, "登录成功", $data);
+        $dbData = TMember::getByOpenId($openid);
+        return $this->outJson(0, "登录成功", array_merge($data, $dbData));
     }
 
     /**
@@ -199,8 +199,9 @@ class LoginController extends BaseController
         if (SmsHelper::checkVcode($phone, $vcode, "login") == false) {
             return $this->outJson(100, "验证码无效");
         }
-        $exist_user = TMember::where(["phone" => $phone])->find();
-        if ($exist_user != null) {
+
+        $exist_user= TMember::where('phone',$phone)->find();
+        if($exist_user != null) {
             return $this->outJson(100, "此手机号已绑定其它账号！");
         }
 
