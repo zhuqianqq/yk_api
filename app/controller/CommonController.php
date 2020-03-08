@@ -93,12 +93,11 @@ class CommonController extends BaseController
         $scene = $this->request->param("scene", '', "trim");
         $width =  $this->request->param("width", '430', "int");
         $accessToken = WechatHelper::getAccessToken();
-        //var_dump($accessToken);
         $res = WechatHelper::getMiniQr($page, $scene, $width, $accessToken);
-        //return $res;
-        //return $this->outJson(0,"生成成功！",$res);
+
         return response($res, 200, ['Content-Length' => strlen($res)])->contentType('image/png');
     }
+
     /**
      * 返回logo图片地址
      * @return string
@@ -109,6 +108,7 @@ class CommonController extends BaseController
         if (!file_exists($save_path)) {
             @mkdir($save_path, 0755, true); //创建目录
         }
+
         return $save_path . DIRECTORY_SEPARATOR . date('YmdHis') . "_".$file_name;
     }
 }
