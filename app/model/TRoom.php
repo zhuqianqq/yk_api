@@ -43,7 +43,8 @@ class TRoom extends BaseModel
             return Tools::outJson(100, "你无权关闭该直播");
         }
         unset($data["id"]);
-        $data["oper_user"] = $oper_user;
+        $data["oper_user"] = empty($oper_user) ? $user_id : $oper_user; //关播用户
+        $data["close_time"] = date("Y-m-d H:i:s"); //关播时间
 
         Db::startTrans();
         Db::table("t_room")->where(["room_id" => $room_id,"user_id" => $user_id])->delete();
