@@ -16,7 +16,7 @@ use AlipayTradeRefundRequest;
 use AlipayTradeWapPayRequest;
 use think\facade\Config;
 use app\util\Tools;
-use app\model\TAlipayMobilePay;
+use app\model\TAliMobilePay;
 use think\facade\Db;
 use App\Models\Cfund\UserPay;
 use app\model\TInviteOrder;
@@ -69,6 +69,7 @@ class AlipayService
         $order_num = $map['order_num']; //用户业务订单号
         $amount = floatval($map['amount']);  //付款金额（元）
         $subject = $map['subject'] ?? ''; //商品描述字符串
+        $trade_busi_code = $map["trade_busi_code"] ?? ''; //交易业务code
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         require_once 'alipay2/aop/request/AlipayTradeAppPayRequest.php';
@@ -77,9 +78,9 @@ class AlipayService
         $it_b_pay = "120m"; //120分钟
 
         // 生成alipay_mobile_pay订单
-        $alipayMobilePay = TAlipayMobilePay::where('out_trade_no', $order_num)->find();
+        $alipayMobilePay = TAliMobilePay::where('out_trade_no', $order_num)->find();
         if (empty($alipayMobilePay)) {
-            $this->createPay($order_num,$subject,$amount,$request->getApiMethodName());
+            $this->createPay($order_num,$subject,$amount,$trade_busi_code,$request->getApiMethodName(),$it_b_pay);
         }else{
             if ($alipayMobilePay["notify_trade_status"] == 'TRADE_SUCCESS') {
                 return Tools::outJson(200,"业务订单号已经为支付成功状态,无须再支付");
@@ -88,6 +89,7 @@ class AlipayService
             $alipayMobilePay->subject = $subject;
             $alipayMobilePay->total_fee = $amount;
             $alipayMobilePay->service = $request->getApiMethodName();//wap支付
+            $alipayMobilePay->it_b_pay = $it_b_pay;
             $alipayMobilePay->save();
         }
 
@@ -126,6 +128,7 @@ class AlipayService
         $order_num = $map['order_num']; //订单编号
         $amount = $map['amount'];  //付款金额（元）
         $subject = $map['subject'] ?? ''; //订单标题
+        $trade_busi_code = $map["trade_busi_code"] ?? ''; //交易业务code
 
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         require_once 'alipay2/aop/request/AlipayTradeWapPayRequest.php';
@@ -133,9 +136,9 @@ class AlipayService
         $it_b_pay = "120m"; //120分钟
 
         // 生成alipay_mobile_pay订单
-        $alipayMobilePay = TAlipayMobilePay::where('out_trade_no', $order_num)->find();
+        $alipayMobilePay = TAliMobilePay::where('out_trade_no', $order_num)->find();
         if (empty($alipayMobilePay)) {
-            $this->createPay($order_num,$subject,$amount,$request->getApiMethodName());
+            $this->createPay($order_num,$subject,$amount,$trade_busi_code,$request->getApiMethodName(),$it_b_pay);
         }else{
             if ($alipayMobilePay["notify_trade_status"] == 'TRADE_SUCCESS') {
                 return Tools::outJson(200,"业务订单号已经为支付成功状态,无须再支付");
@@ -143,6 +146,7 @@ class AlipayService
             $alipayMobilePay->subject = $subject;
             $alipayMobilePay->total_fee = $amount;
             $alipayMobilePay->service = $request->getApiMethodName();//wap支付
+            $alipayMobilePay->it_b_pay = $it_b_pay;
             $alipayMobilePay->save();
         }
 
@@ -155,7 +159,8 @@ class AlipayService
             . "\"total_amount\": " . $amount . ","
             . "\"product_code\":\"QUICK_WAP_WAY\""
             . "}";  //product_code销售产品码，商家和支付宝签约的产品码，为固定值QUICK_WAP_WAY
-        $request->setNotifyUrl($this->notify_url); // 异步通知地址
+
+        $request->setNotifyUrl($this->notify_url); //异步回调通知地址
         $request->setBizContent($bizcontent);
 
         if (isset($map["return_url"]) && !empty($map["return_url"])) {
@@ -177,21 +182,26 @@ class AlipayService
      * @param $order_num
      * @param $subject
      * @param $amount
+     * @param $trade_busi_code
+     * @param string $service
+     * @param string $it_b_pay
      */
-    public function createPay($order_num,$subject,$amount,$service = '')
+    public function createPay($order_num,$subject,$amount,$trade_busi_code = '',$service = '',$it_b_pay = "120m")
     {
-        $alipayMobilePay = new TAlipayMobilePay();
-        $alipayMobilePay->out_trade_no = $order_num;
-        $alipayMobilePay->app_id = $this->alipay_config['app_id'];
-        $alipayMobilePay->subject = $subject;
-        $alipayMobilePay->seller_id = $this->alipay_config['seller_id'];
-        $alipayMobilePay->total_fee = $amount;
-        $alipayMobilePay->service = $service;
-        $alipayMobilePay->notify_url = $this->notify_url;
-        $alipayMobilePay->pay_status = 0;
-        $alipayMobilePay->create_time = date("Y-m-d H:i:s");
+        $model = new TAliMobilePay();
+        $model->out_trade_no = $order_num;
+        $model->app_id = $this->alipay_config['app_id'];
+        $model->subject = $subject;
+        $model->seller_id = $this->alipay_config['seller_id'];
+        $model->total_fee = $amount;
+        $model->service = $service;
+        $model->notify_url = $this->notify_url;
+        $model->pay_status = TAliMobilePay::PAY_STATUS_WAIT_PAY; //待支付状态
+        $model->trade_busi_code = $trade_busi_code;
+        $model->it_b_pay = $it_b_pay;
+        $model->create_time = date("Y-m-d H:i:s");
 
-        $alipayMobilePay->save();
+        $model->save();
     }
 
     /**
@@ -234,7 +244,7 @@ class AlipayService
                 "out_trade_no" => $order_num,
             ];
             // 更新alipay_mobile_pay订单状态
-            $alipay_data = Db::table('t_alipay_mobile_pay')->where($where)->find();
+            $alipay_data = Db::table('t_ali_mobile_pay')->where($where)->field("out_trade_no,notify_trade_status,trade_busi_code")->find();
             if (empty($alipay_data)) {
                 $this->log('alipayNotify: 没有out_trade_no=' . $order_num . '支付宝回调记录');
                 return false;
@@ -275,17 +285,19 @@ class AlipayService
             ];
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
-                $up_data['pay_status'] = TAlipayMobilePay::PAY_STATUS_SUCCESS; //支付成功
+                $up_data['pay_status'] = TAliMobilePay::PAY_STATUS_SUCCESS; //支付成功
                 $up_data["finish_time"] = date('Y-m-d H:i:s'); // 收到支付宝完成通知时间
             }else{
-                $up_data['pay_status'] = TAlipayMobilePay::PAY_STATUS_FAIL; //支付失败
+                $up_data['pay_status'] = TAliMobilePay::PAY_STATUS_FAIL; //支付失败
             }
 
-            Db::table('t_alipay_mobile_pay')->where($where)->update($up_data);
+            Db::table('t_ali_mobile_pay')->where($where)->update($up_data);
 
             if ($map['trade_status'] == 'TRADE_SUCCESS') {
                 //更新业务订单状态
-                TInviteOrder::finishInviteOrder($order_num);
+                if($alipay_data['trade_busi_code'] == TInviteOrder::TRADE_BUSI_CODE){
+                    TInviteOrder::finishInviteOrder($order_num);
+                }
             }
             $this->log('支付宝回调通知success');
 

@@ -9,6 +9,11 @@ use app\util\Tools;
 
 class TInviteOrder extends BaseModel
 {
+    /**
+     * 交易订单业务code
+     */
+    const TRADE_BUSI_CODE = "invite_order";
+
     const STATE_UNPAY = 0; // 未支付
     const STATE_PAYED = 1; // 已支付
 
