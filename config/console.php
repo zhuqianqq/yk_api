@@ -5,5 +5,6 @@ return [
     'commands' => [
         \app\command\TestCommand::class,
         \app\command\LiveCheckCommand::class,
+        \app\command\UpdateLikeCount::class,
     ],
 ];

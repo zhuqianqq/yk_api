@@ -10,6 +10,7 @@ use app\model\TPrebroadcast;
 use app\model\TRoom;
 use app\model\TRoomHistory;
 use app\util\Tools;
+use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Db;
 use think\Model;
@@ -17,18 +18,19 @@ use think\Model;
 class LiveController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['closeRoom','addRoom']],
+        'access_check' => ['only' => ['closeRoom', 'addRoom']],
     ];
 
     /**
-     * 直播列表
+     * 首页直播列表
      */
     public function getList()
     {
         $page_size = $this->request->param("page_size", 10, "intval");
         $page = $this->request->param("page", 1, "intval");
         $page = $page ? $page : 1;
-        $data = TRoom::getList($page,$page_size);
+        $data = TRoom::getList($page, $page_size);
+
         return $this->outJson(0, "success", $data);
     }
 
@@ -42,7 +44,7 @@ class LiveController extends BaseController
 
         if ($room_id > 0) {
             $where = ['room_id' => $room_id];
-        } elseif ($user_id > 0) {
+        } else if ($user_id > 0) {
             $where = ['user_id' => $user_id];
         } else {
             return $this->outJson(100, "user_id或room_id无效");
@@ -53,11 +55,14 @@ class LiveController extends BaseController
         return $this->outJson(0, "success", $data);
     }
 
+    /**
+     * 创建直播
+     */
     public function addRoom()
     {
         $im_config = Config::get('im');
         $user_id = $this->request->param("user_id", 0, "intval");
-        $user = TMember::where(["user_id"=>$user_id])->find();
+        $user = TMember::where(["user_id" => $user_id])->find();
 
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
@@ -65,12 +70,13 @@ class LiveController extends BaseController
         $location = $this->request->param("location");
         $push_url = $this->request->param("push_url");
         //$mixed_play_url = $this->request->param("mixed_play_url");
-        $mixed_play_url = "http://live.laotouge.cn/live/".$im_config["IM_SDKAPPID"]."_".$user->display_code.".flv";
+        $mixed_play_url = "http://live.laotouge.cn/live/" . $im_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
         $show_product = $this->request->param("show_product");
-        $prebroadcast_id = $this->request->param("prebroadcast_id",0, "intval");
+        $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
         //$room = new TRoom();
-        $room = TRoom::where(["user_id"=>$user_id])->find();
-        if($room==null) {
+        $room = TRoom::where(["user_id" => $user_id])->find();
+
+        if ($room == null) {
             $room = new TRoom();
             $room->user_id = $user_id;
             $room->room_id = $room_id;
@@ -81,7 +87,7 @@ class LiveController extends BaseController
             $room->mixed_play_url = $mixed_play_url;
             $room->show_product = $show_product;
             $room->save();
-        }else {
+        } else {
             TRoom::where([
                 "user_id" => $user_id,
             ])->update([
@@ -94,7 +100,7 @@ class LiveController extends BaseController
             ]);
         }
 
-        if($prebroadcast_id>0) {
+        if ($prebroadcast_id > 0) {
             TPrebroadcast::where([
                 "id" => $prebroadcast_id,
             ])->update([
@@ -115,6 +121,23 @@ class LiveController extends BaseController
             return $this->outJson(100, "room_id不能为空");
         }
 
-        return json(TRoom::closeRoom($room_id,$this->user_id,$this->user_id));
+        return json(TRoom::closeRoom($room_id, $this->user_id, $this->user_id));
+    }
+
+    /**
+     * 直播点赞
+     */
+    public function incrLikeCount()
+    {
+        $room_id = $this->request->param("room_id", '', "trim");
+
+        if (empty($room_id)) {
+            return $this->outJson(100, "room_id不能为空");
+        }
+
+        $key = "{$room_id}:like_count";
+        $ret = Cache::incr($key); //可以直接调用redis底层方法
+
+        return $this->outJson(0, "success");
     }
 }
