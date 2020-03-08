@@ -295,7 +295,6 @@ class Tools
      */
     public static function getGuider($type = "")
     {
-        $t = self::getMicroTime(); //毫秒
-        return $type.$t.mt_rand(1000,9999);
+        return $type.date("YmdHis").mt_rand(1000,9999);
     }
 }

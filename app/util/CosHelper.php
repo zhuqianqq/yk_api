@@ -64,6 +64,6 @@ class CosHelper
     {
         $fileExt = $file_ext ? $file_ext : Tools::getExtension($fileName);
 
-        return date('YmdHis') . "_" . Tools::randStr(6) . "." .$fileExt;
+        return Tools::getGuider("ygzb") .".".$fileExt;
     }
 }
