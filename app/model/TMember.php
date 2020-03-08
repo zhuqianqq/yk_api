@@ -97,7 +97,7 @@ class TMember extends BaseModel
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
-        $user_id = Db::table("t_member")->insert($data);
+        $user_id = Db::table("t_member")->insertGetId($data);
 
         if ($user_id) {
             self::updateOtherInfo($user_id);
@@ -134,7 +134,7 @@ class TMember extends BaseModel
             'create_time' => date("Y-m-d H:i:s"),
         ];
 
-        $user_id = Db::table("t_member")->insert($data);
+        $user_id = Db::table("t_member")->insertGetId($data);
 
         if ($user_id) {
             self::updateOtherInfo($user_id);
