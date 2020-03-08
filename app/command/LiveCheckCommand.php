@@ -29,21 +29,26 @@ class LiveCheckCommand extends BaseCommand
                 break;
             }
 
-            $online_room_ids = $this->getOnlineRooms();
-            if($online_room_ids === false){
+            $online_rooms = $this->getOnlineRooms();
+            if($online_rooms === false){
                 sleep(2);
                 continue;
             }
+            $online_room_ids = array_keys($online_rooms);
             $this->log("online_room_ids:".json_encode($online_room_ids));
 
-            $not_online_list = TRoom::where("room_id","not in",$online_room_ids)->field("room_id,user_id")->select(); //不在线的直播
+            $not_online_list = TRoom::where("room_id","not in",$online_room_ids)->field("room_id,user_id,create_time")->select(); //不在线的直播
             $this->log("not_online_list count:".count($not_online_list));
 
             if(!empty($not_online_list)){
                 $not_online_list = $not_online_list->toArray();
                 foreach($not_online_list as &$item){
-                    $ret = TRoom::closeRoom($item["room_id"],$item["user_id"],"system"); //系统自动下播
-                    $this->log("close room_id:{$item['room_id']},user_id:{$item['user_id']},ret:".json_encode($ret,JSON_UNESCAPED_UNICODE));
+                    if(strtotime($item['create_time']) < strtotime($online_rooms[$item['room_id']])){
+                        $ret = TRoom::closeRoom($item["room_id"],$item["user_id"],"system"); //系统自动下播
+                        $this->log("close room_id:{$item['room_id']},user_id:{$item['user_id']},ret:".json_encode($ret,JSON_UNESCAPED_UNICODE));
+                    }else{
+                        $this->log("时间不满足要求");
+                    }
                 }
                 unset($item);
             }
@@ -67,7 +72,7 @@ class LiveCheckCommand extends BaseCommand
         //实例化要请求client对象
         $client = new LiveClient($cred, "");
 
-        $online_room_ids = []; //所有在线room_ids
+        $online_rooms = []; //所有在线room
         $page_num = 1;
         $page_size = 100;
         try{
@@ -90,8 +95,9 @@ class LiveCheckCommand extends BaseCommand
                 $OnlineInfo = $arr['OnlineInfo'] ?? []; //正在推送流的信息列表
                 foreach($OnlineInfo as $item){
                     $arr = explode("_",$item['StreamName']); //1400319314_101062
+                    $publish_time = $item["PublishTimeList"][0]["PublishTime"]; //直播发布时间 "2020-03-08T13:39:41Z"
                     $room_id = "room_".$arr[1];
-                    $online_room_ids[] = $room_id;
+                    $online_rooms[$room_id] = $publish_time;
                 }
 
                 if($page_num >= $total_page){
@@ -100,7 +106,7 @@ class LiveCheckCommand extends BaseCommand
                 $page_num ++;
             }while(true);
 
-            return $online_room_ids;
+            return $online_rooms;
         }catch (\Exception $ex){
             $this->log("getOnlineRooms error:".$ex->getMessage());
             return false;
