@@ -102,7 +102,7 @@ class LiveController extends BaseController
                 'show_product' => $show_product
             ]);
         }
-
+        $room = TRoom::where(["user_id"=>$user_id])->find();
         if($prebroadcast_id>0) {
             TPrebroadcast::where([
                 "id" => $prebroadcast_id,
