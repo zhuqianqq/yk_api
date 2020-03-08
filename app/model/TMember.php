@@ -97,7 +97,7 @@ class TMember extends BaseModel
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
-        $user_id = Db::table("t_member")->insertGetId($data);
+        $user_id = self::insertGetId($data);
 
         if ($user_id) {
             self::updateOtherInfo($user_id);
@@ -118,7 +118,7 @@ class TMember extends BaseModel
             "display_code" => $display_code,
             "nick_name" => $nick_name,
         ];
-        Db::table("t_member")->where("user_id", $user_id)->update($up_data);
+        self::where("user_id", $user_id)->update($up_data);
     }
 
     /**
@@ -134,7 +134,7 @@ class TMember extends BaseModel
             'create_time' => date("Y-m-d H:i:s"),
         ];
 
-        $user_id = Db::table("t_member")->insertGetId($data);
+        $user_id = self::insertGetId($data);
 
         if ($user_id) {
             self::updateOtherInfo($user_id);
