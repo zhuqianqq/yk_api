@@ -31,8 +31,9 @@ class TRoom extends BaseModel
      * 下播
      * @param $room_id
      * @param $user_id
+     * @param $oper_user 操作用户
      */
-    public static function closeRoom($room_id,$user_id)
+    public static function closeRoom($room_id,$user_id,$oper_user = '')
     {
         $data = Db::table("t_room")->where(["room_id" => $room_id])->find();
         if (empty($data)) {
@@ -42,6 +43,7 @@ class TRoom extends BaseModel
             return Tools::outJson(100, "你无权关闭该直播");
         }
         unset($data["id"]);
+        $data["oper_user"] = $oper_user;
 
         Db::startTrans();
         Db::table("t_room")->where(["room_id" => $room_id,"user_id" => $user_id])->delete();

@@ -2,6 +2,7 @@
 /**
  * 会员表
  */
+
 namespace app\model;
 
 use app\util\Tools;
@@ -34,27 +35,45 @@ class TMember extends BaseModel
     ];
 
     /**
+     * 根据手机号
      * @param $phone
+     * @param $field
      */
-    public static function getByPhone($phone,$field = "*")
+    public static function getByPhone($phone, $field = "")
     {
-        $data = self::where("phone",$phone)->field($field)->find();
+        if (empty($field)) {
+            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,
+                       is_broadcaster,audit_status,is_lock";
+        }
+        $data = self::where("phone", $phone)->field($field)->find();
 
         return $data ? $data->toArray() : null;
     }
 
 
-    public static function getByOpenId($openid, $field = "*"){
-        $data = self::where("openid",$openid)->field($field)->find();
+    /**
+     * 根据opendid获取
+     * @param string $openid
+     * @param string $field
+     * @return array|null
+     */
+    public static function getByOpenId($openid, $field = "")
+    {
+        if (empty($field)) {
+            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,
+                       is_broadcaster,audit_status,is_lock";
+        }
+        $data = self::where("openid", $openid)->field($field)->find();
+
         return $data ? $data->toArray() : null;
     }
 
     /**
-     * 随机生成昵称
+     * 生成昵称
      */
-    public static function generateNick($prefix = "ygzb_")
+    public static function generateNick($display_code, $prefix = "映购")
     {
-        return $prefix.Tools::randStr(4);
+        return $prefix . $display_code;
     }
 
 
@@ -74,25 +93,53 @@ class TMember extends BaseModel
     public static function registerByPhone($phone)
     {
         $data = [
-            'phone'  =>  $phone,
-            'nick_name' => self::generateNick(),
+            'phone' => $phone,
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
         $user_id = Db::table("t_member")->insert($data);
+
+        if ($user_id) {
+            self::updateOtherInfo($user_id);
+        }
 
         return $user_id;
     }
 
+    /**
+     * 更新nick和display_code
+     * @param $user_id
+     */
+    private static function updateOtherInfo($user_id)
+    {
+        $display_code = self::generateDisplayCode($user_id);//显示编码
+        $nick_name = self::generateNick($display_code);
+        $up_data = [
+            "display_code" => $display_code,
+            "nick_name" => $nick_name,
+        ];
+        Db::table("t_member")->where("user_id", $user_id)->update($up_data);
+    }
+
+    /**
+     * 按open_id注册
+     * @param $openid
+     * @return int|string
+     */
     public static function registerByOpenId($openid)
     {
         $data = [
             'openid' => $openid,
-            'nick_name' => self::generateNick(),
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
+
         $user_id = Db::table("t_member")->insert($data);
+
+        if ($user_id) {
+            self::updateOtherInfo($user_id);
+        }
+
         return $user_id;
     }
 }

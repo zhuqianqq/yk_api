@@ -31,7 +31,7 @@ class LiveCheckCommand extends BaseCommand
 
             $online_room_ids = $this->getOnlineRooms();
 
-            $this->log("在线直播:".json_encode($online_room_ids));
+            $this->log("tencent在线直播:".json_encode($online_room_ids));
 
             $not_online_list = TRoom::where("room_id","not in",$online_room_ids)->field("room_id,user_id")->select();
 
@@ -40,7 +40,7 @@ class LiveCheckCommand extends BaseCommand
             if(!empty($not_online_list)){
                 $not_online_list = $not_online_list->toArray();
                 foreach($not_online_list as $item){
-                    $ret = TRoom::closeRoom($item["room_id"],$item["user_id"]);
+                    $ret = TRoom::closeRoom($item["room_id"],$item["user_id"],"system");
                     $this->log("关闭直播:room_id:".$item["room_id"].",ret:".json_encode($ret,JSON_UNESCAPED_UNICODE));
                 }
 

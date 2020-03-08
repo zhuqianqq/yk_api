@@ -115,6 +115,6 @@ class LiveController extends BaseController
             return $this->outJson(100, "room_id不能为空");
         }
 
-        return json(TRoom::closeRoom($room_id,$this->user_id));
+        return json(TRoom::closeRoom($room_id,$this->user_id,$this->user_id));
     }
 }

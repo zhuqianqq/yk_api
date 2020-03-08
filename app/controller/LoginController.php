@@ -39,39 +39,29 @@ class LoginController extends BaseController
 
         try{
             Db::startTrans();
-            $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
-            $data = TMember::getByPhone($phone,$fields);
+            $data = TMember::getByPhone($phone);
+
             if(!$data){
                 //注册
                 $user_id = TMember::registerByPhone($phone);
                 if($user_id <= 0){
                     return $this->outJson(200,"注册失败");
                 }
-                $data = TMember::getByPhone($phone,$fields);
+                $data = TMember::getByPhone($phone);
             }
+
             if ($data["is_lock"] == 1) {
                 return $this->outJson(200,"账号已被锁定");
             }
-            $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
             TMember::where([
                 "user_id" => $data["user_id"],
             ])->update([
-                "display_code" => $display_code, //显示编码
                 "last_login_time" => date("Y-m-d H:i:s")
             ]);
             Db::commit();
-            $data = TMember::getByPhone($phone,$fields);
-            $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
-            $im_config = Config::get('im');
-            $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
-            $user_sign = $api->genSig($display_code);
+            $this->setOtherInfo($data);
 
-            $data["room_sign"] = [
-                "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
-                "display_code" => $display_code,
-                "user_sign" => $user_sign
-            ];
             return $this->outJson(0,"登录成功",$data);
         }catch (\Exception $ex){
             Db::rollback();
@@ -80,33 +70,53 @@ class LoginController extends BaseController
     }
 
     /**
+     * 设置其他信息
+     * @param $data
+     */
+    private function setOtherInfo(&$data){
+        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
+
+        $im_config = Config::get('im');
+        $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
+        $user_sign = $api->genSig($data["display_code"]);
+
+        //直播间账号签名信息
+        $data["room_sign"] = [
+            "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
+            "display_code" => $data["display_code"],
+            "user_sign" => $user_sign
+        ];
+    }
+
+    /**
      * 小程序登录
-     * @return array
      */
     public function loginByMinWechat()
     {
-        $code = $this->request->post("code");
-        $avatar = $this->request->post("avatar");
-        $city = $this->request->post("city");
-        $country = $this->request->post("country");
+        $code = $this->request->post("code",'',"trim");
+        $avatar = $this->request->post("avatar",'',"trim");
+        $city = $this->request->post("city",'',"trim");
+        $country = $this->request->post("country",'',"trim");
         $gender = $this->request->post("gender");
-        $nick_name = $this->request->post("nick_name");
-        $province = $this->request->post("province");
+        $nick_name = $this->request->post("nick_name",'',"trim");
+        $province = $this->request->post("province",'',"trim");
 
-        $openid = WechatHelper::getWechatOpenId($code);
+        $openid = WechatHelper::getWechatOpenId($code); //以code换取openid
         if ($openid == "") {
-            return $this->outJson(200, "获取微信信息失败！");
+            return $this->outJson(200, "获取微信openid失败！");
         }
-        $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
-        $data = TMember::getByOpenId($openid, $fields);
+        $data = TMember::getByOpenId($openid);
         if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid, $fields);
+            $data = TMember::getByOpenId($openid);
         }
-        $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
+        if ($data["is_lock"] == 1) {
+            return $this->outJson(200, "账号已被锁定");
+        }
+
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
@@ -116,46 +126,42 @@ class LoginController extends BaseController
             'country' => empty($country) ? $data['country'] : $country,
             'sex' => $gender > 0 ? $gender : $data['sex'],
             'province' => empty($province) ? $data['province'] : $province,
-            "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
-            "last_login_time" => date("Y-m-d H:i:s")
+            "last_login_time" => date("Y-m-d H:i:s"),
         ]);
-        $data = TMember::getByOpenId($openid, $fields);
-        if ($data["is_lock"] == 1) {
-            return $this->outJson(200, "账号已被锁定");
-        }
-        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
-        $im_config = Config::get('im');
-        $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
-        $user_sign = $api->genSig($display_code);
+        $this->setOtherInfo($data);
 
-        $data["room_sign"] = [
-            "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
-            "display_code" => $display_code,
-            "user_sign" => $user_sign
-        ];
         return $this->outJson(0, "登录成功", $data);
     }
 
+    /**
+     * APP微信登录
+     * @return array
+     */
     public function loginByWechat()
     {
-        $avatar = $this->request->post("avatar");
-        $city = $this->request->post("city");
-        $country = $this->request->post("country");
-        $gender = $this->request->post("gender");
-        $nick_name = $this->request->post("nick_name");
-        $province = $this->request->post("province");
-        $openid = $this->request->post("openid");
-        $fields = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,is_broadcaster,audit_status,is_lock";
-        $data = TMember::getByOpenId($openid, $fields);
+        $avatar = $this->request->post("avatar",'',"trim");
+        $city = $this->request->post("city",'',"trim");
+        $country = $this->request->post("country",'',"trim");
+        $gender = $this->request->post("gender",'','trim');
+        $nick_name = $this->request->post("nick_name",'','trim');
+        $province = $this->request->post("province",'','trim');
+        $openid = $this->request->post("openid",'',"trim");
+
+        $data = TMember::getByOpenId($openid);
+
         if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid, $fields);
+            $data = TMember::getByOpenId($openid);
         }
-        $display_code = TMember::generateDisplayCode($data["user_id"]);//显示编码
+
+        if ($data["is_lock"] == 1) {
+            return $this->outJson(200, "账号已被锁定");
+        }
+
         TMember::where([
             "user_id" => $data["user_id"],
         ])->update([
@@ -165,36 +171,26 @@ class LoginController extends BaseController
             'country' => empty($country) ? $data['country'] : $country,
             'sex' => $gender > 0 ? $gender : $data['sex'],
             'province' => empty($province) ? $data['province'] : $province,
-            "display_code" => empty($data['display_code']) ? $display_code : $data['display_code'],
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
-        $data = TMember::getByOpenId($openid, $fields);
-        if ($data["is_lock"] == 1) {
-            return $this->outJson(200, "账号已被锁定");
-        }
 
-        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
+        $this->setOtherInfo($data);
 
-        $im_config = Config::get('im');
-        $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
-        $user_sign = $api->genSig($display_code);
-
-        $data["room_sign"] = [
-            "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
-            "display_code" => $display_code,
-            "user_sign" => $user_sign
-        ];
         return $this->outJson(0, "登录成功", $data);
     }
 
+    /**
+     * 绑定手机号
+     * @return array
+     */
     public function bindPhone()
     {
         $vcode = $this->request->post("vcode", 0, "intval");
         $phone = $this->request->post("phone", 0, "intval");
         $user_id = $this->request->post("user_id", 0, "intval");
 
-        if (ValidateHelper::isMobile($phone) == false || $vcode <= 0) {
-            return $this->outJson(100, "参数错误");
+        if (ValidateHelper::isMobile($phone) == false) {
+            return $this->outJson(100, "手机号格式错误");
         }
 
         if (SmsHelper::checkVcode($phone, $vcode, "login") == false) {
@@ -205,8 +201,8 @@ class LoginController extends BaseController
             "user_id" => $user_id,
         ])->update([
             'phone' => $phone,
-            "last_login_time" => date("Y-m-d H:i:s")
         ]);
+
         return $this->outJson(0, "绑定成功");
     }
     
