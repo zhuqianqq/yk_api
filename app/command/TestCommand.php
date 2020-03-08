@@ -3,9 +3,12 @@ namespace app\command;
 
 use think\facade\Config;
 use TencentCloud\Common\Credential;
-use TencentCloud\Live\V20180801\Models\DescribeLiveStreamOnlineListRequest;
-use TencentCloud\Live\V20180801\Models\DescribeLiveStreamOnlineListResponse;
+use TencentCloud\Common\Profile\ClientProfile;
+use TencentCloud\Common\Profile\HttpProfile;
+use TencentCloud\Common\Exception\TencentCloudSDKException;
 use TencentCloud\Live\V20180801\LiveClient;
+use TencentCloud\Live\V20180801\Models\DescribePullStreamConfigsRequest;
+
 
 class TestCommand extends BaseCommand
 {
@@ -21,35 +24,23 @@ class TestCommand extends BaseCommand
     {
         $this->output->writeln("This is test command");
 
-        $app_id = "1257835755";
-        $secretId = "AKIDkMlvYwQye5KNCrwYhhz47OSKz0td5lEM";
-        $secretKey = "0mz0lGVWJvHNJ0UigQvA8sMaaLq7IbNu";
+        $conf = Config::get("tencent_clound");
+        $cred = new Credential($conf["secretId"],$conf["secretKey"]);
 
-        $im = Config::get("im");
+        $httpProfile = new HttpProfile();
+        $httpProfile->setEndpoint("live.tencentcloudapi.com");
 
-        // 实例化一个证书对象，入参需要传入腾讯云账户secretId，secretKey
-        $cred = new Credential($secretId,$secretKey);
+        $clientProfile = new ClientProfile();
+        $clientProfile->setHttpProfile($httpProfile);
+        $client = new LiveClient($cred, "", $clientProfile);
 
-        // # 实例化要请求产品(以cvm为例)的client对象
-        $client = new LiveClient($cred, "");
+        $req = new DescribePullStreamConfigsRequest();
 
-        // 实例化一个请求对象
-        $req = new DescribeLiveStreamOnlineListRequest();
+        //$params = '{}';
+        //$req->fromJsonString($params);
 
-        // 通过client对象调用想要访问的接口，需要传入请求对象
-//        $resp = $client->DescribeZones($req);
-//        print_r($resp->toJsonString());
+        $resp = $client->DescribePullStreamConfigs($req);
 
-          //实例化一个请求对象
-        $req = new DescribeLiveStreamOnlineListRequest();
-        //$req->AppName = "live";
-        $req->PageNum = 1;
-        $req->PageSize = 10;
-        //$req->StreamName = "live";
-        //$req->AppName = "live";
-
-        $res = $client->DescribeLiveStreamOnlineList($req);
-
-        print_r($res->toJsonString());
+        print_r($resp->toJsonString());
     }
 }

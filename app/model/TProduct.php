@@ -38,7 +38,7 @@ class TProduct extends BaseModel
         if($total > 0){
             $offset = ($page - 1) * $page_size;
             $list = $query->limit($offset, $page_size + 1)//多查一条
-                    ->order("weight","desc")
+                    ->order("is_online","desc")   //已上架商品需排在未上架商品之前
                     ->select();
 
             self::checkHasNextPage($list,$page_size,$has_next);

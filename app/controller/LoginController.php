@@ -62,6 +62,7 @@ class LoginController extends BaseController
             Db::commit();
 
             $this->setOtherInfo($data);
+            SmsHelper::clearCacheKey($phone,"login");
 
             return $this->outJson(0, "登录成功", $data);
         } catch (\Exception $ex) {
@@ -132,8 +133,8 @@ class LoginController extends BaseController
         ]);
 
         $this->setOtherInfo($data);
-
-        return $this->outJson(0, "登录成功", $data);
+        $dbData = TMember::getByOpenId($openid);
+        return $this->outJson(0, "登录成功", array_merge($data, $dbData));
     }
 
     /**
@@ -209,6 +210,8 @@ class LoginController extends BaseController
         ])->update([
             'phone' => $phone,
         ]);
+
+        SmsHelper::clearCacheKey($phone,"login");
 
         return $this->outJson(0, "绑定成功");
     }

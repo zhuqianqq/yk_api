@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use app\model\TRoom;
 use App\Models\Cfund\Project;
 use app\model\TProduct;
 use app\util\Tools;
@@ -54,9 +55,19 @@ class ProductController extends BaseController
     public function upCount()
     {
         $user_id = $this->request->param("user_id",0,"intval");
+        $room_id = $this->request->param('room_id','',"trim");
 
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
+        }
+        //判断该直播是否展示商品
+        if($room_id){
+            $show_product = TRoom::where("room_id",$room_id)->value("show_product");
+            if(!$show_product){
+                return $this->outJson(0, "success", [
+                    "total" => 0,
+                ]);
+            }
         }
 
         $data = [
@@ -66,6 +77,7 @@ class ProductController extends BaseController
                 'is_del' => 0
             ])
         ];
+
 
         return $this->outJson(0, "success", $data);
     }
