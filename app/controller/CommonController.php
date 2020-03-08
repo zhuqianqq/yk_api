@@ -93,7 +93,7 @@ class CommonController extends BaseController
         if ($result['code'] != 0) {
             return $this->outJson($result["code"],$result['msg']);
         }
-        $expire = APP_ENV == "test" ? 2 * 3600 : 5 * 60; //5分钟有效
+        $expire = 5 * 60; //5分钟有效
         Cache::set($cache_key,$vcode, $expire);
 
         return $this->outJson(0,"验证码已发送到{$mask_mobile}，请注意查收");
