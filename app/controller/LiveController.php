@@ -136,7 +136,7 @@ class LiveController extends BaseController
     /**
      * 直播点赞
      */
-    public function incrLikeCount()
+    public function updateLikeCount()
     {
         $room_id = $this->request->param("room_id", '', "trim");
 
