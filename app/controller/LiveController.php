@@ -51,7 +51,16 @@ class LiveController extends BaseController
         }
 
         $data = TRoom::where($where)->find();
-
+        $user = TMember::where("user_id",$data["user_id"])->find();
+        if($user!=null){
+            $data["display_code"]=$user->display_code;
+            $data["nick_name"]=$user->nick_name;
+            $data["avatar"]=$user->avatar;
+        }else{
+            $data["display_code"]="";
+            $data["nick_name"]="";
+            $data["avatar"]="";
+        }
         return $this->outJson(0, "success", $data);
     }
 
