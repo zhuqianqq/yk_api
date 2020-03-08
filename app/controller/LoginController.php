@@ -198,8 +198,9 @@ class LoginController extends BaseController
         if (SmsHelper::checkVcode($phone, $vcode, "login") == false) {
             return $this->outJson(100, "验证码无效");
         }
-        $exist_user= TMember::where(["phone"=>$phone]).find();
-        if($exist_user!=null){
+
+        $exist_user= TMember::where('phone',$phone)->find();
+        if($exist_user != null) {
             return $this->outJson(100, "此手机号已绑定其它账号！");
         }
 
