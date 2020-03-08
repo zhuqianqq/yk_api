@@ -47,6 +47,7 @@ class LiveCheckCommand extends BaseCommand
                 }
                 unset($item);
             }
+            $this->log(PHP_EOL);
 
             sleep(20);
         }
