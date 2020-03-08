@@ -13,7 +13,7 @@ class TRoom extends BaseModel
         $query = Db::table("t_room r")
             ->leftJoin("t_member m", "r.user_id=m.user_id ")
             ->field("r.*,m.nick_name,m.avatar,m.display_code");
-        $list=$query->page($page, $page_size)->select();
+        $list=$query->order("like_count",'desc')->page($page, $page_size)->select();
         $total = $query->count();
         $has_next=0;
         self::checkHasNextPage($list,$page_size,$has_next);
