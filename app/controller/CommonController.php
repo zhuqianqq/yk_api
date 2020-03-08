@@ -98,6 +98,18 @@ class CommonController extends BaseController
         return response($res, 200, ['Content-Length' => strlen($res)])->contentType('image/png');
     }
 
+    /*
+     * 启动接口，返回小程序是否已经上线，
+     */
+    public function startInfo()
+    {
+        //小程序已上线为1 ，未上线为0
+        $data = array(["MiniWechatIsPublish"] => 0);
+        return $this->outJson(0, "", $data);
+    }
+
+
+
     /**
      * 返回logo图片地址
      * @return string
