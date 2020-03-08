@@ -21,7 +21,7 @@ return [
             // 数据库类型
             'type'              => 'mysql',
             // 服务器地址
-            'hostname'          => env('DB_HOSTNAME', '127.0.0.1'),
+            'hostname'          => env('DB_HOSTNAME', '116.62.159.239'),
             // 数据库名
             'database'          => env('DB_NAME', 'live_shop'),
             // 用户名
@@ -50,7 +50,7 @@ return [
             // 是否需要断线重连
             'break_reconnect'   => false,
             // 监听SQL
-            'trigger_sql'       => false,
+            'trigger_sql'       => true,
             // 开启字段缓存
             'fields_cache'      => false,
             // 字段缓存路径
