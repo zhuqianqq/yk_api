@@ -160,7 +160,7 @@ class LiveController extends BaseController
                 "total" => 0,
                 "has_next" => 0, //是否有下一页
             ];
-            return $this->outJson(0, "success", $data);
+            return $this->outJson(0, "主播不展示商品", $data);
         }
 
         $where["user_id"] = $user_id;
