@@ -50,6 +50,9 @@ class CommonController extends BaseController
                 if($file_data === false){//解码失败
                     return $this->outJson(100,"解码base64图片数据失败");
                 }
+                if(strlen($file_data) <= 0){
+                    return $this->outJson(100, '文件大小不能为空');
+                }
                 if(strlen($file_data) > $max_size){
                     return $this->outJson(100, '图片大小不能超过10Mb');
                 }
@@ -74,22 +77,30 @@ class CommonController extends BaseController
                 if (!in_array($file_type, $type_arr)) {
                     return $this->outJson(100, '图片格式不正确，只允许jpg,jpeg,png或gif格式');
                 }
+                if($file['size'] <= 0){
+                    return $this->outJson(100, '文件大小不能为空');
+                }
                 if ($file['size'] > $max_size) {
                     return $this->outJson(100, '图片大小不能超过10Mb');
                 }
-                Tools::addLog("upload",json_encode($file,JSON_UNESCAPED_UNICODE));
 
                 if($file["size"] > $zip_size){
-                    //大于800Kb时进行图片压缩
+                    //进行图片压缩
                     $file_path = $this->getSavePath($file["tmp_name"]);
                     $image = Image::open($file["tmp_name"]);
-                    $image->thumb(1024,800)->save($file_path);
+                    $image->thumb(640,972)->save($file_path);
 
                     $ret = CosHelper::upload($file_path);
                     @unlink($file_path);
                 }else{
-                    $ret = CosHelper::upload($file["tmp_name"],Tools::getExtension($file["name"]));
+                    $file_path = $this->getSavePath($file["tmp_name"]);
+                    if(!move_uploaded_file($file["tmp_name"],$file_path)){
+                        return $this->outJson(200, '保存文件失败');
+                    }
+                    $ret = CosHelper::upload($file_path);
+                    @unlink($file_path);
                 }
+                Tools::addLog("upload","file:".json_encode($file,JSON_UNESCAPED_UNICODE),",res:".json_encode($ret,JSON_UNESCAPED_UNICODE));
 
                 return json($ret);
             }

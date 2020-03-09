@@ -9,7 +9,7 @@ use app\util\Tools;
 
 class CosHelper
 {
-    protected static $logName = "cos_upload";
+    protected static $logName = "upload";
 
     /**
      * 上传文件
