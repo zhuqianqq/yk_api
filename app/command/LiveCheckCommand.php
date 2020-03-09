@@ -37,7 +37,7 @@ class LiveCheckCommand extends BaseCommand
             $online_room_ids = array_keys($online_rooms);
             $this->log("online_room_ids:".json_encode($online_room_ids));
 
-            $not_online_list = TRoom::where("room_id","not in",$online_room_ids)->where("create_time","<",date("Y-m-d H:i:s",time() - 60))
+            $not_online_list = TRoom::where("room_id","not in",$online_room_ids)->where("create_time","<",date("Y-m-d H:i:s",time() - 120))
                 ->field("room_id,user_id,create_time")->select(); //不在线的直播(为避免时间差问题，只查一分钟前创建的直播)
             $this->log("not_online_list count:".count($not_online_list));
 
