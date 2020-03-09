@@ -240,6 +240,7 @@ class LiveController extends BaseController
             $display_code = explode("_",$stream_id)[1];
             $room_id = "room_".$display_code;
 
+            sleep(3);//延时一下再更新
             $ret = TRoom::where("room_id",$room_id)->update(["sequence" => $sequence]); //更新序列号
             Tools::addLog("live_callback","update_sequence:{$room_id},{$sequence},ret:{$ret}",$input);
 
