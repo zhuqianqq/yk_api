@@ -3,6 +3,7 @@
 namespace app\model;
 
 use app\util\Tools;
+use think\facade\Config;
 use think\facade\Db;
 
 class TRoom extends BaseModel
@@ -58,5 +59,26 @@ class TRoom extends BaseModel
         Db::commit();
 
         return Tools::outJson(0, "下播成功");
+    }
+
+    /**
+     * 生成推流和拉流地址
+     * @param int $display_code 用户display_code
+     * @return string
+     */
+    public static function generatePushAndPUllUrl($user_id)
+    {
+        $display_code = TMember::generateDisplayCode($user_id);
+        $live_config = Config::get("tencent_cloud");
+        $time = time();
+        $stream_name = $display_code . "_" . $time;
+
+        $txTime = strtoupper(base_convert($time, 10, 16));
+        $txSecret = md5($live_config["callback_key"] . $stream_name . $txTime);
+
+        $push_url = $live_config['push_domain'] . "/live/{$stream_name}?txSecret={$txSecret}&txTime={$txTime}";
+        $pull_url = $live_config['pull_domain'] . "/live/{$stream_name}.flv";
+
+        return [$push_url,$pull_url];
     }
 }

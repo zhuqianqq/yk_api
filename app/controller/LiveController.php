@@ -77,15 +77,11 @@ class LiveController extends BaseController
         $title = $this->request->param("title");
         $frontcover = $this->request->param("frontcover");
         $location = $this->request->param("location");
-        $push_url = $this->request->param("push_url"); //推流地址
-
-        //拉流地址
-        $user = TMember::where(["user_id" => $user_id])->field("display_code")->find();
-        $mixed_play_url = $live_config["pull_domain"]."/live/" . $live_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
 
         $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
 
+        list($push_url,$pull_url) = TRoom::generatePushUrl($user_id); //推流地址
         $room = TRoom::where(["user_id" => $user_id])->find();
 
         if ($room == null) {
@@ -96,7 +92,7 @@ class LiveController extends BaseController
             $room->frontcover = $frontcover;
             $room->location = $location;
             $room->push_url = $push_url;
-            $room->mixed_play_url = $mixed_play_url;
+            $room->mixed_play_url = $pull_url;
             $room->show_product = $show_product; //是否显示关联商品
             $room->create_time = date("Y-m-d H:i:s");
             $room->save();
@@ -108,7 +104,7 @@ class LiveController extends BaseController
                 'frontcover' => $frontcover,
                 'location' => $location,
                 'push_url' => $push_url,
-                'mixed_play_url' => $mixed_play_url,
+                'mixed_play_url' => $pull_url,
                 'show_product' => $show_product
             ]);
         }

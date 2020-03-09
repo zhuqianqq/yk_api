@@ -6,8 +6,8 @@ return [
     "secretId" => "AKIDkMlvYwQye5KNCrwYhhz47OSKz0td5lEM",
     "secretKey" => "0mz0lGVWJvHNJ0UigQvA8sMaaLq7IbNu",
 
-    "push_domain" => 'rtmp://push.laotouge.cn',//直播推流域名
-    "pull_domain" => 'http://live.laotouge.cn',//直播拉流域名
+    "push_domain" => 'rtmp://push.laotouge.cn',//推流域名
+    "pull_domain" => 'http://live.laotouge.cn',//拉流域名
 
     "IM_SDKAPPID" => "1400319314", //即时通信 sdkappid
     "IM_SECRETKEY" => "ad18c6d28bbdd0d1eb19f8605ed20726895001e41a2a9700a38148cbd65c6b39", //即时通信 密钥
