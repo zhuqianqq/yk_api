@@ -199,10 +199,66 @@ class LiveController extends BaseController
     }
 
     /**
-     * 直播回调通知
+     * 腾讯直播回调通知
+     * 直播推流事件，event_type = 1
+     * 直播断流事件，event_type = 0
+     * 录制事件为 100；截图事件为200
+     * 建议客户应答内容携带 JSON： {"code":0}
      */
     public function tencentCallBack()
     {
-        Tools::addLog("live_callback",$this->request->getInput());
+        $input = $this->request->getInput();
+        $data = json_decode($input,true);
+        if(empty($data)){
+            Tools::addLog("live_callback","参数错误",$input);
+            return $this->outJson(100,"参数错误");
+        }
+
+        $event_type = $data['event_type']; //推流事件为1；断流事件为0；录制事件为100；截图事件为200。
+        $check_t = $data['t']; //过期时间
+        $check_sign = $data['sign']; //安全签名
+
+        $live_config = Config::get("tencent_cloud");
+        $md5_sign = $md5_val = md5($live_config["callback_key"] . strval($check_t));
+        if($md5_sign != $check_sign){
+            Tools::addLog("live_callback","签名错误",$input);
+            //return $this->outJson(100,"签名错误");
+        }
+
+        if($event_type === 1){
+            //推流事件
+            $app = $data['app']; //推流域名
+            $appname = $data['appname']; //推流路径
+            $stream_id = $data['stream_id']; //直播流名称
+            $stream_param = $data['stream_param']; //用户推流 URL 所带参数
+
+        }else if($event_type === 0){
+            //断流事件
+            $stream_id = $data['stream_id']; //直播流名称
+            $display_code = explode("_",$stream_id)[1];
+            $room_id = "room_".$display_code;
+            $user_id = TMember::getUserIdByDisplayCode($display_code);
+
+            $ret = TRoom::closeRoom($room_id,$user_id,"system");
+            Tools::addLog("live_callback","close_result:".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
+
+            return json($ret);
+        }else if($event_type === 100){
+            //录制事件为100
+            $stream_id = $data['stream_id'];
+            $video_id = $data['video_id'];
+            $video_url = $data['video_url'];
+            $start_time = $data['start_time'];
+            $end_time = $data['end_time'];
+            $file_format = $data['file_format'];
+
+            $duration = $end_time - $start_time;
+            if($duration > 60){//超过60秒的录制文件才会落数据库，单位s
+
+            }
+        }
+
+        Tools::addLog("live_callback","success",$input);
+        return $this->outJson(0,"success");
     }
 }

@@ -16,6 +16,8 @@ class TMember extends BaseModel
     const IS_BROADCASTER_YES = 1; // 是
     const IS_BROADCASTER_NO = 0;  // 否
 
+    const DISPLAY_CODE_DIFF = 100000;
+
     protected $table = "t_member";
 
     /**
@@ -83,7 +85,17 @@ class TMember extends BaseModel
      */
     public static function generateDisplayCode($user_id)
     {
-        return 100000 + intval($user_id);
+        return self::DISPLAY_CODE_DIFF + intval($user_id);
+    }
+
+    /**
+     * 根据display_code返回user_id
+     * @param $display_code
+     * @return int
+     */
+    public static function getUserIdByDisplayCode($display_code)
+    {
+        return intval($display_code) - self::DISPLAY_CODE_DIFF;
     }
 
     /**
