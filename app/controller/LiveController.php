@@ -184,17 +184,22 @@ class LiveController extends BaseController
     /**
      * 直播点赞
      */
-    public function updateLikeCount()
+    public function updateLikeAndView()
     {
         $room_id = $this->request->param("room_id", '', "trim");
+        $like_count = $this->request->param("like_count", '', "trim");
+        $view_count = $this->request->param("view_count", '', "trim");
 
         if (empty($room_id)) {
             return $this->outJson(100, "room_id不能为空");
         }
-
-        $key = "{$room_id}:like_count";
-        $ret = Cache::incr($key); //可以直接调用redis底层方法
-
+        $room = TRoom::where("room_id", $room_id);
+        if($room==null){
+            return $this->outJson(100, "找不到直播间，可能已经下线");
+        }
+        $room->like_count=$like_count;
+        $room->view_count=$view_count;
+        $room->save();
         return $this->outJson(0, "success");
     }
 
