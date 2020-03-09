@@ -73,7 +73,7 @@ class TRoom extends BaseModel
         $time = time();
         $stream_name = $display_code . "_" . $time;
 
-        $txTime = strtoupper(base_convert($time, 10, 16));
+        $txTime = strtoupper(base_convert(time() + 24 * 3600, 10, 16)); //24小时后过期
         $txSecret = md5($live_config["callback_key"] . $stream_name . $txTime);
 
         $push_url = $live_config['push_domain'] . "/live/{$stream_name}?txSecret={$txSecret}&txTime={$txTime}";
