@@ -33,10 +33,10 @@ class ProductController extends BaseController
         }
 
         $where["user_id"] = $user_id;
-        if($scece == "live"){
+        if($scece == "live"){ //直播间，用户商品只返回上架的
             $sort_field = "weight";
             $sort_type = "desc";
-            $where["is_online"] = 1; //直播间用户商品只返回上架的
+            $where["is_online"] = 1;
         }else{
             $sort_field = "is_online";
             $sort_type = "desc";
