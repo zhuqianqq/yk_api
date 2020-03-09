@@ -24,7 +24,7 @@ class TestCommand extends BaseCommand
     {
         $this->output->writeln("This is test command");
 
-        $conf = Config::get("tencent_clound");
+        $conf = Config::get("tencent_cloud");
         $cred = new Credential($conf["secretId"],$conf["secretKey"]);
 
         $httpProfile = new HttpProfile();

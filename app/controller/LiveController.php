@@ -70,17 +70,19 @@ class LiveController extends BaseController
      */
     public function addRoom()
     {
-        $im_config = Config::get('im');
+        $live_config = Config::get('tencent_cloud');
         $user_id = $this->request->param("user_id", 0, "intval");
-        $user = TMember::where(["user_id" => $user_id])->find();
 
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
         $frontcover = $this->request->param("frontcover");
         $location = $this->request->param("location");
-        $push_url = $this->request->param("push_url");
-        //$mixed_play_url = $this->request->param("mixed_play_url");
-        $mixed_play_url = "http://live.laotouge.cn/live/" . $im_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
+        $push_url = $this->request->param("push_url"); //推流地址
+
+        //拉流地址
+        $user = TMember::where(["user_id" => $user_id])->field("display_code")->find();
+        $mixed_play_url = $live_config["pull_domain"]."/live/" . $live_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
+
         $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
 

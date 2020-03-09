@@ -63,7 +63,7 @@ class LiveCheckCommand extends BaseCommand
     public function getOnlineRooms()
     {
         // 实例化一个证书对象，入参需要传入腾讯云账户secretId，secretKey
-        $conf = Config::get("tencent_clound");
+        $conf = Config::get("tencent_cloud");
         $cred = new Credential($conf["secretId"],$conf["secretKey"]);
 
         //实例化要请求client对象
