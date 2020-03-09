@@ -240,7 +240,7 @@ class LiveController extends BaseController
             $user_id = TMember::getUserIdByDisplayCode($display_code);
 
             $ret = TRoom::closeRoom($room_id,$user_id,"system");
-            Tools::addLog("live_callback","close_result:".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
+            Tools::addLog("live_callback","close_result:{$room_id},{$user_id}".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
 
             return json($ret);
         }else if($event_type === 100){
