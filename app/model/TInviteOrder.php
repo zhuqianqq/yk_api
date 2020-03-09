@@ -61,7 +61,7 @@ class TInviteOrder extends BaseModel
             Tools::addLog("invite", 'finishInviteOrder relation not exist : params: ' . json_encode(['order_no' => $order_no,'order_id' => $order->id]));
             return true;
         }
-        TMember::where(['user_id' => $relation['user_id']])->update(['is_broadcaster' => TMember::IS_BROADCASTER_YES]);
+        TMember::where(['user_id' => $relation['user_id']])->update(['is_broadcaster' => TMember::IS_BROADCASTER_YES, 'expire_time' => date("Y-m-d H:i:s",strtotime("+1 years"))]);
         return true;
     }
 }
