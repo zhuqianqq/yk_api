@@ -33,11 +33,16 @@ class ProductController extends BaseController
         }
 
         $where["user_id"] = $user_id;
-        if($scece == "live"){
-            $where["is_online"] = 1; //直播间用户商品只返回上架的
+        if($scece == "live"){ //直播间，用户商品只返回上架的
+            $sort_field = "weight";
+            $sort_type = "desc";
+            $where["is_online"] = 1;
+        }else{
+            $sort_field = "is_online";
+            $sort_type = "desc";
         }
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where);
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,$sort_field,$sort_type);
 
         $data = [
             "list" => $list,
@@ -50,12 +55,12 @@ class ProductController extends BaseController
     }
 
     /**
-     * 上架商品数
+     * 查询主播的上架商品数
      */
     public function upCount()
     {
-        $user_id = $this->request->param("user_id",0,"intval");
-        $room_id = $this->request->param('room_id','',"trim");
+        $user_id = $this->request->param("user_id",0,"intval"); //主播id
+        $room_id = $this->request->param('room_id','',"trim");  //房间id
 
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
