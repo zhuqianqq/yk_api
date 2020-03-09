@@ -70,7 +70,6 @@ class LiveController extends BaseController
      */
     public function addRoom()
     {
-        $live_config = Config::get('tencent_cloud');
         $user_id = $this->request->param("user_id", 0, "intval");
 
         $room_id = $this->request->param("room_id");
@@ -105,7 +104,7 @@ class LiveController extends BaseController
                 'location' => $location,
                 'push_url' => $push_url,
                 'mixed_play_url' => $pull_url,
-                'show_product' => $show_product
+                'show_product' => $show_product,
             ]);
         }
         $room = TRoom::where(["user_id" => $user_id])->find();
