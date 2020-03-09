@@ -193,7 +193,7 @@ class LiveController extends BaseController
         if (empty($room_id)) {
             return $this->outJson(100, "room_id不能为空");
         }
-        $room = TRoom::where("room_id", $room_id);
+        $room = TRoom::where("room_id", $room_id)->find();
         if($room==null){
             return $this->outJson(100, "找不到直播间，可能已经下线");
         }
