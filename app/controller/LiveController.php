@@ -187,8 +187,8 @@ class LiveController extends BaseController
     public function updateLikeAndView()
     {
         $room_id = $this->request->param("room_id", '', "trim");
-        $like_count = $this->request->param("like_count", '', "trim");
-        $view_count = $this->request->param("view_count", '', "trim");
+        $like_count = $this->request->param("like_count", 0, "intval");
+        $view_count = $this->request->param("view_count", 0, "intval");
 
         if (empty($room_id)) {
             return $this->outJson(100, "room_id不能为空");
