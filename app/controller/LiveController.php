@@ -243,7 +243,11 @@ class LiveController extends BaseController
             $ret = TRoom::where("room_id",$room_id)->update(["sequence" => $sequence]); //更新序列号
             Tools::addLog("live_callback","update_sequence:{$room_id},{$sequence},ret:{$ret}",$input);
 
-            return $this->outJson(0,"success");
+            if($ret){
+                return $this->outJson(0,"success");
+            }else{
+                return $this->outJson(500,"update error");
+            }
         }else if($event_type === 0){
             //断流事件
             $stream_id = $data['stream_id']; //直播流名称
