@@ -91,14 +91,14 @@ class CommonController extends BaseController
                     $image->thumb(640,972)->save($file_path);
 
                     $ret = CosHelper::upload($file_path);
-                    @unlink($file_path);
+                    //@unlink($file_path);
                 }else{
                     $file_path = $this->getSavePath($file["tmp_name"]);
                     if(!move_uploaded_file($file["tmp_name"],$file_path)){
                         return $this->outJson(200, '保存文件失败');
                     }
                     $ret = CosHelper::upload($file_path);
-                    @unlink($file_path);
+                    //@unlink($file_path);
                 }
                 Tools::addLog("upload","file:".json_encode($file,JSON_UNESCAPED_UNICODE).",res:".json_encode($ret,JSON_UNESCAPED_UNICODE));
 

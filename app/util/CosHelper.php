@@ -34,7 +34,7 @@ class CosHelper
             $body = fopen($file_path, 'rb');
             $result = $cosClient->upload($bucket,$key,$body);
 
-            Tools::addLog(self::$logName, "key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
+            Tools::addLog(self::$logName, "{$file_path},key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
             if ($result && !empty($result["Location"])) {
                 if(stripos($result["Location"],"http") === false){
@@ -47,7 +47,7 @@ class CosHelper
             }
             return Tools::outJson(-1, "上传失败");
         } catch (\Exception $ex) {
-            Tools::addLog(self::$logName, "upload_fail,line:" . $ex->getLine() . ",message:" . $ex->getMessage());
+            Tools::addLog(self::$logName, "{$file_path},upload_fail,line:" . $ex->getLine() . ",message:" . $ex->getMessage());
             return Tools::outJson(500, "上传失败:" . $ex->getMessage());
         }
     }
