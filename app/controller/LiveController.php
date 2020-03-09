@@ -197,4 +197,12 @@ class LiveController extends BaseController
 
         return $this->outJson(0, "success");
     }
+
+    /**
+     * 直播回调通知
+     */
+    public function tencentCallBack()
+    {
+        Tools::addLog("live_callback",$this->request->getInput());
+    }
 }
