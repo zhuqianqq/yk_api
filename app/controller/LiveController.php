@@ -81,7 +81,7 @@ class LiveController extends BaseController
         $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
 
-        list($push_url,$pull_url) = TRoom::generatePushUrl($user_id); //推流地址
+        list($push_url,$pull_url) = TRoom::generatePushAndPUllUrl($user_id); //推流地址
         $room = TRoom::where(["user_id" => $user_id])->find();
 
         if ($room == null) {
