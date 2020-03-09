@@ -4,7 +4,7 @@
  */
 return [
     //公众号的id
-    'appid' => 'wxb36fb4ea568c705f',
+    'appid' => 'wx389f876f26754506',
     //公众号的密钥
-    'secret' => '0edeb84e4514c4f9d100403c27275e62'
+    'secret' => 'be4aa5996078c10f767fcd9fcf3fd4d0'
 ];
