@@ -49,13 +49,24 @@ class TRoom extends BaseModel
         if ($data["user_id"] != $user_id) {
             return Tools::outJson(100, "你无权关闭该直播");
         }
-        unset($data["id"]);
-        $data["oper_user"] = empty($oper_user) ? $user_id : $oper_user; //关播用户
-        $data["close_time"] = date("Y-m-d H:i:s"); //关播时间
-
         Db::startTrans();
         Db::table("t_room")->where(["room_id" => $room_id, "user_id" => $user_id])->delete();
-        Db::table("t_room_history")->insert($data);
+        $insert_data = [
+            "room_id" => $data['room_id'],
+            "user_id" => $data['user_id'],
+            "title" => $data['title'],
+            "frontcover" => $data['frontcover'],
+            "location" => $data['location'],
+            "create_time" => $data['create_time'], //开播时间
+            "push_url" => $data['push_url'],
+            "show_product" => $data['show_product'],
+            "mixed_play_url" => $data['mixed_play_url'],
+            "oper_user" =>  empty($oper_user) ? $user_id : $oper_user, //关播用户
+            "close_time" => date("Y-m-d H:i:s"), //关播时间
+            "like_count" => $data['like_count'],
+            "view_count" => $data['view_count'],
+        ];
+        Db::table("t_room_history")->insert($insert_data);
         Db::commit();
 
         return Tools::outJson(0, "下播成功");
