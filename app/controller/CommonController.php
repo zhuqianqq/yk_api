@@ -100,7 +100,7 @@ class CommonController extends BaseController
                     $ret = CosHelper::upload($file_path);
                     @unlink($file_path);
                 }
-                Tools::addLog("upload","file:".json_encode($file,JSON_UNESCAPED_UNICODE),",res:".json_encode($ret,JSON_UNESCAPED_UNICODE));
+                Tools::addLog("upload","file:".json_encode($file,JSON_UNESCAPED_UNICODE).",res:".json_encode($ret,JSON_UNESCAPED_UNICODE));
 
                 return json($ret);
             }
