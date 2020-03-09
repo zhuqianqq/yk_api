@@ -18,6 +18,8 @@ class TMember extends BaseModel
 
     const DISPLAY_CODE_DIFF = 100000;
 
+    const DEFAULT_AVATAR = 'https://img.ikstatic.cn/MTU4MzQ5MDczNTAwMCM0NjMjcG5n.png';
+
     protected $table = "t_member";
 
     /**
@@ -108,6 +110,7 @@ class TMember extends BaseModel
             'phone' => $phone,
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
+            'avatar' => self::DEFAULT_AVATAR, //默认头像
         ];
         $user_id = self::insertGetId($data);
 
