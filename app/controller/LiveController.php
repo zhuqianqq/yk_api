@@ -7,6 +7,7 @@ namespace app\controller;
 
 use app\model\TMember;
 use app\model\TPrebroadcast;
+use app\model\TProduct;
 use app\model\TRoom;
 use app\model\TRoomHistory;
 use app\util\Tools;
@@ -131,6 +132,50 @@ class LiveController extends BaseController
         }
 
         return json(TRoom::closeRoom($room_id, $this->user_id, $this->user_id));
+    }
+
+    /**
+     * 直播间主播商品列表
+     * @return array
+     */
+    public function userProdList()
+    {
+        $page = $this->request->param("page", 1, "intval");
+        $page_size = $this->request->param("page_size", 10, "intval");
+        $room_id = $this->request->param("room_id","","trim");
+        $user_id = $this->request->param("user_id", 0, "intval");  //主播id
+
+        if(empty($room_id)){
+            return $this->outJson(100, "直播房间id不能为空");
+        }
+        if ($user_id <= 0) {
+            return $this->outJson(100, "user_id无效");
+        }
+
+        $show_product = TRoom::where("room_id",$room_id)->value("show_product");
+        if(!$show_product){ //不显示商品
+            $data = [
+                "list" => [],
+                "current_page" => $page,
+                "total" => 0,
+                "has_next" => 0, //是否有下一页
+            ];
+            return $this->outJson(0, "success", $data);
+        }
+
+        $where["user_id"] = $user_id;
+        $where["is_online"] = 1;
+
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,"weight","desc");
+
+        $data = [
+            "list" => $list,
+            "current_page" => $page,
+            "total" => $total,
+            "has_next" => $has_next, //是否有下一页
+        ];
+
+        return $this->outJson(0, "success", $data);
     }
 
     /**

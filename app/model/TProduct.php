@@ -23,13 +23,15 @@ class TProduct extends BaseModel
      * @param int $page 当前页号从1开始
      * @param int $page_size 每页记录数
      * @param array $where
+     * @param string $sort_field
+     * @param string $sort_type
      * @return array
      */
-    public static function getList($page, $page_size, $where = [])
+    public static function getList($page, $page_size, $where = [],$sort_field = "weight",$sort_type = "desc")
     {
         $where["is_del"] = 0; //已删除的不显示
-        $query = Db::table("t_product")->field("prod_id,prod_name,price,stock,first_img,user_id,is_online,weight")
-            ->where($where);
+        $query = Db::table("t_product")->field("prod_id,prod_name,price,stock,wechat,first_img,user_id,is_online,weight")
+               ->where($where);
 
         $total = $query->count(); //总记录条数
 
@@ -38,7 +40,7 @@ class TProduct extends BaseModel
         if($total > 0){
             $offset = ($page - 1) * $page_size;
             $list = $query->limit($offset, $page_size + 1)//多查一条
-                    ->order("is_online","desc")   //已上架商品需排在未上架商品之前
+                    ->order($sort_field,$sort_type)   //已上架商品需排在未上架商品之前
                     ->select();
 
             self::checkHasNextPage($list,$page_size,$has_next);
