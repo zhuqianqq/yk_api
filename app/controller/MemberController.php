@@ -11,11 +11,14 @@ class MemberController extends BaseController
 
     public function updateMember()
     {
-        $user_id = $this->request->post("user_id", '', "intval");
+        $user_id = $this->request->param("user_id", '', "intval");
         $nick_name = $this->request->post("nick_name", '');
         $avatar = $this->request->post("avatar", '');
         $sex = $this->request->post("sex", '', "intval");
         $front_cover = $this->request->post("front_cover", '');
+        if(mb_strlen($nick_name,"utf-8")>8){
+            $this->outJson(1, "昵称限制8个字符！");
+        }
         $member = TMember::where("user_id", $user_id)->find();
         $member->nick_name = empty($nick_name) ? $member->nick_name : $nick_name;
         $member->avatar = empty($avatar) ? $member->avatar : $avatar;

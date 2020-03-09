@@ -16,6 +16,10 @@ class TMember extends BaseModel
     const IS_BROADCASTER_YES = 1; // 是
     const IS_BROADCASTER_NO = 0;  // 否
 
+    const DISPLAY_CODE_DIFF = 100000;
+
+    const DEFAULT_AVATAR = 'https://img.ikstatic.cn/MTU4MzQ5MDczNTAwMCM0NjMjcG5n.png';
+
     protected $table = "t_member";
 
     /**
@@ -83,7 +87,17 @@ class TMember extends BaseModel
      */
     public static function generateDisplayCode($user_id)
     {
-        return 100000 + intval($user_id);
+        return self::DISPLAY_CODE_DIFF + intval($user_id);
+    }
+
+    /**
+     * 根据display_code返回user_id
+     * @param $display_code
+     * @return int
+     */
+    public static function getUserIdByDisplayCode($display_code)
+    {
+        return intval($display_code) - self::DISPLAY_CODE_DIFF;
     }
 
     /**
@@ -96,6 +110,7 @@ class TMember extends BaseModel
             'phone' => $phone,
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
+            'avatar' => self::DEFAULT_AVATAR, //默认头像
         ];
         $user_id = self::insertGetId($data);
 

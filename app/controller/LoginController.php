@@ -62,6 +62,7 @@ class LoginController extends BaseController
             Db::commit();
 
             $this->setOtherInfo($data);
+            SmsHelper::clearCacheKey($phone,"login");
 
             return $this->outJson(0, "登录成功", $data);
         } catch (\Exception $ex) {
@@ -78,15 +79,15 @@ class LoginController extends BaseController
     {
         $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
-        $im_config = Config::get('im');
-        $api = new TLSSigAPIv2($im_config["IM_SDKAPPID"], $im_config["IM_SECRETKEY"]);
+        $live_config = Config::get('tencent_cloud');
+        $api = new TLSSigAPIv2($live_config["IM_SDKAPPID"], $live_config["IM_SECRETKEY"]);
         $user_sign = $api->genSig($data["display_code"]);
 
         //直播间账号签名信息
         $data["room_sign"] = [
-            "sdk_appid" => intval($im_config["IM_SDKAPPID"]),
+            "sdk_appid" => intval($live_config["IM_SDKAPPID"]),
             "display_code" => $data["display_code"],
-            "user_sign" => $user_sign
+            "user_sign" => $user_sign,
         ];
     }
 
@@ -209,6 +210,8 @@ class LoginController extends BaseController
         ])->update([
             'phone' => $phone,
         ]);
+
+        SmsHelper::clearCacheKey($phone,"login");
 
         return $this->outJson(0, "绑定成功");
     }

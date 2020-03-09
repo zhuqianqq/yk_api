@@ -31,10 +31,8 @@ class CosHelper
         $bucket = $cos_conf["COSKEY_BUCKET"];
         $key = self::generateKey($file_path, $file_ext);
         try {
-            $result = $cosClient->upload($bucket,
-                $key = $key,
-                $body = fopen($file_path, 'rb')
-            );
+            $body = fopen($file_path, 'rb');
+            $result = $cosClient->upload($bucket,$key,$body);
 
             Tools::addLog(self::$logName, "key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
