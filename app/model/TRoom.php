@@ -35,9 +35,9 @@ class TRoom extends BaseModel
 
 
     /**
-     * 下播
-     * @param $room_id
-     * @param $user_id
+     * 用户主动下播
+     * @param string $room_id
+     * @param int $user_id
      * @param $oper_user 操作用户
      */
     public static function closeRoom($room_id, $user_id, $oper_user = '')
@@ -51,6 +51,42 @@ class TRoom extends BaseModel
         }
         Db::startTrans();
         Db::table("t_room")->where(["room_id" => $room_id, "user_id" => $user_id])->delete();
+        $data['oper_user'] = !empty($oper_user) ? $oper_user : $user_id; //关播用户
+        self::insertRoomHistory($data);
+        Db::commit();
+
+        return Tools::outJson(0, "下播成功");
+    }
+
+    /**
+     * 断流事件系统自动断播
+     * @param string $room_id
+     * @param string $sequence 消息序列号，标识一次推流活动，一次推流活动会产生相同序列号的推流和断流消息
+     * @param string $oper_user 操作用户
+     * @return array
+     */
+    public static function closeRoomBySystem($room_id,$sequence,$oper_user = 'system')
+    {
+        $data = Db::table("t_room")->where(["room_id" => $room_id,'sequence' => $sequence])->find();
+        if (empty($data)) {
+            return Tools::outJson(100, "未找到开播数据");
+        }
+
+        Db::startTrans();
+        Db::table("t_room")->where(["room_id" => $room_id, "sequence" => $sequence])->delete();
+        $data['oper_user'] = $oper_user;
+        self::insertRoomHistory($data);
+        Db::commit();
+
+        return Tools::outJson(0, "下播成功");
+    }
+
+    /**
+     * @param $data
+     * @return int|string
+     */
+    private static function insertRoomHistory(&$data)
+    {
         $insert_data = [
             "room_id" => $data['room_id'],
             "user_id" => $data['user_id'],
@@ -61,15 +97,13 @@ class TRoom extends BaseModel
             "push_url" => $data['push_url'],
             "show_product" => $data['show_product'],
             "mixed_play_url" => $data['mixed_play_url'],
-            "oper_user" =>  empty($oper_user) ? $user_id : $oper_user, //关播用户
-            "close_time" => date("Y-m-d H:i:s"), //关播时间
+            "oper_user" =>  $data['oper_user'], //关播用户
             "like_count" => $data['like_count'],
             "view_count" => $data['view_count'],
+            "close_time" => date("Y-m-d H:i:s"), //关播时间
         ];
-        Db::table("t_room_history")->insert($insert_data);
-        Db::commit();
 
-        return Tools::outJson(0, "下播成功");
+        return Db::table("t_room_history")->insertGetId($insert_data);
     }
 
     /**
