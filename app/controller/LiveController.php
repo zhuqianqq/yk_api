@@ -52,15 +52,15 @@ class LiveController extends BaseController
         }
 
         $data = TRoom::where($where)->find();
-        $user = TMember::where("user_id",$data["user_id"])->find();
-        if($user!=null){
-            $data["display_code"]=$user->display_code;
-            $data["nick_name"]=$user->nick_name;
-            $data["avatar"]=$user->avatar;
-        }else{
-            $data["display_code"]="";
-            $data["nick_name"]="";
-            $data["avatar"]="";
+        $user = TMember::where("user_id", $data["user_id"])->find();
+        if ($user != null) {
+            $data["display_code"] = $user->display_code;
+            $data["nick_name"] = $user->nick_name;
+            $data["avatar"] = $user->avatar;
+        } else {
+            $data["display_code"] = "";
+            $data["nick_name"] = "";
+            $data["avatar"] = "";
         }
         return $this->outJson(0, "success", $data);
     }
@@ -81,9 +81,9 @@ class LiveController extends BaseController
         $push_url = $this->request->param("push_url");
         //$mixed_play_url = $this->request->param("mixed_play_url");
         $mixed_play_url = "http://live.laotouge.cn/live/" . $im_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
-        $show_product = $this->request->param("show_product");
+        $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
-        //$room = new TRoom();
+
         $room = TRoom::where(["user_id" => $user_id])->find();
 
         if ($room == null) {
@@ -95,7 +95,8 @@ class LiveController extends BaseController
             $room->location = $location;
             $room->push_url = $push_url;
             $room->mixed_play_url = $mixed_play_url;
-            $room->show_product = $show_product;
+            $room->show_product = $show_product; //是否显示关联商品
+            $room->create_time = date("Y-m-d H:i:s");
             $room->save();
         } else {
             TRoom::where([
@@ -109,7 +110,7 @@ class LiveController extends BaseController
                 'show_product' => $show_product
             ]);
         }
-        $room = TRoom::where(["user_id"=>$user_id])->find();
+        $room = TRoom::where(["user_id" => $user_id])->find();
         if ($prebroadcast_id > 0) {
             TPrebroadcast::where([
                 "id" => $prebroadcast_id,
@@ -142,18 +143,18 @@ class LiveController extends BaseController
     {
         $page = $this->request->param("page", 1, "intval");
         $page_size = $this->request->param("page_size", 10, "intval");
-        $room_id = $this->request->param("room_id","","trim");
+        $room_id = $this->request->param("room_id", "", "trim");
         $user_id = $this->request->param("user_id", 0, "intval");  //主播id
 
-        if(empty($room_id)){
+        if (empty($room_id)) {
             return $this->outJson(100, "直播房间id不能为空");
         }
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
         }
 
-        $show_product = TRoom::where("room_id",$room_id)->value("show_product");
-        if(!$show_product){ //不显示商品
+        $show_product = TRoom::where("room_id", $room_id)->value("show_product");
+        if (!$show_product) { //不显示商品
             $data = [
                 "list" => [],
                 "current_page" => $page,
@@ -166,7 +167,7 @@ class LiveController extends BaseController
         $where["user_id"] = $user_id;
         $where["is_online"] = 1;
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,"weight","desc");
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where, "weight", "desc");
 
         $data = [
             "list" => $list,
