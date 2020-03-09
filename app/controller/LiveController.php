@@ -240,7 +240,10 @@ class LiveController extends BaseController
             $display_code = explode("_",$stream_id)[1];
             $room_id = "room_".$display_code;
 
-            TRoom::where("room_id",$room_id)->update(["sequence" => $sequence]); //更新序列号
+            $ret = TRoom::where("room_id",$room_id)->update(["sequence" => $sequence]); //更新序列号
+            Tools::addLog("live_callback","update_sequence:{$room_id},{$sequence},ret:{$ret}",$input);
+
+            return $this->outJson(0,"success");
         }else if($event_type === 0){
             //断流事件
             $stream_id = $data['stream_id']; //直播流名称
@@ -250,7 +253,7 @@ class LiveController extends BaseController
             $sequence = $data['sequence']; //消息序列号，标识一次推流活动，一次推流活动会产生相同序列号的推流和断流消息
 
             $ret = TRoom::closeRoomBySystem($room_id,$sequence,"system");
-            Tools::addLog("live_callback","close_result:{$room_id},{$user_id},{$sequence}".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
+            Tools::addLog("live_callback","close_result:{$room_id},{$user_id},{$sequence},".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
 
             return json($ret);
         }else if($event_type === 100){
@@ -266,9 +269,12 @@ class LiveController extends BaseController
             if($duration > 60){//超过60秒的录制文件才会落数据库，单位s
 
             }
-        }
 
-        Tools::addLog("live_callback","success",$input);
-        return $this->outJson(0,"success");
+            Tools::addLog("live_callback","success",$input);
+            return $this->outJson(0,"success");
+        }else{
+            Tools::addLog("live_callback","success",$input);
+            return $this->outJson(0,"success");
+        }
     }
 }
