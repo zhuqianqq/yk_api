@@ -17,7 +17,7 @@ class MemberController extends BaseController
         $sex = $this->request->post("sex", '', "intval");
         $front_cover = $this->request->post("front_cover", '');
         if(mb_strlen($nick_name,"utf-8")>8){
-            $this->outJson(0, "昵称限制8个字符！");
+            $this->outJson(1, "昵称限制8个字符！");
         }
         $member = TMember::where("user_id", $user_id)->find();
         $member->nick_name = empty($nick_name) ? $member->nick_name : $nick_name;
