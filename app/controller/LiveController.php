@@ -71,7 +71,6 @@ class LiveController extends BaseController
     public function addRoom()
     {
         $user_id = $this->request->param("user_id", 0, "intval");
-
         $room_id = $this->request->param("room_id");
         $title = $this->request->param("title");
         $frontcover = $this->request->param("frontcover");
@@ -79,10 +78,16 @@ class LiveController extends BaseController
 
         $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
+        $push_url = $this->request->param("push_url"); //推流地址
 
-        list($push_url,$pull_url) = TRoom::generatePushAndPUllUrl($user_id); //推流地址
+        //拉流地址
+        $live_config = Config::get('tencent_cloud');
+        $user = TMember::where(["user_id" => $user_id])->field("display_code")->find();
+        $mixed_play_url = $live_config["pull_domain"]."/live/" . $live_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
+
+        //list($push_url,$pull_url) = TRoom::generatePushAndPUllUrl($user_id); //推流地址
+
         $room = TRoom::where(["user_id" => $user_id])->find();
-
         if ($room == null) {
             $room = new TRoom();
             $room->user_id = $user_id;
@@ -91,7 +96,7 @@ class LiveController extends BaseController
             $room->frontcover = $frontcover;
             $room->location = $location;
             $room->push_url = $push_url;
-            $room->mixed_play_url = $pull_url;
+            $room->mixed_play_url = $mixed_play_url;
             $room->show_product = $show_product; //是否显示关联商品
             $room->create_time = date("Y-m-d H:i:s");
             $room->save();
@@ -103,7 +108,7 @@ class LiveController extends BaseController
                 'frontcover' => $frontcover,
                 'location' => $location,
                 'push_url' => $push_url,
-                'mixed_play_url' => $pull_url,
+                'mixed_play_url' => $mixed_play_url,
                 'show_product' => $show_product,
             ]);
         }
