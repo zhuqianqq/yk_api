@@ -152,6 +152,7 @@ class InviteController extends BaseController
                 $order_data = [
                     'order_no' => TInviteOrder::createOrderNo('YGIV'),
                     'inviter_uid' => $inviter_uid,
+                    'user_id' => $this->user_id,
                     'amount' => $amount,
                     'reward_amount' => $product->reward_amount,
                     'invite_product_id' => $product->id,
