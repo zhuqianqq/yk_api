@@ -52,6 +52,9 @@ class LiveController extends BaseController
         }
 
         $data = TRoom::where($where)->find();
+        if($data==null){
+            return $this->outJson(100, "找不到开播房间！");
+        }
         $user = TMember::where("user_id", $data["user_id"])->find();
         if ($user != null) {
             $data["display_code"] = $user->display_code;
