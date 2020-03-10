@@ -92,7 +92,7 @@ class TenCloudLiveService extends BaseService
         $req->AppName = $appName;
 
         $resp = $client->DropLiveStream($req);
-        $this->log("droplive streamName:$streamName,res:" . $resp->toJsonString());
+        $this->log("droplive streamName:$streamName,domain:{$domain},appname:{$appName},res:" . $resp->toJsonString());
 
         $res = $resp->serialize();
 
