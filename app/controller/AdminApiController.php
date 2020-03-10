@@ -10,11 +10,12 @@ use app\model\TRoom;
 use app\service\TenCloudLiveService;
 use app\util\Tools;
 use think\facade\Config;
+use app\model\TRoomOperLog;
 
 class AdminApiController extends BaseController
 {
     protected $middleware = [
-        'admin_check' => ['except' => ['closeRoom']],
+        'admin_check' => ['except' => ['forbidLive','resumeLive']],
     ];
 
     protected $logfile = 'admin_api';
@@ -51,10 +52,24 @@ class AdminApiController extends BaseController
 
         $result = $tenService->forbidLiveStream($stream_name,$app_name,$domain,$resume_time,$reason);
 
-        if($result["code"] == 0){
-            //
+        if($result["code"] === 0){
             $res = TRoom::closeRoom($room_id, $room->user_id,$oper_user);
             $this->log("forbid_live res:".json_encode($res,JSON_UNESCAPED_UNICODE),$this->request->getInput());
+            TMember::where("user_id",$room["user_id"])->update([
+                "is_forbid" => 1,
+                "forbid_reason" => $reason,
+                "forbid_end_time" => date("Y-m-d H:i:s",$end_time),
+            ]);
+            $oper_log = new TRoomOperLog();
+            $oper_log->save([
+                "room_id" => $room_id,
+                "user_id" => $room["user_id"],
+                "oper_user" => $oper_user,
+                "oper" => 0, //0：禁播，1：解播
+                "resume_time" => date("Y-m-d H:i:s",$end_time),
+                "reason" => $reason,
+                "create_time" => date("Y-m-d H:i:s"),
+            ]);
             return json($res);
         }else{
             return json($result);
@@ -68,6 +83,7 @@ class AdminApiController extends BaseController
     {
         $user_id = $this->request->param("user_id", '', "intval"); //要恢复的主播user_id
         $oper_user = $this->request->param("oper_user", '', "trim");
+        $reason = $this->request->param("reason", '', "trim");
 
         if (empty($user_id)) {
             return $this->outJson(100, "user_id参数不能为空");
@@ -84,7 +100,22 @@ class AdminApiController extends BaseController
 
         $result = $tenService->resumeLiveStream($stream_name,"live");
 
-        if($result["code"] == 0){
+        if($result["code"] === 0){
+            TMember::where("user_id",$user_id)->update([
+                "is_forbid" => 0,
+                "forbid_reason" => '',
+                "forbid_end_time" => null,
+            ]);
+            $oper_log = new TRoomOperLog();
+            $oper_log->save([
+                "room_id" => '',
+                "user_id" => $user_id,
+                "oper_user" => $oper_user,
+                "oper" => 1, //0：禁播，1：解播
+                "reason" => $reason,
+                "create_time" => date("Y-m-d H:i:s"),
+            ]);
+
             return json($result);
         }else{
             return json($result);
