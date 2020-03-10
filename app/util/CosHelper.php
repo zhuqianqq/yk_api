@@ -6,7 +6,6 @@ namespace app\util;
 
 use app\util\Tools;
 use think\facade\Config;
-use app\util\Tools;
 use Qcloud\Cos\Exception\ServiceResponseException;
 
 class CosHelper
