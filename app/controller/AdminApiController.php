@@ -66,7 +66,7 @@ class AdminApiController extends BaseController
                 "user_id" => $room["user_id"],
                 "oper_user" => $oper_user,
                 "oper" => 0, //0：禁播，1：解播
-                "resume_time" => date("Y-m-d H:i:s",$end_time),
+                "forbid_end_time" => date("Y-m-d H:i:s",$end_time),
                 "reason" => $reason,
                 "create_time" => date("Y-m-d H:i:s"),
             ]);
