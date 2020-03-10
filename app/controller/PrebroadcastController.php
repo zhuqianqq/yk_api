@@ -87,7 +87,7 @@ class PrebroadcastController extends BaseController
         $prebroadcast =  TPrebroadcast::where([
             'id'	=>	$id,
             'status'=>	0
-        ]);
+        ])->find();
         if($prebroadcast==null){
             return $this->outJson(1, "查找预播失败！");
         }
