@@ -88,6 +88,11 @@ class LiveCheckCommand extends BaseCommand
                 //print_r($arr);
                 $this->log("pagenum:{$page_num},page_size:{$page_size},res:\n".json_encode($arr,JSON_UNESCAPED_UNICODE));
 
+                if(isset($arr["Error"])){ //Error 的出现代表着该请求调用失败
+                    sleep(2);
+                    continue;
+                }
+
                 $total_page = $arr['TotalPage']; //总页数
                 $OnlineInfo = $arr['OnlineInfo'] ?? []; //正在推送流的信息列表
                 foreach($OnlineInfo as $item){

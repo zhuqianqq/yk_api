@@ -19,7 +19,7 @@ use think\Model;
 class LiveController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['closeRoom', 'addRoom','updateLikeAndView']],
+        'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView']],
     ];
 
     /**
@@ -83,7 +83,7 @@ class LiveController extends BaseController
         //拉流地址
         $live_config = Config::get('tencent_cloud');
         $user = TMember::where(["user_id" => $user_id])->field("display_code")->find();
-        $mixed_play_url = $live_config["pull_domain"]."/live/" . $live_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
+        $mixed_play_url = $live_config["pull_domain"] . "/live/" . $live_config["IM_SDKAPPID"] . "_" . $user->display_code . ".flv";
 
         //list($push_url,$pull_url) = TRoom::generatePushAndPUllUrl($user_id); //推流地址
 
@@ -182,7 +182,7 @@ class LiveController extends BaseController
     }
 
     /**
-     * 直播点赞
+     * 直播点赞数和在线人数上报
      */
     public function updateLikeAndView()
     {
@@ -194,12 +194,13 @@ class LiveController extends BaseController
             return $this->outJson(100, "room_id不能为空");
         }
         $room = TRoom::where("room_id", $room_id)->find();
-        if($room==null){
+        if ($room == null) {
             return $this->outJson(100, "找不到直播间，可能已经下线");
         }
-        $room->like_count=$like_count;
-        $room->view_count=$view_count;
+        $room->like_count = $like_count;
+        $room->view_count = $view_count;
         $room->save();
+
         return $this->outJson(0, "success");
     }
 
@@ -213,10 +214,10 @@ class LiveController extends BaseController
     public function tencentCallBack()
     {
         $input = $this->request->getInput();
-        $data = json_decode($input,true);
-        if(empty($data)){
-            Tools::addLog("live_callback","参数错误",$input);
-            return $this->outJson(100,"参数错误");
+        $data = json_decode($input, true);
+        if (empty($data)) {
+            Tools::addLog("live_callback", "参数错误", $input);
+            return $this->outJson(100, "参数错误");
         }
 
         $event_type = $data['event_type']; //推流事件为1；断流事件为0；录制事件为100；截图事件为200。
@@ -225,43 +226,43 @@ class LiveController extends BaseController
 
         $live_config = Config::get("tencent_cloud");
         $md5_sign = $md5_val = md5($live_config["callback_key"] . strval($check_t));
-        if($md5_sign != $check_sign){
-            Tools::addLog("live_callback","签名错误",$input);
+        if ($md5_sign != $check_sign) {
+            Tools::addLog("live_callback", "签名错误", $input);
             //return $this->outJson(100,"签名错误");
         }
 
-        if($event_type === 1){
+        if ($event_type === 1) {
             //推流事件
             $app = $data['app']; //推流域名
             $appname = $data['appname']; //推流路径
             $stream_id = $data['stream_id']; //直播流名称
             $stream_param = $data['stream_param']; //用户推流 URL 所带参数
             $sequence = $data['sequence']; //消息序列号，标识一次推流活动，一次推流活动会产生相同序列号的推流和断流消息
-            $display_code = explode("_",$stream_id)[1];
-            $room_id = "room_".$display_code;
+            $display_code = explode("_", $stream_id)[1];
+            $room_id = "room_" . $display_code;
 
             sleep(3);//延时一下再更新
-            $ret = TRoom::where("room_id",$room_id)->update(["sequence" => $sequence]); //更新序列号
-            Tools::addLog("live_callback","update_sequence:{$room_id},{$sequence},ret:{$ret}",$input);
+            $ret = TRoom::where("room_id", $room_id)->update(["sequence" => $sequence]); //更新序列号
+            Tools::addLog("live_callback", "update_sequence:{$room_id},{$sequence},ret:{$ret}", $input);
 
-            if($ret){
-                return $this->outJson(0,"success");
-            }else{
-                return $this->outJson(500,"update error");
+            if ($ret) {
+                return $this->outJson(0, "success");
+            } else {
+                return $this->outJson(500, "update error");
             }
-        }else if($event_type === 0){
+        } else if ($event_type === 0) {
             //断流事件
             $stream_id = $data['stream_id']; //直播流名称
-            $display_code = explode("_",$stream_id)[1];
-            $room_id = "room_".$display_code;
+            $display_code = explode("_", $stream_id)[1];
+            $room_id = "room_" . $display_code;
             $user_id = TMember::getUserIdByDisplayCode($display_code);
             $sequence = $data['sequence']; //消息序列号，标识一次推流活动，一次推流活动会产生相同序列号的推流和断流消息
 
-            $ret = TRoom::closeRoomBySystem($room_id,$sequence,"system");
-            Tools::addLog("live_callback","close_result:{$room_id},{$user_id},{$sequence},".json_encode($ret,JSON_UNESCAPED_UNICODE),$input);
+            $ret = TRoom::closeRoomBySystem($room_id, $sequence, "system");
+            Tools::addLog("live_callback", "close_result:{$room_id},{$user_id},{$sequence}," . json_encode($ret, JSON_UNESCAPED_UNICODE), $input);
 
             return json($ret);
-        }else if($event_type === 100){
+        } else if ($event_type === 100) {
             //录制事件为100
             $stream_id = $data['stream_id'];
             $video_id = $data['video_id'];
@@ -271,15 +272,15 @@ class LiveController extends BaseController
             $file_format = $data['file_format'];
 
             $duration = $end_time - $start_time;
-            if($duration > 60){//超过60秒的录制文件才会落数据库，单位s
+            if ($duration > 60) {//超过60秒的录制文件才会落数据库，单位s
 
             }
 
-            Tools::addLog("live_callback","success",$input);
-            return $this->outJson(0,"success");
-        }else{
-            Tools::addLog("live_callback","success",$input);
-            return $this->outJson(0,"success");
+            Tools::addLog("live_callback", "success", $input);
+            return $this->outJson(0, "success");
+        } else {
+            Tools::addLog("live_callback", "success", $input);
+            return $this->outJson(0, "success");
         }
     }
 }

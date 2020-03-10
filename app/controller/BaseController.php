@@ -64,6 +64,8 @@ abstract class BaseController
      */
     protected $user_id = 0;
 
+    protected $logfile = '';
+
     /**
      * 构造方法
      * @access public
@@ -198,5 +200,16 @@ abstract class BaseController
     protected function getCurrentUserId()
     {
         return $this->getCurrentUserId();
+    }
+
+    /**
+     * @param $msg
+     * @param $context
+     */
+    protected function log($msg,$context = [])
+    {
+        if($this->logfile){
+            Tools::addLog($this->logfile,$msg,$context);
+        }
     }
 }
