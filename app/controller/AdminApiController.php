@@ -100,6 +100,8 @@ class AdminApiController extends BaseController
 
         $result = $tenService->resumeLiveStream($stream_name,"live");
 
+        $this->log("resume_live res:".json_encode($result,JSON_UNESCAPED_UNICODE),$this->request->getInput());
+
         if($result["code"] === 0){
             TMember::where("user_id",$user_id)->update([
                 "is_forbid" => 0,
