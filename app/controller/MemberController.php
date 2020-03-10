@@ -24,6 +24,7 @@ class MemberController extends BaseController
         $member->avatar = empty($avatar) ? $member->avatar : $avatar;
         $member->sex = empty($sex) ? $member->sex : $sex;
         $member->front_cover = $front_cover;
+        $member->is_update_info = 1;
         $member->save();
         return $this->outJson(0, "保存成功！");
     }
