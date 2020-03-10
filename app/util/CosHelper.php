@@ -40,7 +40,7 @@ class CosHelper
                 'Key' => $key,
                 'Body' => $handler,
             ]);
-            @flose($handler);
+            @fclose($handler);
 
             Tools::addLog(self::$logName, "{$file_path},key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
