@@ -4,8 +4,10 @@
  */
 namespace app\util;
 
+use app\util\Tools;
 use think\facade\Config;
 use app\util\Tools;
+use Qcloud\Cos\Exception\ServiceResponseException;
 
 class CosHelper
 {
@@ -23,16 +25,23 @@ class CosHelper
         $cosClient = new \Qcloud\Cos\Client(
             array(
                 'region' => $cos_conf["COSKEY_BUCKET_REGION"],
+                'schema' => 'https', //协议头部，默认为http
                 'credentials' => [
                     'secretId' => $cos_conf['COS_SECRETID'],
                     'secretKey' => $cos_conf['COSKEY_SECRECTKEY']
                 ]));
 
-        $bucket = $cos_conf["COSKEY_BUCKET"];
-        $key = self::generateKey($file_path, $file_ext);
+        $bucket = $cos_conf["COSKEY_BUCKET"]; //存储桶
+        $key = self::generateKey($file_path, $file_ext); //对象在存储桶中的位置，即称对象键
         try {
-            $body = fopen($file_path, 'rb');
-            $result = $cosClient->upload($bucket,$key,$body);
+            $handler = fopen($file_path, 'rb');
+            //$result = $cosClient->upload($bucket,$key,$body);
+            $result = $cosClient->putObject([
+                'Bucket' => $bucket,
+                'Key' => $key,
+                'Body' => $handler,
+            ]);
+            @flose($handler);
 
             Tools::addLog(self::$logName, "{$file_path},key:{$key},res:" . json_encode($result, JSON_UNESCAPED_UNICODE));
 
@@ -46,8 +55,16 @@ class CosHelper
                 ]);
             }
             return Tools::outJson(-1, "上传失败");
-        } catch (\Exception $ex) {
-            Tools::addLog(self::$logName, "{$file_path},upload_fail,line:" . $ex->getLine() . ",message:" . $ex->getMessage());
+        } catch (ServiceResponseException $ex) {
+            $statusCode = $ex->getStatusCode(); // 获取错误码
+            $message = $ex->getMessage(); // 获取错误信息
+            $errorCode = $ex->getCosErrorCode(); // 获取错误名称
+            $response = $ex->getResponse(); // 获取完整的响应
+
+            Tools::addLog(self::$logName, "upload_fail:{$file_path},statusCode:{$statusCode},message:{$message},errorCode:{$errorCode},response:".json_encode($response));
+            return Tools::outJson(500, "上传失败:" . $ex->getMessage());
+        }catch (\Exception $ex) {
+            Tools::addLog(self::$logName, "upload_fail:{$file_path},line:" . $ex->getLine() . ",message:" . $ex->getMessage());
             return Tools::outJson(500, "上传失败:" . $ex->getMessage());
         }
     }
