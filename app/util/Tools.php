@@ -297,4 +297,25 @@ class Tools
     {
         return $type.date("YmdHis").mt_rand(1000,9999);
     }
+
+    /**
+     * 获取UTC格式的时间,格式为 YYYY-MM-DDThh:mm:ssZ
+     * 北京时间值为 UTC 时间值 + 8 小时，格式按照 ISO 8601 标准表示。
+     * @param int $time
+     * @return string
+     */
+    public static function getUtcTime($time = 0)
+    {
+        $old_tz = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+
+        if(empty($time)){
+            $time = time();
+        }
+        $timeStr = date("Y-m-d\TH:i:s\Z",$time);
+
+        date_default_timezone_set($old_tz);
+
+        return $timeStr;
+    }
 }

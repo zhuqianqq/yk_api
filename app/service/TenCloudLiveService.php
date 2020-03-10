@@ -5,6 +5,7 @@
 
 namespace app\service;
 
+use TencentCloud\Live\V20180801\Models\ResumeLiveStreamRequest;
 use think\facade\Config;
 use app\util\Tools;
 use TencentCloud\Common\Credential;
@@ -13,6 +14,7 @@ use TencentCloud\Common\Profile\HttpProfile;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
 use TencentCloud\Live\V20180801\LiveClient;
 use TencentCloud\Live\V20180801\Models\DropLiveStreamRequest;
+use TencentCloud\Live\V20180801\Models\ForbidLiveStreamRequest;
 
 
 class TenCloudLiveService extends BaseService
@@ -101,6 +103,76 @@ class TenCloudLiveService extends BaseService
         }
         return Tools::outJson(0,"下播成功");
     }
+
+    /**
+     * 禁推直播流  https://cloud.tencent.com/document/api/267/20468
+     * @param string $streamName 流名称
+     * @param string $appName 推流路径，与推流和播放地址中的AppName保持一致，默认为 live。
+     * @param string $domain 您的推流域名。
+     * @param string $resumeTime 恢复流的时间。UTC 格式，例如：2018-11-29T19:00:00Z。 注意： 1. 默认禁播7天，且最长支持禁播90天。。
+     * @param string $reason 禁推原因。
+     */
+    public function forbidLiveStream($streamName, $appName = 'live',$domain = '',$resumeTime = '',$reason = '')
+    {
+        $cred = $this->getCredential();
+        $httpProfile = new HttpProfile();
+        $httpProfile->setEndpoint("live.tencentcloudapi.com");
+
+        $clientProfile = new ClientProfile();
+        $clientProfile->setHttpProfile($httpProfile);
+        $client = new LiveClient($cred, "", $clientProfile);
+
+        $req = new ForbidLiveStreamRequest(); //请求类
+        $req->StreamName = $streamName;
+        $req->DomainName = !empty($domain) ? $domain : $this->config['push_domain_cdn'];  //您的加速域名
+        $req->AppName = $appName;
+        //$resumeTime 恢复流的时间。UTC 格式，例如：2018-11-29T19:00:00Z。 注意： 1. 默认禁播7天，且最长支持禁播90天。
+        $req->ResumeTime = $resumeTime;
+        $req->Reason = $reason;
+
+        $resp = $client->ForbidLiveStream($req);
+        $this->log("forbid_live streamName:{$streamName},domain:{$domain},appname:{$appName},resumeTime:{$resumeTime},reason:{$reason},res:" . $resp->toJsonString());
+
+        $res = $resp->serialize();
+
+        if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
+            return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
+        }
+        return Tools::outJson(0,"下播成功");
+    }
+
+    /**
+     * 恢复直播流  https://cloud.tencent.com/document/api/267/20467
+     * @param string $streamName 流名称
+     * @param string $appName 推流路径，与推流和播放地址中的AppName保持一致，默认为 live。
+     * @param string $domain 您的推流域名。
+     */
+    public function resumeLiveStream($streamName, $appName = 'live',$domain = '')
+    {
+        $cred = $this->getCredential();
+        $httpProfile = new HttpProfile();
+        $httpProfile->setEndpoint("live.tencentcloudapi.com");
+
+        $clientProfile = new ClientProfile();
+        $clientProfile->setHttpProfile($httpProfile);
+        $client = new LiveClient($cred, "", $clientProfile);
+
+        $req = new ResumeLiveStreamRequest(); //请求类
+        $req->DomainName = !empty($domain) ? $domain : $this->config['push_domain_cdn'];  //您的加速域名
+        $req->AppName = $appName;
+        $req->StreamName = $streamName;
+
+        $resp = $client->ResumeLiveStream($req);
+        $this->log("resume streamName:{$streamName},domain:{$domain},appname:{$appName},res:" . $resp->toJsonString());
+
+        $res = $resp->serialize();
+
+        if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
+            return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
+        }
+        return Tools::outJson(0,"下播成功");
+    }
+
 
     /**
      * 解析domain,appname,stream_name
