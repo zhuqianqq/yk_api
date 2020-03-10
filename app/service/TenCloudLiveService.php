@@ -170,7 +170,7 @@ class TenCloudLiveService extends BaseService
         if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
             return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
         }
-        return Tools::outJson(0,"下播成功");
+        return Tools::outJson(0,"恢复成功");
     }
 
 
