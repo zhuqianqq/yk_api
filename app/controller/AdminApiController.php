@@ -5,9 +5,11 @@
 
 namespace app\controller;
 
+use app\model\TMember;
 use app\model\TRoom;
 use app\service\TenCloudLiveService;
 use app\util\Tools;
+use think\facade\Config;
 
 class AdminApiController extends BaseController
 {
@@ -64,26 +66,23 @@ class AdminApiController extends BaseController
      */
     public function resumeLive()
     {
-        $room_id = $this->request->param("room_id", '', "trim");
+        $user_id = $this->request->param("user_id", '', "intval"); //要恢复的主播user_id
         $oper_user = $this->request->param("oper_user", '', "trim");
-        $user_id = $this->request->param("user_id", '', "intval");
 
-        if (empty($room_id)) {
-            return $this->outJson(100, "room_id参数不能为空");
-        }
-        if (empty($oper_user)) {
-            return $this->outJson(100, "操作用户参数不能为空");
+        if (empty($user_id)) {
+            return $this->outJson(100, "user_id参数不能为空");
         }
 
-        $room = TRoom::where("room_id",$room_id)->field('push_url,user_id')->find();
-        if(empty($room)){
-            return $this->outJson(100, "直播不存在或未开播");
+        $user = TMember::where("user_id",$user_id)->field('user_id,display_code')->find();
+        if(empty($user)){
+            return $this->outJson(100, "主播用户不存在");
         }
 
+        $ten_config = Config::get("tencent_cloud");
+        $stream_name = $ten_config['IM_SDKAPPID']."_".$user["display_code"];
         $tenService = new TenCloudLiveService();
-        list($domain,$app_name,$stream_name) = TenCloudLiveService::parsePushUrl($room->push_url);
 
-        $result = $tenService->resumeLiveStream($stream_name,$app_name,$domain);
+        $result = $tenService->resumeLiveStream($stream_name,"live");
 
         if($result["code"] == 0){
             return json($result);
