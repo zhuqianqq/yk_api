@@ -26,7 +26,7 @@ class AlipayService
     /**
      * @var string 日志名
      */
-    protected $logName = "AlipayService";
+    protected $logName = "ali_pay";
 
     /**
      * @var array 支付配置
