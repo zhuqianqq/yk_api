@@ -5,6 +5,7 @@
 
 namespace app\service;
 
+use app\util\TLSSigAPIv2;
 use TencentCloud\Live\V20180801\Models\ResumeLiveStreamRequest;
 use think\facade\Config;
 use app\util\Tools;
@@ -78,7 +79,7 @@ class TenCloudLiveService extends BaseService
      * https://live.tencentcloudapi.com/?Action=DropLiveStream&DomainName=5000.livepush.myqcloud.com
      * &AppName=live&StreamName=stream1&<公共请求参数>
      */
-    public function dropLiveStream($streamName, $appName = 'live',$domain = '')
+    public function dropLiveStream($streamName, $appName = 'live', $domain = '')
     {
         $cred = $this->getCredential();
         $httpProfile = new HttpProfile();
@@ -98,10 +99,10 @@ class TenCloudLiveService extends BaseService
 
         $res = $resp->serialize();
 
-        if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
-            return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
+        if (isset($res["Error"])) { //Error 的出现代表着该请求调用失败
+            return Tools::outJson(500, "调用接口失败 code:" . $res["Error"]["Code"]);
         }
-        return Tools::outJson(0,"下播成功");
+        return Tools::outJson(0, "下播成功");
     }
 
     /**
@@ -112,7 +113,7 @@ class TenCloudLiveService extends BaseService
      * @param string $resumeTime 恢复流的时间。UTC 格式，例如：2018-11-29T19:00:00Z。 注意： 1. 默认禁播7天，且最长支持禁播90天。。
      * @param string $reason 禁推原因。
      */
-    public function forbidLiveStream($streamName, $appName = 'live',$domain = '',$resumeTime = '',$reason = '')
+    public function forbidLiveStream($streamName, $appName = 'live', $domain = '', $resumeTime = '', $reason = '')
     {
         $cred = $this->getCredential();
         $httpProfile = new HttpProfile();
@@ -135,10 +136,10 @@ class TenCloudLiveService extends BaseService
 
         $res = $resp->serialize();
 
-        if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
-            return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
+        if (isset($res["Error"])) { //Error 的出现代表着该请求调用失败
+            return Tools::outJson(500, "调用接口失败 code:" . $res["Error"]["Code"]);
         }
-        return Tools::outJson(0,"下播成功");
+        return Tools::outJson(0, "下播成功");
     }
 
     /**
@@ -147,7 +148,7 @@ class TenCloudLiveService extends BaseService
      * @param string $appName 推流路径，与推流和播放地址中的AppName保持一致，默认为 live。
      * @param string $domain 您的推流域名。
      */
-    public function resumeLiveStream($streamName, $appName = 'live',$domain = '')
+    public function resumeLiveStream($streamName, $appName = 'live', $domain = '')
     {
         $cred = $this->getCredential();
         $httpProfile = new HttpProfile();
@@ -167,12 +168,46 @@ class TenCloudLiveService extends BaseService
 
         $res = $resp->serialize();
 
-        if(isset($res["Error"])){ //Error 的出现代表着该请求调用失败
-            return Tools::outJson(500,"调用接口失败 code:".$res["Error"]["Code"]);
+        if (isset($res["Error"])) { //Error 的出现代表着该请求调用失败
+            return Tools::outJson(500, "调用接口失败 code:" . $res["Error"]["Code"]);
         }
-        return Tools::outJson(0,"恢复成功");
+        return Tools::outJson(0, "恢复成功");
     }
 
+    /**
+     * App 管理员可以通过该接口在群组中发送系统通知。
+     * https://cloud.tencent.com/document/product/269/1630
+     * @param $group_id 向哪个群组发送系统通知
+     * @param $content 系统通知的内容
+     */
+    public function sendGroupSystemNotification($room_id, $content)
+    {
+        $api = new TLSSigAPIv2($this->config["IM_SDKAPPID"], $this->config["IM_SECRETKEY"]);
+        $admin_user = "admin"; //管理员账号，在云平台后台配置
+        $user_sign = $api->genSig($admin_user); //UserSig 是用户登录即时通信 IM 的密码
+
+        $param = [
+            "sdkappid" => $this->config["IM_SDKAPPID"],
+            "identifier" => $admin_user,
+            "usersig" => $user_sign,
+            "random" => time(),
+            "contenttype" => "json",
+        ];
+
+        $url = "https://console.tim.qq.com/v4/group_open_http_svc/send_group_system_notification?" . http_build_query($param);
+        $post_data = [
+            "GroupId" => $room_id,
+            "Content" => $content,
+        ];
+
+        $res = Tools::curlPost($url, $post_data);
+        $this->log("send_msg {$url},res:" . json_encode($res,JSON_UNESCAPED_UNICODE),$post_data);
+
+        if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
+            return Tools::outJson(0, "发送成功");
+        }
+        return Tools::outJson(500, "调用接口失败" . $res["ErrorInfo"]."[code:".$res["ErrorCode"]."]");
+    }
 
     /**
      * 解析domain,appname,stream_name
@@ -181,11 +216,11 @@ class TenCloudLiveService extends BaseService
      */
     public static function parsePushUrl($push_url)
     {
-        if(empty($push_url)){
+        if (empty($push_url)) {
             return '';
         }
-        $arr = explode("?",$push_url);
-        $arr2 = explode("/",str_replace('rtmp://','',$arr[0]));
+        $arr = explode("?", $push_url);
+        $arr2 = explode("/", str_replace('rtmp://', '', $arr[0]));
 
         return $arr2;
     }

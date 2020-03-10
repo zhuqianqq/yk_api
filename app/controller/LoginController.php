@@ -81,7 +81,7 @@ class LoginController extends BaseController
 
         $live_config = Config::get('tencent_cloud');
         $api = new TLSSigAPIv2($live_config["IM_SDKAPPID"], $live_config["IM_SECRETKEY"]);
-        $user_sign = $api->genSig($data["display_code"]);
+        $user_sign = $api->genSig($data["display_code"]); //UserSig 是用户登录即时通信 IM 的密码
 
         //直播间账号签名信息
         $data["room_sign"] = [

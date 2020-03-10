@@ -59,7 +59,7 @@ class InviteController extends BaseController
         $list = $query->order('t_invite_relation.id', 'desc')->limit(($page - 1) * $page_size, $page_size)->select();
         if (!empty($list[0]->id)) {
             $user_ids = array_column($list->toArray(), 'user_id');
-            $users = TMember::where(" user_id in (" . implode(',', $user_ids) . ") ")->field('user_id,nick_name')->select();
+            $users = TMember::where("user_id","in",$user_ids)->field('user_id,nick_name,avatar')->select();
             $usersMap = [];
             if (!empty($users[0]->user_id)) {
                 $usersMap = array_column($users->toArray(), null, 'user_id');
@@ -68,6 +68,7 @@ class InviteController extends BaseController
                 $item['state'] = $item['order']['state'];
                 $item['nick_name'] = isset($usersMap[$item['user_id']]['nick_name']) ? $usersMap[$item['user_id']]['nick_name'] : '';
                 $item['date'] = date('Y-m-d', strtotime($item['create_time']));
+                $item['avatar'] = isset($usersMap[$item['user_id']]['avatar']) ? $usersMap[$item['user_id']]['avatar'] : '';
             }
         }
 

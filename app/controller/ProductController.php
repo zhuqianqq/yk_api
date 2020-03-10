@@ -212,10 +212,10 @@ class ProductController extends BaseController
             Tools::addLog("prod_save","价格不能小于0",$input);
             return $this->outJson(100, "价格不能小于0");
         }
-        if ($stock <= 0) {
-            Tools::addLog("prod_save","库存不能为空",$input);
-            return $this->outJson(100, "库存不能为空");
-        }
+//        if ($stock <= 0) {
+//            Tools::addLog("prod_save","库存不能为空",$input);
+//            return $this->outJson(100, "库存不能为空");
+//        }
         if (empty($head_img)) {
             Tools::addLog("prod_save","头部图片不能为空",$input);
             return $this->outJson(100, "头部图片不能为空");
