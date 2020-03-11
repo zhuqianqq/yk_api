@@ -107,6 +107,7 @@ class LiveController extends BaseController
         $show_product = $this->request->param("show_product", 0, "intval");
         $prebroadcast_id = $this->request->param("prebroadcast_id", 0, "intval");
         $push_url = $this->request->param("push_url"); //推流地址
+        $source_platform = $this->request->param("source_platform", 0, "intval"); //创建直播的平台
 
         //拉流地址
         $live_config = Config::get('tencent_cloud');
@@ -127,6 +128,7 @@ class LiveController extends BaseController
             $room->mixed_play_url = $mixed_play_url;
             $room->show_product = $show_product; //是否显示关联商品
             $room->create_time = date("Y-m-d H:i:s");
+            $room->source_platform = $source_platform;
             $room->save();
         } else {
             TRoom::where([
@@ -138,6 +140,7 @@ class LiveController extends BaseController
                 'push_url' => $push_url,
                 'mixed_play_url' => $mixed_play_url,
                 'show_product' => $show_product,
+                'source_platform' => $source_platform
             ]);
         }
         $room = TRoom::where(["user_id" => $user_id])->find();
