@@ -123,4 +123,12 @@ class AdminApiController extends BaseController
             return json($result);
         }
     }
+
+    public function test()
+    {
+        $tenService = new TenCloudLiveService();
+        $ret = $tenService->sendGroupSystemNotification("room_101057","close_room");
+
+        return json($ret);
+    }
 }

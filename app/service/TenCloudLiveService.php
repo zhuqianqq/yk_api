@@ -199,9 +199,8 @@ class TenCloudLiveService extends BaseService
             "GroupId" => $room_id,
             "Content" => $content,
         ];
-
-        $res = Tools::curlPost($url, $post_data);
-        $this->log("send_msg {$url},res:" . json_encode($res,JSON_UNESCAPED_UNICODE),$post_data);
+        $res = Tools::curlPost($url, json_encode($post_data));
+        $this->log("send_msg {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
 
         if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
             return Tools::outJson(0, "发送成功");
