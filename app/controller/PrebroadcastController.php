@@ -7,6 +7,9 @@ use app\model\TRoom;
 
 class PrebroadcastController extends BaseController
 {
+    protected $middleware = [
+        'access_check' => ['only' => ['add','removePrebroadcast']],
+    ];
     /**
      * 创建预播
      * @return array
