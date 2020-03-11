@@ -53,7 +53,7 @@ class AdminApiController extends BaseController
 //
 //        $result = $tenService->forbidLiveStream($stream_name,$app_name,$domain,$resume_time,$reason);
 
-        $result = $tenService->sendGroupMsg($room_id,"close_room|".$reason); //发送下播消息
+        $result = $tenService->sendGroupMsg($room_id,"close_room|您的直播间因违规，暂时关闭，如有疑问请联系客服"); //发送下播消息
 
         if($result["code"] === 0){
             $res = TRoom::closeRoom($room_id, $room->user_id,$oper_user);
