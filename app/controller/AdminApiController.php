@@ -53,7 +53,7 @@ class AdminApiController extends BaseController
 //
 //        $result = $tenService->forbidLiveStream($stream_name,$app_name,$domain,$resume_time,$reason);
 
-        $result = $tenService->destroyGroup($room_id); //解散群组
+        $result = $tenService->sendGroupMsg($room_id,"close_room"); //发送下播消息
 
         if($result["code"] === 0){
             $res = TRoom::closeRoom($room_id, $room->user_id,$oper_user);
@@ -132,7 +132,7 @@ class AdminApiController extends BaseController
         $tenService = new TenCloudLiveService();
         //$ret = $tenService->sendGroupSystemNotification("room_101057","close_room");
 
-        $ret = $tenService->destroyGroup("room_101129");
+        $ret = $tenService->sendGroupMsg("room_101057","close_room");
 
         return json($ret);
     }

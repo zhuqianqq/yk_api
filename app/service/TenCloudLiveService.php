@@ -200,7 +200,49 @@ class TenCloudLiveService extends BaseService
             "Content" => $content,
         ];
         $res = Tools::curlPost($url, json_encode($post_data));
-        $this->log("send_msg {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
+        $this->log("send_notification {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
+
+        if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
+            return Tools::outJson(0, "发送成功");
+        }
+        return Tools::outJson(500, "调用接口失败" . $res["ErrorInfo"]."[code:".$res["ErrorCode"]."]");
+    }
+
+    /**
+     * App 在群组中发送普通消息。
+     * https://cloud.tencent.com/document/product/269/1629
+     * @param $group_id 向哪个群组发送系统通知
+     * @param $content 系统通知的内容
+     */
+    public function sendGroupMsg($room_id, $content)
+    {
+        $api = new TLSSigAPIv2($this->config["IM_SDKAPPID"], $this->config["IM_SECRETKEY"]);
+        $admin_user = "admin"; //管理员账号，在云平台后台配置
+        $user_sign = $api->genSig($admin_user); //UserSig 是用户登录即时通信 IM 的密码
+
+        $param = [
+            "sdkappid" => $this->config["IM_SDKAPPID"],
+            "identifier" => $admin_user,
+            "usersig" => $user_sign,
+            "random" => time(),
+            "contenttype" => "json",
+        ];
+
+        $url = "https://console.tim.qq.com/v4/group_open_http_svc/send_group_msg?" . http_build_query($param);
+        $post_data = [
+            "GroupId" => $room_id,
+            "Random" => time(),
+            "MsgBody" => [
+                [
+                    "MsgType" => "TIMTextElem", // 文本
+                    "MsgContent" => [
+                        "Text" => $content
+                    ]
+                ]
+            ],
+        ];
+        $res = Tools::curlPost($url, json_encode($post_data));
+        $this->log("send_group_msg {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
 
         if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
             return Tools::outJson(0, "发送成功");
@@ -232,7 +274,7 @@ class TenCloudLiveService extends BaseService
             "GroupId" => $room_id,
         ];
         $res = Tools::curlPost($url, json_encode($post_data));
-        $this->log("send_msg {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
+        $this->log("destroy_group {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
 
         if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
             return Tools::outJson(0, "操作成功");
