@@ -59,7 +59,9 @@ class MemberController extends BaseController
             return $this->outJson(1, "指定的用户不存在！");
         }
         $data["user_id"] = $user_id;
-        $data["access_key"] = AccessKeyHelper::generateAccessKey($user_id); //生成access_key
+        $data["display_code"] = $member->display_code;
+        TMember::setOtherInfo($data);
+        //$data["access_key"] = AccessKeyHelper::generateAccessKey($user_id); //生成access_key
         return $this->outJson(0, "刷新用户会话标识成功！", $data);
     }
 }

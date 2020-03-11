@@ -61,7 +61,7 @@ class LoginController extends BaseController
             ]);
             Db::commit();
 
-            $this->setOtherInfo($data);
+            TMember::setOtherInfo($data);
             SmsHelper::clearCacheKey($phone,"login");
 
             return $this->outJson(0, "登录成功", $data);
@@ -71,25 +71,7 @@ class LoginController extends BaseController
         }
     }
 
-    /**
-     * 设置其他信息
-     * @param $data
-     */
-    private function setOtherInfo(&$data)
-    {
-        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
 
-        $live_config = Config::get('tencent_cloud');
-        $api = new TLSSigAPIv2($live_config["IM_SDKAPPID"], $live_config["IM_SECRETKEY"]);
-        $user_sign = $api->genSig($data["display_code"]); //UserSig 是用户登录即时通信 IM 的密码
-
-        //直播间账号签名信息
-        $data["room_sign"] = [
-            "sdk_appid" => intval($live_config["IM_SDKAPPID"]),
-            "display_code" => $data["display_code"],
-            "user_sign" => $user_sign,
-        ];
-    }
 
     /**
      * 小程序登录
@@ -132,7 +114,7 @@ class LoginController extends BaseController
             "last_login_time" => date("Y-m-d H:i:s"),
         ]);
 
-        $this->setOtherInfo($data);
+        TMember::setOtherInfo($data);
         $dbData = TMember::getByOpenId($openid);
         return $this->outJson(0, "登录成功", array_merge($data, $dbData));
     }
@@ -177,7 +159,7 @@ class LoginController extends BaseController
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
 
-        $this->setOtherInfo($data);
+        TMember::setOtherInfo($data);
 
         return $this->outJson(0, "登录成功", $data);
     }
