@@ -104,7 +104,7 @@ class AdminApiController extends BaseController
         $tenService = new TenCloudLiveService();
         //$ret = $tenService->sendGroupSystemNotification("room_101057","close_room");
 
-        $ret = $tenService->sendGroupMsg("room_101057","close_room");
+        $ret = $tenService->sendGroupMsg("room_101057","close_room|您的直播间因违规，暂时关闭，如有疑问请联系客服");
 
         return json($ret);
     }

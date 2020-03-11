@@ -286,10 +286,12 @@ class LiveController extends BaseController
             $user_id = TMember::getUserIdByDisplayCode($display_code);
             $sequence = $data['sequence']; //消息序列号，标识一次推流活动，一次推流活动会产生相同序列号的推流和断流消息
 
-            $ret = TRoom::closeRoomBySystem($room_id, $sequence, "system");
-            Tools::addLog("live_callback", "close_result:{$room_id},{$user_id},{$sequence}," . json_encode($ret, JSON_UNESCAPED_UNICODE), $input);
+            //$ret = TRoom::closeRoomBySystem($room_id, $sequence, "system");
+            //Tools::addLog("live_callback", "close_result:{$room_id},{$user_id},{$sequence}," . json_encode($ret, JSON_UNESCAPED_UNICODE), $input);
 
-            return json($ret);
+            //return json($ret);
+
+            return $this->outJson(0, "success");
         } else if ($event_type === 100) {
             //录制事件为100
             $stream_id = $data['stream_id'];
