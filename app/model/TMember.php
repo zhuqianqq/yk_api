@@ -5,7 +5,10 @@
 
 namespace app\model;
 
+use app\util\AccessKeyHelper;
+use app\util\TLSSigAPIv2;
 use app\util\Tools;
+use think\facade\Config;
 use think\facade\Db;
 
 class TMember extends BaseModel
@@ -196,5 +199,25 @@ class TMember extends BaseModel
             "reason" => $reason,
             "create_time" => date("Y-m-d H:i:s"),
         ]);
+    }
+
+    /**
+     * 设置其他信息
+     * @param $data
+     */
+    public static function setOtherInfo(&$data)
+    {
+        $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
+
+        $live_config = Config::get('tencent_cloud');
+        $api = new TLSSigAPIv2($live_config["IM_SDKAPPID"], $live_config["IM_SECRETKEY"]);
+        $user_sign = $api->genSig($data["display_code"]); //UserSig 是用户登录即时通信 IM 的密码
+
+        //直播间账号签名信息
+        $data["room_sign"] = [
+            "sdk_appid" => intval($live_config["IM_SDKAPPID"]),
+            "display_code" => $data["display_code"],
+            "user_sign" => $user_sign,
+        ];
     }
 }
