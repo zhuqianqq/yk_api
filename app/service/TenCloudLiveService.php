@@ -209,6 +209,39 @@ class TenCloudLiveService extends BaseService
     }
 
     /**
+     * App 管理员通过该接口解散群。
+     *  https://cloud.tencent.com/document/product/269/1624
+     * @param $room_id
+     */
+    public function destroyGroup($room_id)
+    {
+        $api = new TLSSigAPIv2($this->config["IM_SDKAPPID"], $this->config["IM_SECRETKEY"]);
+        $admin_user = "admin"; //管理员账号，在云平台后台配置
+        $user_sign = $api->genSig($admin_user); //UserSig 是用户登录即时通信 IM 的密码
+
+        $param = [
+            "sdkappid" => $this->config["IM_SDKAPPID"],
+            "identifier" => $admin_user,
+            "usersig" => $user_sign,
+            "random" => time(),
+            "contenttype" => "json",
+        ];
+
+        $url = "https://console.tim.qq.com/v4/group_open_http_svc/destroy_group?" . http_build_query($param);
+        $post_data = [
+            "GroupId" => $room_id,
+        ];
+        $res = Tools::curlPost($url, json_encode($post_data));
+        $this->log("send_msg {$url},param:".json_encode($post_data).",res:" . json_encode($res,JSON_UNESCAPED_UNICODE));
+
+        if (isset($res["ErrorCode"]) && $res["ErrorCode"] == 0) { //错误码，0表示成功，非0表示失败
+            return Tools::outJson(0, "操作成功");
+        }
+
+        return Tools::outJson(500, "调用接口失败" . $res["ErrorInfo"]."[code:".$res["ErrorCode"]."]");
+    }
+
+    /**
      * 解析domain,appname,stream_name
      * @param $push_url
      * rtmp://push.laotouge.cn/live/1400319314_101162?txSecret=702052ac8d2c3633cf53d43fb6bcbbc6&txTime=5E685262

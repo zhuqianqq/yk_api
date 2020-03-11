@@ -15,7 +15,7 @@ use app\model\TRoomOperLog;
 class AdminApiController extends BaseController
 {
     protected $middleware = [
-        'admin_check' => ['except' => ['forbidLive','resumeLive']],
+        'admin_check' => ['only' => ['forbidLive','resumeLive']],
     ];
 
     protected $logfile = 'admin_api';
@@ -46,11 +46,14 @@ class AdminApiController extends BaseController
         }
 
         $tenService = new TenCloudLiveService();
-        list($domain,$app_name,$stream_name) = TenCloudLiveService::parsePushUrl($room->push_url);
         $end_time = time() + $forbid_day * 24 * 3600;
-        $resume_time = Tools::getUtcTime($end_time);
 
-        $result = $tenService->forbidLiveStream($stream_name,$app_name,$domain,$resume_time,$reason);
+//        list($domain,$app_name,$stream_name) = TenCloudLiveService::parsePushUrl($room->push_url);
+//        $resume_time = Tools::getUtcTime($end_time);
+//
+//        $result = $tenService->forbidLiveStream($stream_name,$app_name,$domain,$resume_time,$reason);
+
+        $result = $tenService->destroyGroup($room_id); //解散群组
 
         if($result["code"] === 0){
             $res = TRoom::closeRoom($room_id, $room->user_id,$oper_user);
@@ -127,7 +130,9 @@ class AdminApiController extends BaseController
     public function test()
     {
         $tenService = new TenCloudLiveService();
-        $ret = $tenService->sendGroupSystemNotification("room_101057","close_room");
+        //$ret = $tenService->sendGroupSystemNotification("room_101057","close_room");
+
+        $ret = $tenService->destroyGroup("room_101129");
 
         return json($ret);
     }
