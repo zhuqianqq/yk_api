@@ -58,21 +58,7 @@ class AdminApiController extends BaseController
         if($result["code"] === 0){
             $res = TRoom::closeRoom($room_id, $room->user_id,$oper_user);
             $this->log("forbid_live res:".json_encode($res,JSON_UNESCAPED_UNICODE),$this->request->getInput());
-            TMember::where("user_id",$room["user_id"])->update([
-                "is_forbid" => 1,
-                "forbid_reason" => $reason,
-                "forbid_end_time" => date("Y-m-d H:i:s",$end_time),
-            ]);
-            $oper_log = new TRoomOperLog();
-            $oper_log->save([
-                "room_id" => $room_id,
-                "user_id" => $room["user_id"],
-                "oper_user" => $oper_user,
-                "oper" => 0, //0：禁播，1：解播
-                "forbid_end_time" => date("Y-m-d H:i:s",$end_time),
-                "reason" => $reason,
-                "create_time" => date("Y-m-d H:i:s"),
-            ]);
+            TMember::forbidMember($room->user_id,$room->room_id,$end_time,$oper_user);
             return json($res);
         }else{
             return json($result);
@@ -106,21 +92,7 @@ class AdminApiController extends BaseController
         $this->log("resume_live res:".json_encode($result,JSON_UNESCAPED_UNICODE),$this->request->getInput());
 
         if($result["code"] === 0){
-            TMember::where("user_id",$user_id)->update([
-                "is_forbid" => 0,
-                "forbid_reason" => '',
-                "forbid_end_time" => null,
-            ]);
-            $oper_log = new TRoomOperLog();
-            $oper_log->save([
-                "room_id" => '',
-                "user_id" => $user_id,
-                "oper_user" => $oper_user,
-                "oper" => 1, //0：禁播，1：解播
-                "reason" => $reason,
-                "create_time" => date("Y-m-d H:i:s"),
-            ]);
-
+            TMember::unforbidMember($user->user_id,$oper_user);
             return json($result);
         }else{
             return json($result);

@@ -10,6 +10,8 @@ use app\model\TPrebroadcast;
 use app\model\TProduct;
 use app\model\TRoom;
 use app\model\TRoomHistory;
+use app\model\TRoomOperLog;
+use app\util\AccessKeyHelper;
 use app\util\Tools;
 use think\facade\Cache;
 use think\facade\Config;
@@ -66,6 +68,28 @@ class LiveController extends BaseController
             $data["avatar"] = "";
         }
         return $this->outJson(0, "success", $data);
+    }
+
+    /**
+     * 创建直播前确认是否可以开播
+     */
+    public function preAddRoom()
+    {
+        $user_id = $this->request->param("user_id", 0, "intval");
+        if ($user_id <= 0) {
+            return $this->outJson(1, "找不到对应账号！");
+        }
+        $user = TMember::where(["user_id" => $user_id])->find();
+        if ($user->is_lock == 1) {
+            AccessKeyHelper::generateAccessKey($user_id);
+            return $this->outJson(200, "账号已被锁定");
+        }
+
+        if ($user->is_forbid == 1 && $user->forbid_end_time > date('Y-m-d H:i:s')) {
+            return $this->outJson(300, "主播已禁播,原因：" + $user->forbid_reason);
+        } else if ($user->is_forbid == 1) {
+            TMember::unforbidMember($user_id);
+        }
     }
 
     /**

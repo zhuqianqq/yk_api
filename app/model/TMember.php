@@ -157,4 +157,44 @@ class TMember extends BaseModel
 
         return $user_id;
     }
+
+    /**
+     * 禁播
+     */
+    public static function forbidMember($user_id,$room_id,$end_time, $reason,$oper_user='system')
+    {
+        TMember::where("user_id", $user_id)->update([
+            "is_forbid" => 1,
+            "forbid_reason" => $reason,
+            "forbid_end_time" => date("Y-m-d H:i:s", $end_time),
+        ]);
+        $oper_log = new TRoomOperLog();
+        $oper_log->save([
+            "room_id" => $room_id,
+            "user_id" => $user_id,
+            "oper_user" => $oper_user,
+            "oper" => 0, //0：禁播，1：解播
+            "forbid_end_time" => date("Y-m-d H:i:s", $end_time),
+            "reason" => $reason,
+            "create_time" => date("Y-m-d H:i:s"),
+        ]);
+    }
+
+    public static function unforbidMember($user_id,$reason,$oper_user='system')
+    {
+        TMember::where("user_id",$user_id)->update([
+            "is_forbid" => 0,
+            "forbid_reason" => '',
+            "forbid_end_time" => null,
+        ]);
+        $oper_log = new TRoomOperLog();
+        $oper_log->save([
+            "room_id" => '',
+            "user_id" => $user_id,
+            "oper_user" => $oper_user,
+            "oper" => 1, //0：禁播，1：解播
+            "reason" => $reason,
+            "create_time" => date("Y-m-d H:i:s"),
+        ]);
+    }
 }
