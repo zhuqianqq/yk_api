@@ -1,6 +1,6 @@
 <?php
 /**
- * 支付宝移动支付表
+ * 用户表
  */
 namespace app\model\shop;
 
