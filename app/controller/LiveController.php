@@ -90,6 +90,7 @@ class LiveController extends BaseController
         } else if ($user->is_forbid == 1) {
             TMember::unforbidMember($user_id);
         }
+        return $this->outJson(0, "正常账号，可创建房间！");
     }
 
     /**
