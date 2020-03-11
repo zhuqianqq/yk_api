@@ -2,13 +2,13 @@
 /**
  * ShopModel基类
  */
-namespace app\model;
+namespace app\model\shop;
 
-use think\Model;
+use app\model\BaseModel;
 use think\facade\Db;
 use think\Collection;
 
-abstract class ShopBaseModel extends Model
+abstract class ShopBaseModel extends BaseModel
 {
     /**
      * @var string 数据库连接
