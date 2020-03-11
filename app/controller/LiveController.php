@@ -200,7 +200,7 @@ class LiveController extends BaseController
         $where["user_id"] = $user_id;
         $where["is_online"] = 1;
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where, "weight", "desc");
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,["weight" => "desc"]);
 
         $data = [
             "list" => $list,

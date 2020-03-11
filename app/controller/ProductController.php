@@ -34,15 +34,13 @@ class ProductController extends BaseController
 
         $where["user_id"] = $user_id;
         if($scece == "live"){ //直播间，用户商品只返回上架的
-            $sort_field = "weight";
-            $sort_type = "desc";
+            $order = ["weight" => 'desc'];
             $where["is_online"] = 1;
         }else{
-            $sort_field = "is_online";
-            $sort_type = "desc";
+            $order = ["is_online" => "desc","weight" => 'desc'];
         }
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,$sort_field,$sort_type);
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,$order);
 
         $data = [
             "list" => $list,
