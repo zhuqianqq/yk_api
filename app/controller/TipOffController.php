@@ -8,6 +8,9 @@ use app\model\TTipOff;
 
 class TipOffController extends BaseController
 {
+    protected $middleware = [
+        'access_check' => ['only' => ['add']],
+    ];
     /**
      * 提交一个举报
      * @return array

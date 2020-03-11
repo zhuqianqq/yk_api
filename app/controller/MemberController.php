@@ -8,7 +8,13 @@ use think\facade\Db;
 
 class MemberController extends BaseController
 {
+    protected $middleware = [
+        'access_check' => ['only' => ['updateMember','refreshMember']],
+    ];
 
+    /*
+     * 更新用户信息
+     */
     public function updateMember()
     {
         $user_id = $this->request->param("user_id", '', "intval");
@@ -29,6 +35,9 @@ class MemberController extends BaseController
         return $this->outJson(0, "保存成功！");
     }
 
+    /*
+     * 用户信息详情
+     */
     public function memberDetail()
     {
         $user_id = $this->request->get("user_id", '', "intval");
@@ -39,6 +48,9 @@ class MemberController extends BaseController
         return $this->outJson(0, "查找成功！", $member);
     }
 
+    /*
+     * 刷新用户会话标识
+     */
     public function refreshMember()
     {
         $user_id = $this->request->get("user_id", '', "intval");
