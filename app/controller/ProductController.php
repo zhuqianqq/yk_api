@@ -5,6 +5,8 @@
 
 namespace app\controller;
 
+use app\model\TMember;
+use app\model\TProductRecommend;
 use app\model\TRoom;
 use App\Models\Cfund\Project;
 use app\model\TProduct;
@@ -15,7 +17,7 @@ use app\model\TProductProperty;
 class ProductController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['up', 'down', 'del','save']],
+        'access_check' => ['only' => ['up', 'down', 'del', 'save']],
     ];
 
     /**
@@ -26,21 +28,21 @@ class ProductController extends BaseController
         $page = $this->request->param("page", 1, "intval");
         $page_size = $this->request->param("page_size", 10, "intval");
         $user_id = $this->request->param("user_id", 0, "intval");
-        $scece = $this->request->param("scece","","trim"); //场景
+        $scece = $this->request->param("scece", "", "trim"); //场景
 
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
         }
 
         $where["user_id"] = $user_id;
-        if($scece == "live"){ //直播间，用户商品只返回上架的
+        if ($scece == "live") { //直播间，用户商品只返回上架的
             $order = ["weight" => 'desc'];
             $where["is_online"] = 1;
-        }else{
-            $order = ["is_online" => "desc","weight" => 'desc'];
+        } else {
+            $order = ["is_online" => "desc", "weight" => 'desc'];
         }
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,$order);
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where, $order);
 
         $data = [
             "list" => $list,
@@ -57,16 +59,16 @@ class ProductController extends BaseController
      */
     public function upCount()
     {
-        $user_id = $this->request->param("user_id",0,"intval"); //主播id
-        $room_id = $this->request->param('room_id','',"trim");  //房间id
+        $user_id = $this->request->param("user_id", 0, "intval"); //主播id
+        $room_id = $this->request->param('room_id', '', "trim");  //房间id
 
         if ($user_id <= 0) {
             return $this->outJson(100, "user_id无效");
         }
         //判断该直播是否展示商品
-        if($room_id){
-            $show_product = TRoom::where("room_id",$room_id)->value("show_product");
-            if(!$show_product){
+        if ($room_id) {
+            $show_product = TRoom::where("room_id", $room_id)->value("show_product");
+            if (!$show_product) {
                 return $this->outJson(0, "success", [
                     "total" => 0,
                 ]);
@@ -203,11 +205,11 @@ class ProductController extends BaseController
         $input = $this->request->getInput();
 
         if (empty($prod_name)) {
-            Tools::addLog("prod_save","商品名称不能为空",$input);
+            Tools::addLog("prod_save", "商品名称不能为空", $input);
             return $this->outJson(100, "商品名称不能为空");
         }
         if ($price <= 0) {
-            Tools::addLog("prod_save","价格不能小于0",$input);
+            Tools::addLog("prod_save", "价格不能小于0", $input);
             return $this->outJson(100, "价格不能小于0");
         }
 //        if ($stock <= 0) {
@@ -215,11 +217,11 @@ class ProductController extends BaseController
 //            return $this->outJson(100, "库存不能为空");
 //        }
         if (empty($head_img)) {
-            Tools::addLog("prod_save","头部图片不能为空",$input);
+            Tools::addLog("prod_save", "头部图片不能为空", $input);
             return $this->outJson(100, "头部图片不能为空");
         }
         if (empty($prop_list)) {
-            Tools::addLog("prod_save","商品规则不能为空",$input);
+            Tools::addLog("prod_save", "商品规则不能为空", $input);
             return $this->outJson(100, "商品规则不能为空");
         }
 
@@ -234,14 +236,14 @@ class ProductController extends BaseController
                 //编辑
                 $prod_model = $tb_prod->where("prod_id", $prod_id)->find();
                 if (empty($prod_model)) {
-                    Tools::addLog("prod_save","商品不存在",$input);
+                    Tools::addLog("prod_save", "商品不存在", $input);
                     return $this->outJson(200, "商品不存在");
                 }
                 if ($prod_model["user_id"] != $this->user_id) {
-                    Tools::addLog("prod_save","你无权编辑该商品",$input);
+                    Tools::addLog("prod_save", "你无权编辑该商品", $input);
                     return $this->outJson(200, "你无权编辑该商品");
                 }
-                $tb_prod->where("prod_id",$prod_id)->update([
+                $tb_prod->where("prod_id", $prod_id)->update([
                     "prod_name" => $prod_name,
                     "price" => $price,
                     "stock" => $stock,
@@ -252,9 +254,9 @@ class ProductController extends BaseController
                 ]);
 
                 //商品规则
-                TProductProperty::addPropList($prod_id,$prop_list);
+                TProductProperty::addPropList($prod_id, $prop_list);
                 //商品详情
-                $tb_detail->where("prod_id",$prod_id)->update([
+                $tb_detail->where("prod_id", $prod_id)->update([
                     "head_img" => $head_img,
                     "detail" => $detail,
                 ]);
@@ -271,7 +273,7 @@ class ProductController extends BaseController
                     "create_time" => date("Y-m-d H:i:s"),
                 ]);
                 //商品规则
-                TProductProperty::addPropList($prod_id,$prop_list);
+                TProductProperty::addPropList($prod_id, $prop_list);
                 //详情
                 $tb_detail->insertGetId([
                     "prod_id" => $prod_id,
@@ -280,13 +282,37 @@ class ProductController extends BaseController
                 ]);
             }
             Db::commit();
-            Tools::addLog("prod_save","success,projd_id:{$prod_id}",$input);
+            Tools::addLog("prod_save", "success,projd_id:{$prod_id}", $input);
 
             return $this->outJson(0, "success", ["prod_id" => $prod_id]);
         } catch (\Exception $ex) {
             Db::rollback();
-            Tools::addLog("prod_save","save_error:".$ex->getMessage().PHP_EOL.$ex->getTraceAsString(),$input);
+            Tools::addLog("prod_save", "save_error:" . $ex->getMessage() . PHP_EOL . $ex->getTraceAsString(), $input);
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
         }
+    }
+
+    /*
+     * 增加推荐商品
+     */
+    public function addRecommend()
+    {
+        $prod_id = $this->request->post("prod_id", 0, "intval");
+        $user_id = $this->request->post("user_id", 0, "intval");
+        if ($prod_id <= 0 || $user_id <= 0) {
+            return $this->outJson(100, "参数错误！");
+        }
+
+        TProductRecommend::addRecommendProduct($user_id,$prod_id);
+        $data=TProductRecommend::getRecommendList($user_id);
+        return $this->outJson(0,"当前推荐商品！",$data);
+    }
+
+    /*
+     * 取推荐商品列表
+     */
+    public function getRecommendItem(){
+        $user_id = $this->request->post("user_id", 0, "intval");
+        return $this->outJson(0,"当前推荐商品！",$user_id);
     }
 }
