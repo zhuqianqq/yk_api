@@ -5,6 +5,7 @@ use think\facade\Cache;
 use think\facade\Db;
 use app\model\TBoardcasterSubscribe;
 use Hectorqin\ThinkWechat\Facade;
+use app\util\WechatHelper;
 
 class WechatSubscribeCommand extends BaseCommand
 {
@@ -64,29 +65,32 @@ class WechatSubscribeCommand extends BaseCommand
 
     protected function sendMsg($boardcaster_uid, $openid, $boardcaster_nickname, $room_title, $live_time, $room_name = '')
     {
-        $room_name = $room_name ?? $room_title;
+        $room_name = !empty($room_name) ? $room_name : $room_title;
         $data = [
             'template_id' => 'SEnfnuB8qVKUZk4KyQenBFS8HZmwas7HxGYoqV59BPQ', // 所需下发的订阅模板id
             'touser' => $openid,
+            "miniprogram_state" => "trial",
             'page' => 'pages/room/room?user_id=' . $boardcaster_uid,
             'data' => [
-                'thing01' => [
+                'thing1' => [
                     'value' => $boardcaster_nickname,
                 ],
-                'thing02' => [
+                'thing2' => [
                     'value' => $room_title,
                 ],
-                'date03' => [
+                'date3' => [
                     'value' => $live_time,
                 ],
-                'thing06' => [
+                'thing6' => [
                     'value' => $room_name,
                 ],
             ],
         ];
 
-        $app = Facade::miniProgram();
-        $r = $app->subscribe_message->send($data);
+       /* $app = Facade::miniProgram();
+        $r = $app->subscribe_message->send($data);*/
+        $accessToken = WechatHelper::getAccessToken();
+        $r = WechatHelper::sendMsg($data, $accessToken);
         $this->log('sendMsg : data: ' . json_encode($data, JSON_UNESCAPED_UNICODE) .' | result：' . json_encode($r));
         return $r;
     }
