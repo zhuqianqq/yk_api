@@ -48,12 +48,13 @@ class DscUser extends ShopBaseModel
         $db_shop = Db::connect("shop");
         $db_shop->startTrans();
         $user_name = $data["phone"] ? $data["phone"] : $data["display_code"];
+        $nick_name = $data["nick_name"] ?? $data["phone"] ?? $data["display_code"];
 
         $obj = self::getInfoByUserName($user_name,"user_id");
         if(empty($obj)){
             $insert_data = [
                 'user_name' => $user_name, //登录账号
-                "nick_name" => $data["nick_name"],
+                "nick_name" => $nick_name,
                 "ec_salt" => self::EC_SALT, //密码盐值
                 "password" => self::genPasswd($data["display_code"]),
                 'user_picture' => $data["avatar"] ?? '', //头像
