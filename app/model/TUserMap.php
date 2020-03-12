@@ -21,4 +21,19 @@ class TUserMap extends BaseModel
 
         return intval($shop_user_id);
     }
+
+    /**
+     * 建立映射关系
+     * @param int $user_id
+     * @param int $shop_user_id
+     */
+    public static function addMap($user_id,$shop_user_id)
+    {
+        $user_map = new TUserMap();
+
+        return $user_map->insertGetId([
+            'user_id' => $user_id,
+            "shop_user_id" => $shop_user_id,
+        ]);
+    }
 }
