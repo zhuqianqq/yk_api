@@ -8,11 +8,12 @@ namespace app\controller;
 use app\util\Tools;
 use think\facade\Db;
 use app\model\shop\DscOrder;
+use app\model\TUserMap;
 
-//本地测试 http://www.yk-api.com/index.php/order/salerOrderList?user_id=127&type=1
+//本地测试 http://www.yk-api.com/index.php/order/salerOrderList?user_id=1324&type=1
 class OrderController extends BaseController
 {
-    protected $middleware = ['access_check'];
+    //protected $middleware = ['access_check'];
 
     //卖家订单查询列表接口
     public function salerOrderList()
@@ -26,9 +27,11 @@ class OrderController extends BaseController
             return $this->outJson(100, "user_id无效");
         }
 
+        //映客直播玩家id转换商城id
+        $user_id = TUserMap::getShopUserId($user_id,'shop_user_id');
+        $user_id = 127;//测试写死用
         $where["user_id"] = $user_id;
-        $user_id = 127;
-      
+        
         $order = ["pay_status" => "asc","shipping_status" => 'asc'];
 
         list($list, $total, $has_next) = DscOrder::getList($page, $page_size, $where, $order, $pay_type);
@@ -55,8 +58,10 @@ class OrderController extends BaseController
             return $this->outJson(100, "user_id无效");
         }
 
+        //映客直播玩家id转换商城id
+        $user_id = TUserMap::getShopUserId($user_id,'shop_user_id');
+        $user_id = 127;//测试写死用
         $where["user_id"] = $user_id;
-        $user_id = 127;
       
         $order = ["pay_status" => "asc","shipping_status" => 'asc'];
 
