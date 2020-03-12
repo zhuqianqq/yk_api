@@ -45,22 +45,25 @@ class DscUser extends ShopBaseModel
      */
     public static function register($data)
     {
+        $db_shop = Db::connect("shop");
+        $db_shop->startTrans();
         $user_name = $data["phone"] ? $data["phone"] : $data["display_code"];
 
         $obj = self::getInfoByUserName($user_name,"user_id");
         if(empty($obj)){
-            $data = [
+            $insert_data = [
                 'user_name' => $user_name, //登录账号
                 "nick_name" => $data["nick_name"],
                 "ec_salt" => self::EC_SALT, //密码盐值
                 "password" => self::genPasswd($data["display_code"]),
                 'user_picture' => $data["avatar"] ?? '', //头像
                 'mobile_phone' => $data["phone"] ?? '',
+                'sex' => $data['sex'] ?? 0,
                 "reg_time" => time(),
                 'last_login' => time(),
                 'last_ip' => Tools::getClientIp(),
             ];
-            $shop_user_id = self::insertGetId($data);
+            $shop_user_id = self::insertGetId($insert_data);
         }else{
             $shop_user_id = $obj["user_id"];
         }
@@ -69,6 +72,7 @@ class DscUser extends ShopBaseModel
             //存于映射表
             TUserMap::addMap($data["user_id"],$shop_user_id);
         }
+        $db_shop->commit();
 
         return $shop_user_id;
     }

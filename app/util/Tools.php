@@ -340,9 +340,14 @@ class Tools
                 $ip = $_SERVER['HTTP_CLIENT_IP'];
             } elseif (isset($_SERVER['REMOTE_ADDR'])) {
                 $ip = $_SERVER['REMOTE_ADDR'];
+            }else{
+                $ip = '';
             }
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+        } else{
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        }
+        if(empty($ip)){
+            return '';
         }
         // IP地址合法验证
         $long = sprintf("%u", ip2long($ip));
