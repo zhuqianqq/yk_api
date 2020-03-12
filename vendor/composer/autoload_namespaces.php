@@ -7,5 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Qcloud\\Cos\\' => array($vendorDir . '/qcloud/cos-sdk-v5/src'),
+    'Pimple' => array($vendorDir . '/pimple/pimple/src'),
     '' => array($baseDir . '/extend'),
 );

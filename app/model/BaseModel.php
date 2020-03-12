@@ -10,6 +10,17 @@ use think\Collection;
 
 abstract class BaseModel extends Model
 {
+    /**
+     * 判断
+     */
+    const IS_YES = 1;
+    const IS_NO = 0;
+
+    public static $isLabels = [
+        self::IS_NO => '否',
+        self::IS_YES => '是'
+    ];
+
     const IS_DEL_NO = 0; //否
     const IS_DEL_YES = 1;//是
 
