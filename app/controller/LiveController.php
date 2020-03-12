@@ -151,6 +151,7 @@ class LiveController extends BaseController
                 'status' => 1
             ]);
         }
+        Cache::store('redis')->lpush('list:wechat:subscribe', $user_id);
         return $this->outJson(0, "开播成功！", $room);
     }
 
