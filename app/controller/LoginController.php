@@ -5,6 +5,8 @@
 
 namespace app\controller;
 
+use app\model\shop\DscUser;
+use app\model\TUserMap;
 use think\facade\Config;
 use think\Session;
 use app\util\ValidateHelper;
@@ -49,6 +51,9 @@ class LoginController extends BaseController
                     return $this->outJson(200, "注册失败");
                 }
                 $data = TMember::getByPhone($phone);
+                $shop_user_id = DscUser::register($data); //注册商城用户
+            }else{
+                $shop_user_id = TUserMap::getShopUserId($data['user_id']);
             }
 
             if ($data["is_lock"] == 1) {
@@ -63,6 +68,7 @@ class LoginController extends BaseController
 
             TMember::setOtherInfo($data);
             SmsHelper::clearCacheKey($phone,"login");
+            $data['shop_user_id'] = $shop_user_id;  //商城用户id
 
             return $this->outJson(0, "登录成功", $data);
         } catch (\Exception $ex) {
@@ -70,8 +76,6 @@ class LoginController extends BaseController
             return $this->outJson(500, "接口异常:" . $ex->getMessage());
         }
     }
-
-
 
     /**
      * 小程序登录
@@ -97,7 +101,11 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $shop_user_id = DscUser::register($data); //注册商城用户
+        }else{
+            $shop_user_id = TUserMap::getShopUserId($data['user_id']);
         }
+
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
         }
@@ -114,9 +122,11 @@ class LoginController extends BaseController
             "last_login_time" => date("Y-m-d H:i:s"),
         ]);
 
+        $data = TMember::getByOpenId($openid);
+        $data['shop_user_id'] = $shop_user_id;
         TMember::setOtherInfo($data);
-        $dbData = TMember::getByOpenId($openid);
-        return $this->outJson(0, "登录成功", array_merge($data, $dbData));
+
+        return $this->outJson(0, "登录成功", $data);
     }
 
     /**
@@ -141,6 +151,9 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $shop_user_id = DscUser::register($data); //注册商城用户
+        }else{
+            $shop_user_id = TUserMap::getShopUserId($data['user_id']);
         }
 
         if ($data["is_lock"] == 1) {
@@ -159,7 +172,9 @@ class LoginController extends BaseController
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
 
+        $data = TMember::getByOpenId($openid);
         TMember::setOtherInfo($data);
+        $data['shop_user_id'] = $shop_user_id;
 
         return $this->outJson(0, "登录成功", $data);
     }
@@ -192,6 +207,11 @@ class LoginController extends BaseController
         ])->update([
             'phone' => $phone,
         ]);
+        //同步更新商城用户表手机号
+        $shop_user_id = TUserMap::getShopUserId($user_id);
+        if($shop_user_id){
+            DscUser::where(["user_id",$shop_user_id])->update(["mobile_phone" => $phone]);
+        }
 
         SmsHelper::clearCacheKey($phone,"login");
 
