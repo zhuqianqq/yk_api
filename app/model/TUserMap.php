@@ -15,25 +15,25 @@ class TUserMap extends BaseModel
      * @param int $user_id
      * @return int
      */
-    public static function getShopUserId($user_id)
+    public static function getMallUserId($user_id)
     {
-        $shop_user_id = self::where("user_id",$user_id)->value("shop_user_id");
+        $mall_user_id = self::where("user_id",$user_id)->value("mall_user_id");
 
-        return intval($shop_user_id);
+        return intval($mall_user_id);
     }
 
     /**
      * 建立映射关系
      * @param int $user_id
-     * @param int $shop_user_id
+     * @param int $mall_user_id
      */
-    public static function addMap($user_id,$shop_user_id)
+    public static function addMap($user_id,$mall_user_id)
     {
         $user_map = new TUserMap();
 
         return $user_map->insertGetId([
             'user_id' => $user_id,
-            "shop_user_id" => $shop_user_id,
+            "mall_user_id" => $mall_user_id,
         ]);
     }
 }

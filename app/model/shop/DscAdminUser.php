@@ -4,10 +4,10 @@
  */
 namespace app\model\shop;
 
-use app\model\shop\ShopBaseModel;
+use app\model\shop\MallBaseModel;
 use think\facade\Db;
 
-class DscAdminUser extends ShopBaseModel
+class DscAdminUser extends MallBaseModel
 {
     protected $table = "dsc_admin_user";
 }

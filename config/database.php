@@ -2,7 +2,7 @@
 
 return [
     // 默认使用的数据库连接配置
-    'default'         => 'mysql',
+    'default'         => 'live_shop',
 
     // 自定义时间查询规则
     'time_query_rule' => [],
@@ -17,7 +17,7 @@ return [
 
     // 数据库连接配置信息
     'connections'     => [
-        'mysql' => [
+        'live_shop' => [
             // 数据库类型
             'type'              => 'mysql',
             // 服务器地址
@@ -57,13 +57,13 @@ return [
             'schema_cache_path' => app()->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR,
         ],
         //电商数据库
-        'shop' => [
+        'mall' => [
             // 数据库类型
             'type'              => 'mysql',
             // 服务器地址
             'hostname'          => env('DB_HOSTNAME', '116.62.159.239'),
             // 数据库名
-            'database'          => "shop",
+            'database'          => "mall",
             // 用户名
             'username'          => env('DB_USER', 'root'),
             // 密码
@@ -75,7 +75,7 @@ return [
             // 数据库编码默认采用utf8
             'charset'           => 'utf8mb4',
             // 数据库表前缀
-            'prefix'            => 'dsc_',
+            'prefix'            => 'mall_',
             // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
             'deploy'            => 0,
             // 数据库读写是否分离 主从式有效
