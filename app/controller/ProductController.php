@@ -5,6 +5,7 @@
 
 namespace app\controller;
 
+use app\model\shop\MallGoods;
 use app\model\TMember;
 use app\model\TProductRecommend;
 use app\model\TRoom;
@@ -303,16 +304,20 @@ class ProductController extends BaseController
             return $this->outJson(100, "参数错误！");
         }
 
-        TProductRecommend::addRecommendProduct($user_id,$prod_id);
-        $data=TProductRecommend::getRecommendList($user_id);
-        return $this->outJson(0,"当前推荐商品！",$data);
+        TProductRecommend::addRecommendProduct($user_id, $prod_id);
+        $data = TProductRecommend::getRecommendList($user_id);
+        $products = MallGoods::getRecommandGoods($data);
+        return $this->outJson(0, "当前推荐商品！", $products);
     }
 
     /*
      * 取推荐商品列表
      */
-    public function getRecommendItem(){
+    public function getRecommendItem()
+    {
         $user_id = $this->request->post("user_id", 0, "intval");
-        return $this->outJson(0,"当前推荐商品！",$user_id);
+        $data = TProductRecommend::getRecommendList($user_id);
+        $products = MallGoods::getRecommandGoods($data);
+        return $this->outJson(0, "当前推荐商品！", $products);
     }
 }

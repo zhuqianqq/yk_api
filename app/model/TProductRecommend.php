@@ -18,7 +18,7 @@ class TProductRecommend extends BaseModel
     }
 
     public function getRecommendList($user_id){
-        $data = TProductRecommend::where("user_id",$user_id)->order("create_time","desc")->limit(2)->select();
+        $data = TProductRecommend::where("user_id",$user_id)->field("product_id")->order("create_time","desc")->limit(2)->select();
         return $data;
     }
 }
