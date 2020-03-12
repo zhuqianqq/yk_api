@@ -10,7 +10,7 @@ use TencentCloud\Live\V20180801\LiveClient;
 use TencentCloud\Live\V20180801\Models\DescribePullStreamConfigsRequest;
 
 use app\model\TMember;
-use app\model\shop\DscUser;
+use app\model\shop\MallUser;
 
 class TestCommand extends BaseCommand
 {
@@ -48,8 +48,8 @@ class TestCommand extends BaseCommand
         $list = TMember::select()->toArray();
 
         foreach($list as $item){
-            $shop_user_id = DscUser::register($item); //注册商城用户
-            echo $shop_user_id.PHP_EOL;
+            $mall_user_id = MallUser::register($item); //注册商城用户
+            echo $mall_user_id.PHP_EOL;
         }
     }
 }

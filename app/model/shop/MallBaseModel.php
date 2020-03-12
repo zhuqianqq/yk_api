@@ -8,12 +8,12 @@ use app\model\BaseModel;
 use think\facade\Db;
 use think\Collection;
 
-abstract class ShopBaseModel extends BaseModel
+abstract class MallBaseModel extends BaseModel
 {
     /**
      * @var string 数据库连接
      */
-    protected $connection = 'shop';
+    protected $connection = 'mall';
 
     /**
      * @var string 错误信息
