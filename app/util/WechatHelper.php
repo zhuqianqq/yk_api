@@ -28,11 +28,18 @@ class WechatHelper
         $app_id = $weiXin_config["appid"];
         $secret = $weiXin_config["secret"];
 
+        $key = 'WechatTokenKey';
+        $cache = Cache::store('redis')->get($key);
+        if (!empty($cache)) {
+            return $cache;
+        }
+
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" . $app_id . "&secret=" . $secret . "";
         $res = Tools::curlGet($url, null);
         if ($res == null || !isset($res["access_token"])) {
             return "";
         }
+        Cache::store('redis')->set($key, $res['access_token'], $res['expires_in'] - 60);
         return $res["access_token"];
     }
 
@@ -47,6 +54,14 @@ class WechatHelper
         $res = Tools::curlPost($url, $data, true, $header, false);
         //$path = 'D:\h.jpg';
         //file_put_contents($path, $res);
+        return $res;
+    }
+
+    public static function sendMsg($data, $access_token)
+    {
+        $header = array();
+        $url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=" . $access_token;
+        $res = Tools::curlPost($url, $data, true, $header, false);
         return $res;
     }
 }
