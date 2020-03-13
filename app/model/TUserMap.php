@@ -22,29 +22,6 @@ class TUserMap extends BaseModel
         return self::USER_MAP_PREFIX.$user_id;
     }
 
-    /**
-     * 获取商城用户id
-     * @param int $user_id 主播用户id
-     * @return array
-     */
-    public static function getAllMapFields($user_id)
-    {
-        $key = self::getCacheKey($user_id);
-        $data = Cache::hmget($key,["mall_user_id","shop_id"]);
-
-        if(!$data || $data['mall_user_id'] === false || $data['shop_id'] === false){
-            $data = self::where("user_id",$user_id)->find();
-            if(!empty($data)){
-                $data = $data->toArray();
-                Cache::hmset($key,[
-                    "mall_user_id" => $data['mall_user_id'],
-                    "shop_id" => $data['shop_id'],
-                ]);
-            }
-        }
-
-        return $data;
-    }
 
     /**
      * 获取商城用户id
@@ -85,6 +62,31 @@ class TUserMap extends BaseModel
 
         return intval($shop_id);
     }
+
+    /**
+     * 获取商城用户id和shop_id
+     * @param int $user_id 主播用户id
+     * @return array
+     */
+    public static function getAllMapFields($user_id)
+    {
+        $key = self::getCacheKey($user_id);
+        $data = Cache::hmget($key,["mall_user_id","shop_id"]);
+
+        if(!$data || $data['mall_user_id'] === false || $data['shop_id'] === false){
+            $data = self::where("user_id",$user_id)->find();
+            if(!empty($data)){
+                $data = $data->toArray();
+                Cache::hmset($key,[
+                    "mall_user_id" => $data['mall_user_id'],
+                    "shop_id" => $data['shop_id'],
+                ]);
+            }
+        }
+
+        return $data;
+    }
+
 
     /**
      * 建立映射关系
