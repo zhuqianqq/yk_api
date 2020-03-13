@@ -28,7 +28,7 @@ class OrderController extends BaseController
         }
 
         //映客直播玩家id转换商城id
-        $user_id = TUserMap::getShopUserId($user_id,'shop_user_id');
+        $user_id = TUserMap::getMallUserId($user_id);
         $user_id = 127;//测试写死用
         $where["user_id"] = $user_id;
         
@@ -59,7 +59,7 @@ class OrderController extends BaseController
         }
 
         //映客直播玩家id转换商城id
-        $user_id = TUserMap::getShopUserId($user_id,'shop_user_id');
+        $user_id = TUserMap::getMallUserId($user_id);
         $user_id = 127;//测试写死用
         $where["user_id"] = $user_id;
       
