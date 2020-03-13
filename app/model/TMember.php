@@ -5,6 +5,7 @@
 
 namespace app\model;
 
+use app\model\shop\MallShop;
 use app\util\AccessKeyHelper;
 use app\util\TLSSigAPIv2;
 use app\util\Tools;
@@ -25,6 +26,8 @@ class TMember extends BaseModel
 
     protected $table = "t_member";
 
+    protected $pk = "user_id";
+
     /**
      * @var array 是否锁定
      */
@@ -40,6 +43,22 @@ class TMember extends BaseModel
         "1" => "是",
         "0" => "否"
     ];
+
+    /**
+     * 根据user_id
+     * @param $user_id
+     * @param $field
+     */
+    public static function getById($user_id, $field = "")
+    {
+        if (empty($field)) {
+            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,
+                       is_broadcaster,audit_status,is_lock";
+        }
+        $data = self::where("user_id", $user_id)->field($field)->find();
+
+        return $data ? $data->toArray() : null;
+    }
 
     /**
      * 根据手机号
@@ -72,7 +91,7 @@ class TMember extends BaseModel
         }
         $data = self::where("openid", $openid)->field($field)->find();
 
-        return $data ? $data->toArray() : null;
+        return $data ? $data->toArray() : [];
     }
 
     /**
@@ -222,7 +241,7 @@ class TMember extends BaseModel
     }
 
     /**
-     * 开通主播
+     * 开通主播&开通店铺
      * @param $user_id
      */
     public static function openBroadCast($user_id,$year = 1)
@@ -231,5 +250,11 @@ class TMember extends BaseModel
             'is_broadcaster' => TMember::IS_BROADCASTER_YES,
             'expire_time' => date("Y-m-d H:i:s",strtotime("+{$year} years")), //过期时间
         ]);
+
+        $mall_user_id = TUserMap::getMallUserId($user_id);
+        if($mall_user_id){
+            $user_info = TMember::getById($user_id);
+            MallShop::openShop($mall_user_id,$user_info);
+        }
     }
 }
