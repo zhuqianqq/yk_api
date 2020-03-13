@@ -224,7 +224,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      */
     protected function serialize($data): string
     {
-        if (is_numeric($data)) {
+        if (is_numeric($data) || is_string($data)) {
             return (string) $data;
         }
 
@@ -241,7 +241,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      */
     protected function unserialize(string $data)
     {
-        if (is_numeric($data)) {
+        if (is_numeric($data) || is_string($data)) {
             return $data;
         }
 
