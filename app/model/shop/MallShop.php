@@ -121,6 +121,9 @@ class MallShop extends MallBaseModel
             }
 
             $db_mall->commit();
+
+            //写入映射表
+            TUserMap::updateShopId($user_info["user_id"],$shop_id);
         }catch (\Exception $ex){
             Tools::addLog("open_shop","error user_id:{$user_id},ex:".$ex->getMessage().PHP_EOL.$ex->getTraceAsString(),$user_info);
             $db_mall->rollback();
