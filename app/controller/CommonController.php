@@ -166,7 +166,7 @@ class CommonController extends BaseController
         //小程序已上线为1 ，未上线为0
         $data["MiniWechatIsPublish"] = 0;
         $data["defaultPrebroadNickName"] = "游客XXX";
-        $data["baseURL"]="http://testapi.wengyingwangluo.cn/";
+        $data["baseURL"] = APP_URL;
         return $this->outJson(0, "", $data);
     }
 
