@@ -46,7 +46,6 @@ class MallUser extends MallBaseModel
      */
     public static function getInfoByLoginName($login_name,$field = "*")
     {
-        echo self::where("loginName|userPhone",$login_name)->field($field)->find()->getLastSql();
         return self::where("loginName|userPhone",$login_name)->field($field)->find();
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * AdminCheck 中间件（运营后台调用接口的中间件)
+ * AdminCheck 中间件（运营后台http://testboss.wengyingwangluo.cn调用接口的中间件)
  */
 namespace app\middleware;
 
