@@ -47,7 +47,7 @@ class WechatController extends BaseController
             return $this->outJson(100, "没有任何操作");
         }
 
-        $member = TMember::where(['user_id' => $boardcaster_uid, 'is_broadcaster' => TMember::IS_YES])->find();
+        $member = TMember::where(['user_id' => $boardcaster_uid, 'is_broadcaster' => TMember::IS_BROADCASTER_YES])->find();
         if (empty($member->user_id)) {
             return $this->outJson(100, "查询不到该主播");
         }

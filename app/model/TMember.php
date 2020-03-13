@@ -220,4 +220,16 @@ class TMember extends BaseModel
             "user_sign" => $user_sign,
         ];
     }
+
+    /**
+     * 开通主播
+     * @param $user_id
+     */
+    public static function openBroadCast($user_id,$year = 1)
+    {
+        TMember::where(['user_id' => $user_id])->update([
+            'is_broadcaster' => TMember::IS_BROADCASTER_YES,
+            'expire_time' => date("Y-m-d H:i:s",strtotime("+{$year} years")), //过期时间
+        ]);
+    }
 }

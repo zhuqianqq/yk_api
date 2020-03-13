@@ -40,6 +40,12 @@ class TInviteOrder extends BaseModel
         return $key;
     }
 
+    /**
+     * 主播付款成功回调处理
+     * @param $order_no
+     * @param int $state
+     * @return bool
+     */
     public static function finishInviteOrder($order_no, $state = self::STATE_PAYED)
     {
         // 支付失败不做操作
@@ -61,7 +67,7 @@ class TInviteOrder extends BaseModel
             Tools::addLog("invite", 'finishInviteOrder relation not exist : params: ' . json_encode(['order_no' => $order_no,'order_id' => $order->id]));
             return true;
         }
-        TMember::where(['user_id' => $relation['user_id']])->update(['is_broadcaster' => TMember::IS_BROADCASTER_YES, 'expire_time' => date("Y-m-d H:i:s",strtotime("+1 years"))]);
+        TMember::openBroadCast($relation['user_id'],1);
         return true;
     }
 }
