@@ -1,6 +1,7 @@
 <?php
 namespace app\command;
 
+use app\model\TUserMap;
 use think\facade\Config;
 use TencentCloud\Common\Credential;
 use TencentCloud\Common\Profile\ClientProfile;
@@ -45,11 +46,23 @@ class TestCommand extends BaseCommand
 //
 //        print_r($resp->toJsonString());
 
-        $list = TMember::select()->toArray();
+//        $list = TMember::select()->toArray();
+//
+//        foreach($list as $item){
+//            $mall_user_id = MallUser::register($item); //注册商城用户
+//            echo $mall_user_id.PHP_EOL;
+//        }
 
-        foreach($list as $item){
-            $mall_user_id = MallUser::register($item); //注册商城用户
-            echo $mall_user_id.PHP_EOL;
-        }
+        //TUserMap::updateShopId("1153",11);
+
+        $ret = TUserMap::getMallUserId("1153");
+        echo $ret.PHP_EOL;
+
+        $ret = TUserMap::getShopId("1153");
+        echo $ret;
+
+        $ret = TUserMap::getAllMapFields("1153");
+
+        print_r($ret);
     }
 }
