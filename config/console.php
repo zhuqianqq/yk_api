@@ -5,7 +5,8 @@ return [
     'commands' => [
         \app\command\TestCommand::class,
         \app\command\LiveCheckCommand::class,
-        \app\command\UpdateLikeCount::class,
         \app\command\WechatSubscribeCommand::class,
+        \app\command\ToolCommand::class,
     ],
+
 ];

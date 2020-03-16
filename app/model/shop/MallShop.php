@@ -89,7 +89,7 @@ class MallShop extends MallBaseModel
 
             if($shop_id){
                 //更改用户身份为卖家
-                $db_mall->name('users')->where('userId', $user_id)->update(['userType' => MallUser::USER_TYPE_SELLER]);
+                Db::connect("mall")->name('users')->where('userId', $user_id)->update(['userType' => MallUser::USER_TYPE_SELLER]);
 
                 //扩展字段表
                 $exData = [
@@ -97,39 +97,40 @@ class MallShop extends MallBaseModel
                     'businessStartDate' => date("Y-m-d"), //营业开始日期
                     'businessEndDate' => date("Y-m-d",strtotime("+5 years")), //营业结束日期
                 ];
-                $db_mall->name('shop_extras')->insert($exData);
+                Db::connect("mall")->name('shop_extras')->insert($exData);
 
                 //经营范围
-                $db_mall->name('cat_shops')->insert(['shopId' => $shop_id, 'catId' => 1]);
+                Db::connect("mall")->name('cat_shops')->insert(['shopId' => $shop_id, 'catId' => 1]);
 
                 //店铺配置表
                 $sc = [];
                 $sc['shopId'] = $shop_id;
-                $db_mall->name('shop_configs')->insert($sc);
+                Db::connect("mall")->name('shop_configs')->insert($sc);
 
                 //店铺用户表
                 $su = [];
                 $su["shopId"] = $shop_id;
                 $su["userId"] = $user_id;
                 $su["roleId"] = 0;
-                $db_mall->name('shop_users')->insert($su);
+                Db::connect("mall")->name('shop_users')->insert($su);
 
                 //建立店铺评分记录
                 $ss = [];
                 $ss['shopId'] = $shop_id;
-                $db_mall->name('shop_scores')->insert($ss);
+                Db::connect("mall")->name('shop_scores')->insert($ss);
             }
 
             $db_mall->commit();
-
             //写入映射表
             TUserMap::updateShopId($user_info["user_id"],$shop_id);
+
+            Tools::addLog("open_shop","succes user_id:{$user_id},shop_id:{$shop_id}",$user_info);
+            return $shop_id;
         }catch (\Exception $ex){
             Tools::addLog("open_shop","error user_id:{$user_id},ex:".$ex->getMessage().PHP_EOL.$ex->getTraceAsString(),$user_info);
             $db_mall->rollback();
+            return 0;
         }
-        Tools::addLog("open_shop","succes user_id:{$user_id},shop_id:{$shop_id}",$user_info);
-        return $shop_id;
     }
 
 

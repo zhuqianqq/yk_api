@@ -134,7 +134,7 @@ class CommonController extends BaseController
         }
 
         $vcode = mt_rand(1000,999999);
-        $result = SmsHelper::sendSmsMessage($mobile,"【文影科技】短信验证码：{$vcode}，有效期5分钟");
+        $result = SmsHelper::sendSmsMessage($mobile,"短信验证码：{$vcode}，有效期5分钟");
         if ($result['code'] != 0) {
             return $this->outJson($result["code"],$result['msg']);
         }

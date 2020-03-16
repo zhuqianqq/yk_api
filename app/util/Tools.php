@@ -17,9 +17,9 @@ class Tools
      */
     public static function addLog($file, $msg, $context = [])
     {
-        $content = '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n";
+        $content = '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL;
         if(!empty($context)){
-            $content .= "context:". (is_array($context) ? json_encode($content,JSON_UNESCAPED_UNICODE) : $context);
+            $content .= "context:". (is_array($context) ? json_encode($context,JSON_UNESCAPED_UNICODE) : $context).PHP_EOL;
         }
         $log_name = $file . "_" . date('Ymd') . ".log";
         $log_file = app()->getRuntimePath() . "log/" . ltrim($log_name, "/"); //保存在runtime/log/目录下
