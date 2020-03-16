@@ -1,6 +1,6 @@
 <?php
 /**
- * 商品管理
+ * 订单管理
  */
 
 namespace app\controller;
@@ -14,7 +14,7 @@ use app\model\TUserMap;
 class OrderController extends BaseController
 {
     //protected $middleware = ['access_check'];
-
+    
     //卖家订单查询列表接口
     public function salerOrderList()
     {
@@ -76,4 +76,54 @@ class OrderController extends BaseController
 
         return $this->outJson(0, "success", $data);
     }
+
+
+    //卖家、买家按钮接口 
+    //（卖家：1 去发货  2 查看钱款 3 删除订单 ）
+    //（买家：4 去付款  5 确认收货 3 删除订单 ）
+    public function btnAction(){
+
+        $uid = $this->request->param("user_id", 0, "intval");
+        $user_id = TUserMap::getShopUserId($uid,'shop_user_id');
+        $order_sn = $this->request->param("order_sn", 0, "intval");
+        //1：卖家  2：买家
+        $role = $this->request->param("role", 0, "intval");
+
+        //1 去发货  2 查看钱款 3 删除订单
+        $action_type = $this->request->param("type", 0, "intval");
+        if(!$user_id || !$order_sn || !$role || !$action_type){
+            return $this->outJson(100, "无效操作");
+        }
+        $user_id = 127;//测试写死用
+        
+        $res = DscOrder::btnAction($user_id,$order_sn,$role,$action_type);
+
+        if(!$res){
+
+            return $this->outJson(100, "异常");
+
+        }else{
+
+            return $this->outJson(0, "success");
+        }
+    }
+
+
+    //订单详情接口
+    public function orderDetail(){
+        $uid = $this->request->param("user_id", 0, "intval");
+        $user_id = TUserMap::getShopUserId($uid,'shop_user_id');
+        $order_sn = $this->request->param("order_sn", 0, "intval");
+
+        if(!$user_id || !$order_sn ){
+            return $this->outJson(100, "无效操作");
+        }
+
+        $user_id = 127;//测试写死用
+        
+        $data = DscOrder::getOrderDetail($user_id,$order_sn);
+
+
+    }
+
 }

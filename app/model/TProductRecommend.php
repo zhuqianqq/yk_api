@@ -44,9 +44,7 @@ class TProductRecommend extends BaseModel
 
     public static function removeRecommend($user_id, $prod_id)
     {
-        $data = TProductRecommend::where([["user_id"] => $user_id, ["product_id"] => $prod_id])->order("create_time", "desc")->select("id")->toArray();
-        TProductRecommend::destroy($data);
-        return $data;
+        return TProductRecommend::where(["user_id" => $user_id, "product_id" => $prod_id])->order("create_time", "desc")->delete();  
     }
 
     public static function getRecommendList($user_id)

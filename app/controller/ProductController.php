@@ -324,10 +324,9 @@ class ProductController extends BaseController
             return $this->outJson(100, "参数错误！");
         }
 
-        TProductRecommend::removeRecommend($user_id, $prod_id);
-        $data = TProductRecommend::getRecommendList($user_id);
-        $products = MallGoods::getRecommandGoods($data);
-        return $this->outJson(0, "移除推荐商品！", $products);
+        $res = TProductRecommend::removeRecommend($user_id, $prod_id);
+
+        return $res ? $this->outJson(0, "移除推荐商品！") : $this->outJson(100, "移除商品失败");;
     }
 
     /*
