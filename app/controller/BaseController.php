@@ -168,6 +168,14 @@ abstract class BaseController
     {
         return json(Tools::outJson($code, $msg, $data));
     }
+
+    /**
+     * 输出data可以为null的json数组，特殊用法，如果非特殊时，请调用上面outJson方法，不要使用此方法。
+     * @param int $code
+     * @param string $msg
+     * @param array $data
+     * @return \think\response\Json
+     */
     protected function outJsonWithNullData($code = 0, $msg = '', $data = [])
     {
         return json(Tools::outJsonWithnullData($code, $msg, $data));
