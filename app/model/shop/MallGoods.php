@@ -31,11 +31,11 @@ class MallGoods extends MallBaseModel
             return $data;
         }
         foreach ($data as $id) {
-            $goods = self::where("goodsId", "=", $id)->limit(1)->select();
+            $goods = self::where("goodsId", "=", $id)->limit(1)->find();
             if (empty($goods)) {
                 continue;
             }
-            $products[] = $goods[0];
+            $products[] = $goods;
         }
         return $products;
     }
