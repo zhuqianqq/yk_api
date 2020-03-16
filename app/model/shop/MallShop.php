@@ -89,7 +89,8 @@ class MallShop extends MallBaseModel
 
             if($shop_id){
                 //更改用户身份为卖家
-                Db::connect("mall")->name('users')->where('userId', $user_id)->update(['userType' => MallUser::USER_TYPE_SELLER]);
+                Db::connect("mall")->name('users')->where('userId', $user_id)
+                    ->update(['userType' => MallUser::USER_TYPE_SELLER]);
 
                 //扩展字段表
                 $exData = [
@@ -100,7 +101,11 @@ class MallShop extends MallBaseModel
                 Db::connect("mall")->name('shop_extras')->insert($exData);
 
                 //经营范围
-                Db::connect("mall")->name('cat_shops')->insert(['shopId' => $shop_id, 'catId' => 1]);
+                $cat_shop = [
+                    'shopId' => $shop_id,
+                    'catId' => 365, //类型 365:其他
+                ];
+                Db::connect("mall")->name('cat_shops')->insert($cat_shop);
 
                 //店铺配置表
                 $sc = [];
