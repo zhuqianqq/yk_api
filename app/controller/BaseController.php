@@ -168,7 +168,10 @@ abstract class BaseController
     {
         return json(Tools::outJson($code, $msg, $data));
     }
-
+    protected function outJsonWithNullData($code = 0, $msg = '', $data = [])
+    {
+        return json(Tools::outJsonWithnullData($code, $msg, $data));
+    }
     /**
      * 输出json数组
      * @param int $code

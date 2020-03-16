@@ -88,7 +88,17 @@ class Tools
             "data" => $data
         ];
     }
-
+    public static function outJsonwithNullData($code = 0, $msg = '', $data = [])
+    {
+        if($data === []){
+            $data = null;
+        }
+        return [
+            "code" => $code,
+            "msg" => $msg,
+            "data" => $data
+        ];
+    }
     /**
      * 把数据集转换成Tree
      * @param array $list
