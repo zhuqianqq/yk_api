@@ -26,6 +26,7 @@ class MallGoods extends MallBaseModel
 
     public static function getRecommandGoods($data)
     {
+
         $products = self::where("goodsId", "in", $data)->select();
         return $products;
     }
