@@ -63,12 +63,13 @@ class MallUser extends MallBaseModel
         $obj = self::getInfoByLoginName($user_name,"userId");
         if(empty($obj)){
             $salt = mt_rand(1000,9999);
+            $pwd = Tools::randStr(8); //随机密码
             $insert_data = [
                 "loginName" => $user_name, //登录账号
                 "userName" => $nick_name,
                 "userType" => self::USER_TYPE_NORMAL, //会员类型: 0:普通会员,1:商家
                 "loginSecret" => $salt, //密码盐值
-                "loginPwd" => self::genPasswd("888888",$salt),
+                "loginPwd" => self::genPasswd($pwd,$salt),
                 'userPhoto' => $data["avatar"] ?? '', //头像
                 'userPhone' => $data["phone"] ?? '',
                 'userSex' => $data['sex'] ?? 0,
