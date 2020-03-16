@@ -304,7 +304,10 @@ class ProductController extends BaseController
             return $this->outJson(100, "参数错误！");
         }
 
-        TProductRecommend::addRecommendProduct($user_id, $prod_id);
+        $addRes = TProductRecommend::addRecommendProduct($user_id, $prod_id);
+        if ($addRes === false) {
+            return $this->outJson(100, "最多只能推荐两个！");
+        }
         $data = TProductRecommend::getRecommendList($user_id);
         $products = MallGoods::getRecommandGoods($data);
         return $this->outJson(0, "推荐商品成功！", $products);

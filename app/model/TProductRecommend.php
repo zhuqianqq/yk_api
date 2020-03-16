@@ -14,6 +14,9 @@ class TProductRecommend extends BaseModel
     public static function addRecommendProduct($user_id, $prod_id)
     {
         $data = TProductRecommend::where("user_id", $user_id)->order("create_time", "desc")->select()->toArray();
+        if (!empty($data) && count($data) >= 2) {
+            return false;
+        }
         $ids = array();
         $needAdd = false;
         foreach ($data as $k => $v) {
