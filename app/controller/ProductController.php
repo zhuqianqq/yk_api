@@ -334,7 +334,9 @@ class ProductController extends BaseController
     {
         $user_id = $this->request->post("user_id", 0, "intval");
         $data = TProductRecommend::getRecommendList($user_id);
+        //Tools::addLog("recommendGood","推荐商品编号",json_encode($data));
         $products = MallGoods::getRecommandGoods($data);
+        //Tools::addLog("recommendGood","推荐商品",json_encode($products));
         return $this->outJson(0, "当前推荐商品！", $products);
     }
 }
