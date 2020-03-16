@@ -307,7 +307,24 @@ class ProductController extends BaseController
         TProductRecommend::addRecommendProduct($user_id, $prod_id);
         $data = TProductRecommend::getRecommendList($user_id);
         $products = MallGoods::getRecommandGoods($data);
-        return $this->outJson(0, "当前推荐商品！", $products);
+        return $this->outJson(0, "推荐商品成功！", $products);
+    }
+
+    /**
+     * 移除推荐商品
+     */
+    public function removeRecommend()
+    {
+        $prod_id = $this->request->post("prod_id", 0, "intval");
+        $user_id = $this->request->post("user_id", 0, "intval");
+        if ($prod_id <= 0 || $user_id <= 0) {
+            return $this->outJson(100, "参数错误！");
+        }
+
+        TProductRecommend::removeRecommend($user_id, $prod_id);
+        $data = TProductRecommend::getRecommendList($user_id);
+        $products = MallGoods::getRecommandGoods($data);
+        return $this->outJson(0, "移除推荐商品！", $products);
     }
 
     /*
