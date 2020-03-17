@@ -85,7 +85,7 @@ class LoginController extends BaseController
         $avatar = $this->request->post("avatar", '', "trim");
         $city = $this->request->post("city", '', "trim");
         $country = $this->request->post("country", '', "trim");
-        $gender = $this->request->post("gender");
+        $gender = $this->request->post("gender",0,"intval");
         $nick_name = $this->request->post("nick_name", '', "trim");
         $province = $this->request->post("province", '', "trim");
 
@@ -94,12 +94,16 @@ class LoginController extends BaseController
             return $this->outJson(200, "获取微信openid失败！");
         }
         $data = TMember::getByOpenId($openid);
+
         if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $data["nick_name"] = $nick_name;
+            $data["avatar"] = $avatar;
+            $data["sex"] = $gender;
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
             $mall_user_id = $data['user_id'];
@@ -150,6 +154,9 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $data["nick_name"] = $nick_name;
+            $data["avatar"] = $avatar;
+            $data["sex"] = $gender;
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
             $mall_user_id = $data['user_id'];

@@ -56,7 +56,7 @@ class MallUser extends MallBaseModel
     {
         $db_mall = Db::connect("mall");
         $db_mall->startTrans();
-        $user_name = $data["phone"] ? $data["phone"] : $data["display_code"];
+        $user_name = !empty($data["phone"]) ? $data["phone"] : $data["display_code"];
         $nick_name = $data["nick_name"] ?? $data["phone"] ?? $data["display_code"];
 
         $obj = self::getInfoByLoginName($user_name,"userId");
@@ -77,14 +77,16 @@ class MallUser extends MallBaseModel
                 'lastTime' => date("Y-m-d H:i:s"),
                 'lastIP' => Tools::getClientIp(),
             ];
-            $mall_user_id = self::insertGetId($insert_data);
+            $user_id = self::insertGetId($insert_data);
+            Tools::addLog("mall_user","register user_id:{$user_id}");
         }else{
-            $mall_user_id = $obj["userId"];
+            $user_id = $obj["userId"];
+            Tools::addLog("mall_user","exist username:{$user_name},user_id:{$user_id}");
         }
 
         $db_mall->commit();
 
-        return $mall_user_id;
+        return $user_id;
     }
 
     /**
