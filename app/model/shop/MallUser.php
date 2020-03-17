@@ -65,6 +65,7 @@ class MallUser extends MallBaseModel
             $salt = mt_rand(1000,9999);
             $pwd = Tools::randStr(8); //随机密码
             $insert_data = [
+                "userId" => $data["user_id"], //指定userId
                 "loginName" => $user_name, //登录账号
                 "userName" => $nick_name,
                 "userType" => self::USER_TYPE_NORMAL, //会员类型: 0:普通会员,1:商家
@@ -82,10 +83,6 @@ class MallUser extends MallBaseModel
             $mall_user_id = $obj["userId"];
         }
 
-        if($mall_user_id){
-            //存于映射表
-            TUserMap::addMap($data["user_id"],$mall_user_id);
-        }
         $db_mall->commit();
 
         return $mall_user_id;
