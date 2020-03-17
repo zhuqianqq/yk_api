@@ -56,4 +56,8 @@ class TProductRecommend extends BaseModel
         }
         return $ids;
     }
+
+    public static function clearRecommends($user_id){
+        return TProductRecommend::where(["user_id" => $user_id])->delete();
+    }
 }

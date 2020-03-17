@@ -8,6 +8,7 @@ namespace app\controller;
 use app\model\TMember;
 use app\model\TPrebroadcast;
 use app\model\TProduct;
+use app\model\TProductRecommend;
 use app\model\TRoom;
 use app\model\TRoomHistory;
 use app\model\TRoomOperLog;
@@ -21,7 +22,7 @@ use think\Model;
 class LiveController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView','preAddRoom']],
+        'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView', 'preAddRoom']],
     ];
 
     /**
@@ -54,7 +55,7 @@ class LiveController extends BaseController
         }
 
         $data = TRoom::where($where)->find();
-        if($data==null){
+        if ($data == null) {
             return $this->outJson(100, "找不到开播房间！");
         }
         $user = TMember::where("user_id", $data["user_id"])->find();
@@ -151,6 +152,7 @@ class LiveController extends BaseController
                 'status' => 1
             ]);
         }
+        TProductRecommend::clearRecommends($user_id);
         Cache::store('redis')->lpush('list:wechat:subscribe', $user_id);
         return $this->outJson(0, "开播成功！", $room);
     }
@@ -201,7 +203,7 @@ class LiveController extends BaseController
         $where["user_id"] = $user_id;
         $where["is_online"] = 1;
 
-        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where,["weight" => "desc"]);
+        list($list, $total, $has_next) = TProduct::getList($page, $page_size, $where, ["weight" => "desc"]);
 
         $data = [
             "list" => $list,
