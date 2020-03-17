@@ -3,7 +3,6 @@
 namespace app\command;
 
 use app\model\shop\MallShop;
-use app\model\TUserMap;
 use think\console\input\Argument;
 use think\facade\Config;
 use app\model\TMember;

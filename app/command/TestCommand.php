@@ -52,17 +52,5 @@ class TestCommand extends BaseCommand
 //            $mall_user_id = MallUser::register($item); //注册商城用户
 //            echo $mall_user_id.PHP_EOL;
 //        }
-
-        //TUserMap::updateShopId("1153",11);
-
-        $ret = TUserMap::getMallUserId("1153");
-        echo $ret.PHP_EOL;
-
-        $ret = TUserMap::getShopId("1153");
-        echo $ret;
-
-        $ret = TUserMap::getAllMapFields("1153");
-
-        print_r($ret);
     }
 }

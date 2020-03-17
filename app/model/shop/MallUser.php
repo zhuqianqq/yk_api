@@ -8,7 +8,6 @@ use app\model\shop\MallBaseModel;
 use app\model\TMember;
 use app\util\Tools;
 use think\facade\Db;
-use app\model\TUserMap;
 
 class MallUser extends MallBaseModel
 {

@@ -95,11 +95,6 @@ class TUserMap extends BaseModel
      */
     public static function addMap($user_id,$mall_user_id)
     {
-//        $user_map = new TUserMap();
-//        $id = $user_map->insertGetId([
-//            'user_id' => $user_id,
-//            "mall_user_id" => $mall_user_id,
-//        ]);
         $sql = "insert ignore into t_user_map(user_id,mall_user_id) values(:user_id,:mall_user_id)";
         $id = Db::execute($sql,['user_id' => $user_id, 'mall_user_id' => $mall_user_id]);
 

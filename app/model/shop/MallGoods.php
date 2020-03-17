@@ -6,7 +6,6 @@
 namespace app\model\shop;
 
 use app\model\shop\ShopBaseModel;
-use app\model\TUserMap;
 use think\facade\Db;
 
 class MallGoods extends MallBaseModel
@@ -15,8 +14,7 @@ class MallGoods extends MallBaseModel
 
     public static function getSellerGoods($user_id)
     {
-        $mall_user_id = TUserMap::getMallUserId($user_id);
-        $shop_id = mallShopUsers::getShopId($mall_user_id);
+        $shop_id = mallShopUsers::getShopId($user_id);
         if ($shop_id <= 0) {
             return null;
         }

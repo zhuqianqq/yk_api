@@ -8,7 +8,6 @@ use app\model\shop\MallBaseModel;
 use app\model\TMember;
 use app\util\Tools;
 use think\facade\Db;
-use app\model\TUserMap;
 
 class MallShop extends MallBaseModel
 {
@@ -127,7 +126,7 @@ class MallShop extends MallBaseModel
 
             $db_mall->commit();
             //写入映射表
-            TUserMap::updateShopId($user_info["user_id"],$shop_id);
+            //TUserMap::updateShopId($user_info["user_id"],$shop_id);
 
             Tools::addLog("open_shop","succes user_id:{$user_id},shop_id:{$shop_id}",$user_info);
             return $shop_id;

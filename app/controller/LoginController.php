@@ -6,7 +6,6 @@
 namespace app\controller;
 
 use app\model\shop\MallUser;
-use app\model\TUserMap;
 use think\facade\Config;
 use think\Session;
 use app\util\ValidateHelper;
@@ -53,7 +52,7 @@ class LoginController extends BaseController
                 $data = TMember::getByPhone($phone);
                 $mall_user_id = MallUser::register($data); //注册商城用户
             }else{
-                $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+                $mall_user_id = $data['user_id'];
             }
 
             if ($data["is_lock"] == 1) {
@@ -103,7 +102,7 @@ class LoginController extends BaseController
             $data = TMember::getByOpenId($openid);
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
-            $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+            $mall_user_id = $data['user_id'];
         }
 
         if ($data["is_lock"] == 1) {
@@ -153,7 +152,7 @@ class LoginController extends BaseController
             $data = TMember::getByOpenId($openid);
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
-            $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+            $mall_user_id = $data['user_id'];
         }
 
         if ($data["is_lock"] == 1) {
@@ -208,10 +207,7 @@ class LoginController extends BaseController
             'phone' => $phone,
         ]);
         //同步更新商城用户表手机号
-        $mall_user_id = TUserMap::getMallUserId($user_id);
-        if($mall_user_id){
-            MallUser::where(["userId",$mall_user_id])->update(["userPhone" => $phone]);
-        }
+        MallUser::where(["userId",$user_id])->update(["userPhone" => $phone]);
 
         SmsHelper::clearCacheKey($phone,"login");
 
