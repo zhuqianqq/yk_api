@@ -52,7 +52,7 @@ class TProductRecommend extends BaseModel
         $data = TProductRecommend::where("user_id", $user_id)->field("product_id")->order("create_time", "desc")->limit(2)->select();
         $ids = array();
         foreach ($data as $k => $v) {
-            array_push($ids, $v['product_id']);
+            array_unshift($ids, $v['product_id']);
         }
         return $ids;
     }

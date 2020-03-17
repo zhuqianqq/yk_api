@@ -35,6 +35,7 @@ class MallGoods extends MallBaseModel
             if (empty($goods)) {
                 continue;
             }
+            $goods->goodsImg = stristr($goods->goodsImg,'http')?:$_SERVER['HTTP_HOST']. '/' . $goods->goodsImg;
             $products[] = $goods;
         }
         return $products;
