@@ -101,9 +101,9 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
-            $data["nick_name"] = $nick_name;
-            $data["avatar"] = $avatar;
-            $data["sex"] = $gender;
+            $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
+            $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
+            $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
             $mall_user_id = $data['user_id'];
@@ -154,9 +154,9 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
-            $data["nick_name"] = $nick_name;
-            $data["avatar"] = $avatar;
-            $data["sex"] = $gender;
+            $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
+            $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
+            $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
             $mall_user_id = $data['user_id'];
