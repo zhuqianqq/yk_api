@@ -6,7 +6,6 @@
 namespace app\controller;
 
 use app\model\shop\MallUser;
-use app\model\TUserMap;
 use think\facade\Config;
 use think\Session;
 use app\util\ValidateHelper;
@@ -53,7 +52,7 @@ class LoginController extends BaseController
                 $data = TMember::getByPhone($phone);
                 $mall_user_id = MallUser::register($data); //注册商城用户
             }else{
-                $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+                $mall_user_id = $data['user_id'];
             }
 
             if ($data["is_lock"] == 1) {
@@ -86,7 +85,7 @@ class LoginController extends BaseController
         $avatar = $this->request->post("avatar", '', "trim");
         $city = $this->request->post("city", '', "trim");
         $country = $this->request->post("country", '', "trim");
-        $gender = $this->request->post("gender");
+        $gender = $this->request->post("gender",0,"intval");
         $nick_name = $this->request->post("nick_name", '', "trim");
         $province = $this->request->post("province", '', "trim");
 
@@ -95,15 +94,19 @@ class LoginController extends BaseController
             return $this->outJson(200, "获取微信openid失败！");
         }
         $data = TMember::getByOpenId($openid);
+
         if (!$data) {
             $user_id = TMember::registerByOpenId($openid);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
+            $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
+            $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
-            $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+            $mall_user_id = $data['user_id'];
         }
 
         if ($data["is_lock"] == 1) {
@@ -151,9 +154,12 @@ class LoginController extends BaseController
                 return $this->outJson(200, "注册失败");
             }
             $data = TMember::getByOpenId($openid);
+            $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
+            $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
+            $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
         }else{
-            $mall_user_id = TUserMap::getMallUserId($data['user_id']);
+            $mall_user_id = $data['user_id'];
         }
 
         if ($data["is_lock"] == 1) {
@@ -208,10 +214,7 @@ class LoginController extends BaseController
             'phone' => $phone,
         ]);
         //同步更新商城用户表手机号
-        $mall_user_id = TUserMap::getMallUserId($user_id);
-        if($mall_user_id){
-            MallUser::where(["userId",$mall_user_id])->update(["userPhone" => $phone]);
-        }
+        MallUser::where(["userId",$user_id])->update(["userPhone" => $phone]);
 
         SmsHelper::clearCacheKey($phone,"login");
 

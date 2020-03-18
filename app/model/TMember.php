@@ -251,10 +251,7 @@ class TMember extends BaseModel
             'expire_time' => date("Y-m-d H:i:s",strtotime("+{$year} years")), //过期时间
         ]);
 
-        $mall_user_id = TUserMap::getMallUserId($user_id);
-        if($mall_user_id){
-            $user_info = TMember::getById($user_id);
-            MallShop::openShop($mall_user_id,$user_info);
-        }
+        $user_info = TMember::getById($user_id);
+        MallShop::openShop($user_id,$user_info);
     }
 }

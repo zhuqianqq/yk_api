@@ -81,6 +81,9 @@ class LiveController extends BaseController
             return $this->outJson(1, "找不到对应账号！");
         }
         $user = TMember::where(["user_id" => $user_id])->find();
+        if (empty($user)) {
+            return $this->outJson(1, "找不到对应账号！");
+        }
         if ($user->is_lock == 1) {
             AccessKeyHelper::generateAccessKey($user_id);
             return $this->outJson(200, "账号已被锁定");
