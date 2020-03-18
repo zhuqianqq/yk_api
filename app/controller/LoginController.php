@@ -158,9 +158,10 @@ class LoginController extends BaseController
             $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
             $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
-        }else{
-            $mall_user_id = $data['user_id'];
         }
+        
+        $mall_user_id = $data['user_id'];
+        
 
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
