@@ -22,7 +22,7 @@ use think\Model;
 class LiveController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView', 'preAddRoom']],
+       // 'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView', 'preAddRoom']],
     ];
 
     /**
@@ -155,7 +155,8 @@ class LiveController extends BaseController
                 'status' => 1
             ]);
         }
-        TProductRecommend::clearRecommends($user_id);
+        $res = TProductRecommend::clearRecommends($user_id);
+        Tools::addLog('clearRrecom','info',['user_id'=>$user_id,'res'=>$res]);
         Cache::store('redis')->lpush('list:wechat:subscribe', $user_id);
         return $this->outJson(0, "开播成功！", $room);
     }
