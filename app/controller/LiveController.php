@@ -155,8 +155,8 @@ class LiveController extends BaseController
                 'status' => 1
             ]);
         }
-        $res = TProductRecommend::clearRecommends($user_id);
-        Tools::addLog('clearRrecom','info',['user_id'=>$user_id,'res'=>$res]);
+        
+        TProductRecommend::clearRecommends($user_id);
         Cache::store('redis')->lpush('list:wechat:subscribe', $user_id);
         return $this->outJson(0, "开播成功！", $room);
     }
@@ -171,6 +171,8 @@ class LiveController extends BaseController
         if (empty($room_id)) {
             return $this->outJson(100, "room_id不能为空");
         }
+
+        TProductRecommend::clearRecommends($this->user_id);
 
         return json(TRoom::closeRoom($room_id, $this->user_id, $this->user_id));
     }
