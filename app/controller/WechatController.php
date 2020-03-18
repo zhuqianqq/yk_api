@@ -94,6 +94,12 @@ class WechatController extends BaseController
         }
 
         $result = Db::table('t_boardcaster_subscribe')->where(['user_id' => $this->user_id, 'boardcaster_uid' => $boardcaster_uid])->find();
+        if (empty($result)) {
+            $result["boardcaster_uid"] = $boardcaster_uid;
+            $result["user_id"] = $this->user_id;
+            $result["is_follow"] = 0;
+            $result["is_subscribe"] = 0;
+        }
         return $this->successJson($result);
     }
 }
