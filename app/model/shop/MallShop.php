@@ -61,6 +61,7 @@ class MallShop extends MallBaseModel
     {
         $shop = self::where('userId',$user_id)->find();
         if(!empty($shop)){
+            self::where("shopId",$shop['shopId'])->update(["shopStatus" => 1]); //更新店铺状态为1
             return $shop['shopId'];
         }
 
@@ -82,6 +83,7 @@ class MallShop extends MallBaseModel
                 'applyStep' => 3, //申请步骤
                 'applyStatus' => self::APPLY_STATUS_PASS,  //审核通过
                 'applyTime' => date("Y-m-d H:i:s"), //申请时间
+                'shopStatus' => 1,
                 "createTime" => date("Y-m-d H:i:s"),
             ];
             $shop_id = self::insertGetId($ins_data);
