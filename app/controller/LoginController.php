@@ -158,10 +158,9 @@ class LoginController extends BaseController
             $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
             $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
+        }else{
+            $mall_user_id = $data['user_id'];
         }
-        
-        $mall_user_id = $data['user_id'];
-        
 
         if ($data["is_lock"] == 1) {
             return $this->outJson(200, "账号已被锁定");
@@ -195,7 +194,7 @@ class LoginController extends BaseController
         $vcode = $this->request->post("vcode", 0, "intval");
         $phone = $this->request->post("phone", 0, "intval");
         $user_id = $this->request->post("user_id", 0, "intval");
-
+      
         if (ValidateHelper::isMobile($phone) == false) {
             return $this->outJson(100, "手机号格式错误");
         }
@@ -215,7 +214,7 @@ class LoginController extends BaseController
             'phone' => $phone,
         ]);
         //同步更新商城用户表手机号
-        MallUser::where(["userId",$user_id])->update(["userPhone" => $phone]);
+        MallUser::where(["userId"=>$user_id])->update(["userPhone" => $phone]);
 
         SmsHelper::clearCacheKey($phone,"login");
 
