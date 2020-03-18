@@ -78,7 +78,7 @@ class MallShop extends MallBaseModel
                 'telephone' => $user_info["phone"] ?? '',
                 'areaIdPath' => '2_52_500_',
                 'areaId' => '500',
-                'isSelf' => '1', //是否自营
+                'isSelf' => '0', //是否自营
                 'areaIdPath' => '2_52_500_',
                 'applyStep' => 3, //申请步骤
                 'applyStatus' => self::APPLY_STATUS_PASS,  //审核通过
