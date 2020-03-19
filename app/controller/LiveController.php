@@ -22,7 +22,7 @@ use think\Model;
 class LiveController extends BaseController
 {
     protected $middleware = [
-       // 'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView', 'preAddRoom']],
+       'access_check' => ['only' => ['closeRoom', 'addRoom', 'updateLikeAndView', 'preAddRoom']],
     ];
 
     /**
