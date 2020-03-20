@@ -53,7 +53,7 @@ class WechatSubscribeCommand extends BaseCommand
                 continue;
             }
 
-            $membersMap = array_column($members, 'nick_name', 'user_id');
+            $membersMap = array_column($members->toArray(), 'nick_name', 'user_id');
             $boardcaster_nickname = isset($membersMap[$boardcaster_uid]) ? $membersMap[$boardcaster_uid] : '';
             foreach ($members as $member) {
                 if ($boardcaster_uid == $member['user_id']) {
