@@ -64,6 +64,7 @@ class AccessKeyHelper
             if ($member->access_key == $access_key) {
                 $key = self::getCacheKey($user_id, $from);
                 Cache::set($key, $member->access_key, 7 * 24 * 3600);
+                return true;
             } else {
                 return false;
             }
