@@ -67,7 +67,7 @@ class WechatSubscribeCommand extends BaseCommand
     {
         $room_name = !empty($room_name) ? $room_name : $room_title;
         $data = [
-            'template_id' => 'SEnfnuB8qVKUZk4KyQenBFS8HZmwas7HxGYoqV59BPQ', // 所需下发的订阅模板id
+            'template_id' => 'FWlYtp96OHrSghGcLQd6TXpmzjVgHQKYbaYMkuk0q88', // 所需下发的订阅模板id
             'touser' => $openid,
             "miniprogram_state" => "trial",
             'page' => 'pages/room/room?user_id=' . $boardcaster_uid,
