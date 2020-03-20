@@ -5,6 +5,7 @@
 
 namespace app\util;
 
+use app\model\TMember;
 use think\facade\Cache;
 
 class AccessKeyHelper
@@ -38,7 +39,8 @@ class AccessKeyHelper
     public static function getAccessKey($user_id, $from = "")
     {
         $key = self::getCacheKey($user_id, $from);
-        return Cache::get($key, null);
+        $res = Cache::get($key, null);
+        return $res;
     }
 
     /**
@@ -51,7 +53,21 @@ class AccessKeyHelper
     public static function validateAccessKey($user_id, $access_key, $from = "")
     {
         $acc_key = self::getAccessKey($user_id, $from);
-        return $acc_key == $access_key;
+        if ($acc_key == $access_key) {
+            return true;
+        } else {
+            $member = TMember::where("user_id", $user_id)->find();
+            if (empty($member)) {
+                return false;
+            }
+            $member->access_key;
+            if ($member->access_key == $access_key) {
+                $key = self::getCacheKey($user_id, $from);
+                Cache::set($key, $member->access_key, 7 * 24 * 3600);
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -65,7 +81,7 @@ class AccessKeyHelper
         $acc_key = base64_encode(random_bytes(32));
 
         Cache::set($key, $acc_key, 7 * 24 * 3600); //缓存时间为7天
-
+        TMember::where("user_id", $user_id)->update(["access_key" => $acc_key]);
         return $acc_key;
     }
 
