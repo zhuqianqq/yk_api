@@ -46,18 +46,24 @@ class WechatSubscribeCommand extends BaseCommand
             }
             $subscribeInfo = is_object($subscribeInfo) ? $subscribeInfo->toArray() : $subscribeInfo;
             $user_ids = array_column($subscribeInfo, 'user_id');
+            $user_ids = array_merge($user_ids, $boardcaster_uid);
             $members = Db::table('t_member')->field('user_id,nick_name,openid')->where(['user_id' => ['in', implode(',', $user_ids)]])->select();
             if (empty($members[0])) {
                 $this->log("members info empty, boardcaster_uid：{$boardcaster_uid}, user_ids: " . json_encode($user_ids));
                 continue;
             }
 
+            $membersMap = array_column($members, 'nick_name', 'user_id');
+            $boardcaster_nickname = isset($membersMap[$boardcaster_uid]) ? $membersMap[$boardcaster_uid] : '';
             foreach ($members as $member) {
+                if ($boardcaster_uid == $member['user_id']) {
+                    continue;
+                }
                 if (empty($member['openid'])) {
                     $this->log("openid empty, boardcaster_uid：{$boardcaster_uid}, member: " . json_encode($member, JSON_UNESCAPED_UNICODE));
                     continue;
                 }
-                $this->sendMsg($boardcaster_uid, $member['openid'], $member['nick_name'], $room['title'], $room['create_time']);
+                $this->sendMsg($boardcaster_uid, $member['openid'], $boardcaster_nickname, $room['title'], $room['create_time']);
             }
 
         }
