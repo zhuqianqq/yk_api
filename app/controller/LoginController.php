@@ -6,6 +6,7 @@
 namespace app\controller;
 
 use app\model\shop\MallUser;
+use app\util\Tools;
 use think\facade\Config;
 use think\Session;
 use app\util\ValidateHelper;
@@ -81,6 +82,9 @@ class LoginController extends BaseController
      */
     public function loginByMinWechat()
     {
+        if (APP_ENV == "test") {
+            Tools::addLog("wechat", "微信登陆请求参数：" + $this->request->param());
+        }
         $code = $this->request->post("code", '', "trim");
         $avatar = $this->request->post("avatar", '', "trim");
         $city = $this->request->post("city", '', "trim");
