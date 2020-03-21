@@ -47,7 +47,7 @@ class WechatSubscribeCommand extends BaseCommand
             $subscribeInfo = is_object($subscribeInfo) ? $subscribeInfo->toArray() : $subscribeInfo;
             $user_ids = array_column($subscribeInfo, 'user_id');
             $user_ids = array_merge($user_ids, [$boardcaster_uid]);
-            $members = Db::table('t_member')->field('user_id,nick_name,openid')->where(['user_id' => ['in', implode(',', $user_ids)]])->select();
+            $members = Db::table('t_member')->field('user_id,nick_name,openid')->where('user_id' , 'in', implode(',', $user_ids))->select();
             if (empty($members[0])) {
                 $this->log("members info empty, boardcaster_uid：{$boardcaster_uid}, user_ids: " . json_encode($user_ids));
                 continue;
