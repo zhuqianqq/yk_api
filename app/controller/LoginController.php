@@ -98,8 +98,12 @@ class LoginController extends BaseController
         $iv = $this->request->post("iv", '', "trim");
         $encryptedData = $this->request->post("encryptedData", '', "trim");
         $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+        $loginInfo = json_decode($loginInfo, true);
         if (empty($loginInfo)) {
-            return $this->outJson(200, "获取微信unionid失败！");
+            return $this->outJson(200, "获取微信信息失败！");
+        }
+        if (empty($loginInfo['unionId'])) {
+            return $this->outJson(200, "获取微信unionId失败！");
         }
         $data = TMember::getByUnionId($loginInfo["unionId"]);
 
