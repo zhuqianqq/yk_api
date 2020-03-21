@@ -183,7 +183,7 @@ class TMember extends BaseModel
     /**
      * 禁播
      */
-    public static function forbidMember($user_id,$room_id,$end_time, $reason,$oper_user='system')
+    public static function forbidMember($user_id, $room_id, $end_time, $reason, $oper_user = 'system')
     {
         TMember::where("user_id", $user_id)->update([
             "is_forbid" => 1,
@@ -202,9 +202,9 @@ class TMember extends BaseModel
         ]);
     }
 
-    public static function unforbidMember($user_id,$reason,$oper_user='system')
+    public static function unforbidMember($user_id, $reason, $oper_user = 'system')
     {
-        TMember::where("user_id",$user_id)->update([
+        TMember::where("user_id", $user_id)->update([
             "is_forbid" => 0,
             "forbid_reason" => '',
             "forbid_end_time" => null,
@@ -224,7 +224,7 @@ class TMember extends BaseModel
      * 设置其他信息
      * @param $data
      */
-    public static function setOtherInfo(&$data,$need_old_key=0)
+    public static function setOtherInfo(&$data, $need_old_key = 0)
     {
         if ($need_old_key == 1) {
             $data["access_key"] = AccessKeyHelper::getAccessKey($data["user_id"]); //生成access_key
@@ -251,14 +251,14 @@ class TMember extends BaseModel
      * 开通主播&开通店铺
      * @param $user_id
      */
-    public static function openBroadCast($user_id,$year = 1)
+    public static function openBroadCast($user_id, $year = 1)
     {
         TMember::where(['user_id' => $user_id])->update([
             'is_broadcaster' => TMember::IS_BROADCASTER_YES,
-            'expire_time' => date("Y-m-d H:i:s",strtotime("+{$year} years")), //过期时间
+            'expire_time' => date("Y-m-d H:i:s", strtotime("+{$year} years")), //过期时间
         ]);
 
         $user_info = TMember::getById($user_id);
-        MallShop::openShop($user_id,$user_info);
+        MallShop::openShop($user_id, $user_info);
     }
 }

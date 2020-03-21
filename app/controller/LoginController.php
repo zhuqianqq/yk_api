@@ -68,9 +68,9 @@ class LoginController extends BaseController
             Db::commit();
 
             if ($platform > 0 && $platform < 4) {
+                TMember::setOtherInfo($data, 0);
+            } else {
                 TMember::setOtherInfo($data, 1);
-            }else {
-                TMember::setOtherInfo($data);
             }
             SmsHelper::clearCacheKey($phone, "login");
             $data['mall_user_id'] = $mall_user_id;  //商城用户id
