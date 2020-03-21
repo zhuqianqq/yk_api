@@ -68,6 +68,8 @@ class LoginController extends BaseController
             Db::commit();
 
             if ($platform > 0 && $platform < 4) {
+                TMember::setOtherInfo($data, 1);
+            }else {
                 TMember::setOtherInfo($data);
             }
             SmsHelper::clearCacheKey($phone, "login");
