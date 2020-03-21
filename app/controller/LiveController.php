@@ -33,7 +33,8 @@ class LiveController extends BaseController
         $page_size = $this->request->param("page_size", 10, "intval");
         $page = $this->request->param("page", 1, "intval");
         $page = $page ? $page : 1;
-        $data = TRoom::getList($page, $page_size);
+        $user_id = $this->request->param("user_id", 0, "intval");
+        $data = TRoom::getList($page, $page_size, $user_id);
 
         return $this->outJson(0, "success", $data);
     }

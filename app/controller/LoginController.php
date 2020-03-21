@@ -101,14 +101,14 @@ class LoginController extends BaseController
         if (empty($loginInfo)) {
             return $this->outJson(200, "获取微信unionid失败！");
         }
-        $data = TMember::getByUnionId($loginInfo->unionId);
+        $data = TMember::getByUnionId($loginInfo["unionId"]);
 
         if (!$data) {
-            $user_id = TMember::registerByUnionId($loginInfo->unionId);
+            $user_id = TMember::registerByUnionId($loginInfo["unionId"]);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByUnionId($loginInfo->unionId);
+            $data = TMember::getByUnionId($loginInfo["unionId"]);
             $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
             $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
             $data["sex"] = $gender > 0 ? $gender : $data['sex'];
@@ -130,11 +130,11 @@ class LoginController extends BaseController
             'country' => empty($country) ? $data['country'] : $country,
             'sex' => $gender > 0 ? $gender : $data['sex'],
             'province' => empty($province) ? $data['province'] : $province,
-            'openid' => empty($loginInfo->openId) ? $data['openid'] : $loginInfo->openId,
+            'openid' => empty($loginInfo["openId"]) ? $data['openid'] : $loginInfo["openId"],
             "last_login_time" => date("Y-m-d H:i:s"),
         ]);
 
-        $data = TMember::getByUnionId(openid);
+        $data = TMember::getByUnionId($loginInfo["unionId"]);
         $data['mall_user_id'] = $mall_user_id;
         TMember::setOtherInfo($data);
 

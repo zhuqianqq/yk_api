@@ -10,13 +10,17 @@ class TRoom extends BaseModel
 {
     protected $table = "t_room";
 
-    public static function getList($page, $page_size)
+    public static function getList($page, $page_size,$user_id=0)
     {
         $page = $page ? $page : 1;
         $query = Db::table("t_room r")
             ->leftJoin("t_member m", "r.user_id=m.user_id ")
             ->field("r.*,m.nick_name,m.avatar,m.display_code");
-
+        if ($user_id > 0) {
+            $query = Db::table("t_room r")
+                ->leftJoin("t_member m", "r.user_id=m.user_id ")->where("m.user_id<>" . $user_id)
+                ->field("r.*,m.nick_name,m.avatar,m.display_code");
+        }
         $list = $query->order("like_count", 'desc')->page($page, $page_size)->select();
         $total = $query->count();
         $has_next = 0;
