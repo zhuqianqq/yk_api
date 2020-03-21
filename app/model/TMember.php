@@ -227,12 +227,12 @@ class TMember extends BaseModel
     public static function setOtherInfo(&$data,$need_old_key=0)
     {
         if ($need_old_key == 1) {
-            $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
-        } else {
             $data["access_key"] = AccessKeyHelper::getAccessKey($data["user_id"]); //生成access_key
             if (empty($data["access_key"])) {
                 $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]);
             }
+        } else {
+            $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
         }
 
         $live_config = Config::get('tencent_cloud');
