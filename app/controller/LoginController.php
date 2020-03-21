@@ -92,8 +92,11 @@ class LoginController extends BaseController
         $gender = $this->request->post("gender",0,"intval");
         $nick_name = $this->request->post("nick_name", '', "trim");
         $province = $this->request->post("province", '', "trim");
+        $iv = $this->request->post("iv", '', "trim");
+        $encryptedData = $this->request->post("encryptedData", '', "trim");
+        //$encryptedData = $this->request->post("encryptedData", '', "trim");
 
-        $openid = WechatHelper::getWechatOpenId($code); //以code换取openid
+        $openid = WechatHelper::getWechatOpenId($code,$iv,$encryptedData); //以code换取openid
         if ($openid == "") {
             return $this->outJson(200, "获取微信openid失败！");
         }

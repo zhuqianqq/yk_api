@@ -67,6 +67,7 @@ class AccessKeyHelper
             if ($member->access_key == $access_key) {
                 $key = self::getCacheKey($user_id, $from);
                 Cache::set($key, $member->access_key, 7 * 24 * 3600);
+                Tools::addLog("access_token", $user_id . ":" . "生成key:" . $access_key);
                 return true;
             } else {
                 return false;
@@ -86,6 +87,7 @@ class AccessKeyHelper
 
         Cache::set($key, $acc_key, 7 * 24 * 3600); //缓存时间为7天
         TMember::where("user_id", $user_id)->update(["access_key" => $acc_key]);
+        Tools::addLog("access_token", $user_id . ":" . "生成key:" . $acc_key);
         return $acc_key;
     }
 
