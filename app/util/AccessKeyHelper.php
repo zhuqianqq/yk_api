@@ -53,6 +53,9 @@ class AccessKeyHelper
     public static function validateAccessKey($user_id, $access_key, $from = "")
     {
         $acc_key = self::getAccessKey($user_id, $from);
+        if (APP_ENV == "test") {
+            Tools::addLog("access_token", $user_id . ":" . "访问key:" . $access_key . "服务端key:" . $acc_key);
+        }
         if ($acc_key == $access_key) {
             return true;
         } else {
