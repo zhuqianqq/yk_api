@@ -83,13 +83,13 @@ class TMember extends BaseModel
      * @param string $field
      * @return array|null
      */
-    public static function getByOpenId($openid, $field = "")
+    public static function getByUnionId($union_id, $field = "")
     {
         if (empty($field)) {
-            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,country,province,city,display_code,
+            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,unionid,country,province,city,display_code,
                        is_broadcaster,audit_status,is_lock";
         }
-        $data = self::where("openid", $openid)->field($field)->find();
+        $data = self::where("unionid", $union_id)->field($field)->find();
 
         return $data ? $data->toArray() : [];
     }
@@ -160,13 +160,13 @@ class TMember extends BaseModel
 
     /**
      * 按open_id注册
-     * @param $openid
+     * @param $unionid
      * @return int|string
      */
-    public static function registerByOpenId($openid)
+    public static function registerByUnionId($unionid)
     {
         $data = [
-            'openid' => $openid,
+            'unionid' => $unionid,
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];

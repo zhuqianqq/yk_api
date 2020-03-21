@@ -21,7 +21,7 @@ use app\util\TLSSigAPIv2;
 class LoginController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['loginOut']],
+        //'access_check' => ['only' => ['loginOut']],
     ];
 
     /**
@@ -31,6 +31,7 @@ class LoginController extends BaseController
     {
         $phone = $this->request->post("phone", '', "intval");
         $vcode = $this->request->post("vcode", '', "intval");
+        $platform = $this->request->post("platform", '', "intval");
 
         if (ValidateHelper::isMobile($phone) == false || $vcode <= 0) {
             return $this->outJson(100, "参数错误");
@@ -52,7 +53,7 @@ class LoginController extends BaseController
                 }
                 $data = TMember::getByPhone($phone);
                 $mall_user_id = MallUser::register($data); //注册商城用户
-            }else{
+            } else {
                 $mall_user_id = $data['user_id'];
             }
 
@@ -66,8 +67,10 @@ class LoginController extends BaseController
             ]);
             Db::commit();
 
-            TMember::setOtherInfo($data);
-            SmsHelper::clearCacheKey($phone,"login");
+            if ($platform > 0 && $platform < 4) {
+                TMember::setOtherInfo($data);
+            }
+            SmsHelper::clearCacheKey($phone, "login");
             $data['mall_user_id'] = $mall_user_id;  //商城用户id
 
             return $this->outJson(0, "登录成功", $data);
@@ -89,30 +92,28 @@ class LoginController extends BaseController
         $avatar = $this->request->post("avatar", '', "trim");
         $city = $this->request->post("city", '', "trim");
         $country = $this->request->post("country", '', "trim");
-        $gender = $this->request->post("gender",0,"intval");
+        $gender = $this->request->post("gender", 0, "intval");
         $nick_name = $this->request->post("nick_name", '', "trim");
         $province = $this->request->post("province", '', "trim");
         $iv = $this->request->post("iv", '', "trim");
         $encryptedData = $this->request->post("encryptedData", '', "trim");
-        //$encryptedData = $this->request->post("encryptedData", '', "trim");
-
-        $openid = WechatHelper::getWechatOpenId($code,$iv,$encryptedData); //以code换取openid
-        if ($openid == "") {
-            return $this->outJson(200, "获取微信openid失败！");
+        $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+        if (empty($loginInfo)) {
+            return $this->outJson(200, "获取微信unionid失败！");
         }
-        $data = TMember::getByOpenId($openid);
+        $data = TMember::getByUnionId($loginInfo->unionId);
 
         if (!$data) {
-            $user_id = TMember::registerByOpenId($openid);
+            $user_id = TMember::registerByUnionId($loginInfo->unionId);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid);
+            $data = TMember::getByUnionId($loginInfo->unionId);
             $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
             $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
             $data["sex"] = $gender > 0 ? $gender : $data['sex'];
             $mall_user_id = MallUser::register($data); //注册商城用户
-        }else{
+        } else {
             $mall_user_id = $data['user_id'];
         }
 
@@ -129,10 +130,11 @@ class LoginController extends BaseController
             'country' => empty($country) ? $data['country'] : $country,
             'sex' => $gender > 0 ? $gender : $data['sex'],
             'province' => empty($province) ? $data['province'] : $province,
+            'openid' => empty($loginInfo->openId) ? $data['openid'] : $loginInfo->openId,
             "last_login_time" => date("Y-m-d H:i:s"),
         ]);
 
-        $data = TMember::getByOpenId($openid);
+        $data = TMember::getByUnionId(openid);
         $data['mall_user_id'] = $mall_user_id;
         TMember::setOtherInfo($data);
 
@@ -152,15 +154,16 @@ class LoginController extends BaseController
         $nick_name = $this->request->post("nick_name", '', 'trim');
         $province = $this->request->post("province", '', 'trim');
         $openid = $this->request->post("openid", '', "trim");
+        $unionid = $this->request->post("unionid", '', "trim");
 
-        $data = TMember::getByOpenId($openid);
+        $data = TMember::getByUnionId($unionid);
 
         if (!$data) {
-            $user_id = TMember::registerByOpenId($openid);
+            $user_id = TMember::registerByUnionId($unionid);
             if ($user_id <= 0) {
                 return $this->outJson(200, "注册失败");
             }
-            $data = TMember::getByOpenId($openid);
+            $data = TMember::getByUnionId($openid);
             $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
             $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
             $data["sex"] = $gender > 0 ? $gender : $data['sex'];
@@ -182,10 +185,11 @@ class LoginController extends BaseController
             'country' => empty($country) ? $data['country'] : $country,
             'sex' => $gender > 0 ? $gender : $data['sex'],
             'province' => empty($province) ? $data['province'] : $province,
+            'openid' => empty($openid) ? $data['openid'] : $openid,
             "last_login_time" => date("Y-m-d H:i:s")
         ]);
 
-        $data = TMember::getByOpenId($openid);
+        $data = TMember::getByUnionId($openid);
         TMember::setOtherInfo($data);
         $data['mall_user_id'] = $mall_user_id;
 
