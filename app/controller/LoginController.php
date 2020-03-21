@@ -82,9 +82,9 @@ class LoginController extends BaseController
      */
     public function loginByMinWechat()
     {
-        if (APP_ENV == "test") {
-            Tools::addLog("wechat", "微信登陆请求参数：" + $this->request->param());
-        }
+//        if (APP_ENV == "test") {
+//            Tools::addLog("wechat", "微信登陆请求参数：" + $this->request->param());
+//        }
         $code = $this->request->post("code", '', "trim");
         $avatar = $this->request->post("avatar", '', "trim");
         $city = $this->request->post("city", '', "trim");
