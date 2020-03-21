@@ -230,6 +230,9 @@ class TMember extends BaseModel
             $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]); //生成access_key
         } else {
             $data["access_key"] = AccessKeyHelper::getAccessKey($data["user_id"]); //生成access_key
+            if (empty($data["access_key"])) {
+                $data["access_key"] = AccessKeyHelper::generateAccessKey($data["user_id"]);
+            }
         }
 
         $live_config = Config::get('tencent_cloud');
