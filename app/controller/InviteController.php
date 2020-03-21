@@ -16,7 +16,7 @@ use app\util\Tools;
 class InviteController extends BaseController
 {
     protected $middleware = [
-        'access_check' => ['only' => ['getRewardInfo','getInviteInfo','createOrder','isBroadcaster','payCallback']],
+        'access_check' => ['only' => ['getRewardInfo','getInviteInfo','createOrder','payCallback']],
     ];
 
     /**
