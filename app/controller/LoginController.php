@@ -120,6 +120,10 @@ class LoginController extends BaseController
             }
             if (!empty($unionId)) {
                 $data = TMember::getByUnionId($unionId);
+                if (empty($data)) {
+                    // 如果unionID没有找到，则找openid
+                    $data = TMember::getByOpenId($openId);
+                }
             } else {
                 $data = TMember::getByOpenId($openId);
             }
