@@ -78,7 +78,7 @@ class TMember extends BaseModel
 
 
     /**
-     * 根据opendid获取
+     * 根据unionid获取
      * @param string $openid
      * @param string $field
      * @return array|null
@@ -95,9 +95,26 @@ class TMember extends BaseModel
     }
 
     /**
+     * 根据openid获取
+     * @param string $openid
+     * @param string $field
+     * @return array|null
+     */
+    public static function getByOpenId($open_id, $field = "")
+    {
+        if (empty($field)) {
+            $field = "user_id,phone,nick_name,sex,avatar,front_cover,openid,unionid,country,province,city,display_code,
+                       is_broadcaster,audit_status,is_lock";
+        }
+        $data = self::where("openid", $open_id)->field($field)->find();
+
+        return $data ? $data->toArray() : [];
+    }
+
+    /**
      * 生成昵称
      */
-    public static function generateNick($display_code, $prefix = "映购")
+    public static function generateNick($display_code, $prefix = "映播")
     {
         return $prefix . $display_code;
     }
@@ -159,7 +176,7 @@ class TMember extends BaseModel
     }
 
     /**
-     * 按open_id注册
+     * 按union_id注册
      * @param $unionid
      * @return int|string
      */
@@ -167,6 +184,28 @@ class TMember extends BaseModel
     {
         $data = [
             'unionid' => $unionid,
+            'last_login_time' => date("Y-m-d H:i:s"),
+            'create_time' => date("Y-m-d H:i:s"),
+        ];
+
+        $user_id = self::insertGetId($data);
+
+        if ($user_id) {
+            self::updateOtherInfo($user_id);
+        }
+
+        return $user_id;
+    }
+
+    /**
+     * 按open_id注册
+     * @param $unionid
+     * @return int|string
+     */
+    public static function registerByOpenId($openid)
+    {
+        $data = [
+            'openid' => $openid,
             'last_login_time' => date("Y-m-d H:i:s"),
             'create_time' => date("Y-m-d H:i:s"),
         ];
