@@ -51,6 +51,14 @@ class WechatHelper
         return $res["access_token"];
     }
 
+    public static function getOpenidByCode($code)
+    {
+        $wechat_config = Config::get('weixin');
+        $realUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="  . $wechat_config['appid'] . "&secret=" . $wechat_config['secret']  . "&code=".$code."&grant_type=authorization_code";
+        $res = Tools::curlGet($realUrl, null);
+        return $res;
+    }
+
     public static function getMiniQr($page, $scene, $width, $access_token)
     {
         $data = array("path" => $page, "width" => $width);

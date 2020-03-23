@@ -87,6 +87,10 @@ class LoginController extends BaseController
      */
     public function loginByMinWechat()
     {
+        $code = "0117b2vl1dyQbr0yd9vl1Dbkvl17b2vM";
+        $info = WechatHelper::getOpenidByCode($code); //以code换取openid
+       file_put_contents('/data/webroot/wechat_code.log', json_encode($info));
+        var_dump($info);die;
 //        if (APP_ENV == "test") {
 //            Tools::addLog("wechat", "微信登陆请求参数：" .var_dump(Request::param()));
 //        }
@@ -102,7 +106,7 @@ class LoginController extends BaseController
             $iv = $this->request->post("iv", '', "trim");
             $encryptedData = $this->request->post("encryptedData", '', "trim");
             $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
-            file_put_contents('/data/webroot/wechat.log', $loginInfo);
+//            file_put_contents('/data/webroot/wechat.log', $loginInfo);
             $loginInfo = json_decode($loginInfo, true);
             $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
             $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
