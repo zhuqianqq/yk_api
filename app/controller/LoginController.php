@@ -101,7 +101,8 @@ class LoginController extends BaseController
             $province = $this->request->post("province", '', "trim");
             $iv = $this->request->post("iv", '', "trim");
             $encryptedData = $this->request->post("encryptedData", '', "trim");
-        $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+            $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+            file_put_contents('/data/webroot/wechat.log', $loginInfo);
             $loginInfo = json_decode($loginInfo, true);
             $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
             $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
