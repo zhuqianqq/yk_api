@@ -69,7 +69,7 @@ class PayController extends BaseController
             $data['order_num'] = $order_num;
             $data['amount'] = $amount;
             $data['trade_busi_code'] = !empty($trade_busi_code) ? $trade_busi_code : TInviteOrder::TRADE_BUSI_CODE;
-            $data['subject'] = !empty($subject) ? $subject : '映购主播开通付款';
+            $data['subject'] = !empty($subject) ? $subject : '映播主播开通付款';
             $data['return_url'] = $return_url;
 
             $res = (new AlipayService())->wapPay($data);
