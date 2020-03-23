@@ -107,7 +107,6 @@ class LoginController extends BaseController
                 $unionId = '';
             } else {
                 $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
-                file_put_contents('/data/webroot/test.log', $loginInfo);
                 $loginInfo = json_decode($loginInfo, true);
                 $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
                 $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
@@ -168,6 +167,12 @@ class LoginController extends BaseController
                 'unionid' => empty($unionId) ? $data['unionid'] : $unionId,
                 "last_login_time" => date("Y-m-d H:i:s"),
             ]);
+
+            if (!empty($unionId)) {
+                $data = TMember::getByUnionId($unionId);
+            } else {
+                $data = TMember::getByOpenId($openId);
+            }
 
             $data['mall_user_id'] = $mall_user_id;
             TMember::setOtherInfo($data);
