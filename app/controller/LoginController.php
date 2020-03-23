@@ -103,13 +103,15 @@ class LoginController extends BaseController
             $encryptedData = $this->request->post("encryptedData", '', "trim");
             if (empty($iv) && empty($encryptedData)) {
                 $loginInfo = WechatHelper::getOpenidByCode($code); //以code换取openid
+                $openId = isset($loginInfo['openid']) ? $loginInfo['openid'] : '';
+                $unionId = '';
             } else {
                 $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+                $loginInfo = json_decode($loginInfo, true);
+                $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
+                $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
             }
 
-            $loginInfo = json_decode($loginInfo, true);
-            $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
-            $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
             if (empty($loginInfo)) {
                 return $this->outJson(200, "获取微信信息失败！");
             }
