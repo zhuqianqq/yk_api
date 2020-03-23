@@ -54,7 +54,7 @@ class WechatHelper
     public static function getOpenidByCode($code)
     {
         $wechat_config = Config::get('weixin');
-        $realUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="  . $wechat_config['appid'] . "&secret=" . $wechat_config['secret']  . "&code=".$code."&grant_type=authorization_code";
+        $realUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid=' . $wechat_config['appid'] . '&secret=' . $wechat_config['secret'] . '&js_code=' . $code . '&grant_type=authorization_code';
         $res = Tools::curlGet($realUrl, null);
         return $res;
     }
