@@ -1,0 +1,11 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "6C39QXYNC3.com.xhw.intv",
+                "paths": [ "*" ,"*","/qq_conn/{APPID} /*","/","/*"]
+            }
+        ]
+    }
+}
