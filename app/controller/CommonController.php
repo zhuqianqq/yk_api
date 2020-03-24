@@ -11,6 +11,7 @@ use app\util\CosHelper;
 use app\util\WechatHelper;
 use think\facade\Cache;
 use think\Image;
+use app\util\JSSDK;
 
 class CommonController extends BaseController
 {
@@ -168,6 +169,36 @@ class CommonController extends BaseController
         $data["defaultPrebroadNickName"] = "映播XXX";
         $data["baseURL"] = env("APP_URL");
         return $this->outJson(0, "", $data);
+    }
+
+    /**
+     * 微信配置选项
+     */
+    public function wxconfig(){
+
+        $appid = 'wxc0e579df306a9447';
+        $appsecret = 'dc136c3a1fbb60b52d91d00e65df75e4';
+        $jssdk = new JSSDK($appid, $appsecret);
+        $url = $_GET['url'];
+        $signPackage = $jssdk->getSignPackage($url);
+        $config =  array(
+            'debug' => true,
+            'appId' => $signPackage['appId'],
+            'timestamp' => $signPackage['timestamp'],
+            'nonceStr' => $signPackage['nonceStr'],
+            'signature' => $signPackage['signature'],
+            'jsApiList' => array(
+                'uploadImage',
+                'checkJsApi',
+                'updateTimelineShareData',
+                'hideOptionMenu',
+                'updateAppMessageShareData',
+                'hideMenuItems',
+                'showMenuItems'
+            )
+        );
+        echo json_encode(['code' => 0,'data' => $config ,'msg' => 'ok']);
+
     }
 
     /**
