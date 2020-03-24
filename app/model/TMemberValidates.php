@@ -141,7 +141,8 @@ class TMemberValidates extends BaseModel
         $userRecord = $this->where("user_id = {$userid}")->find();
         $returnData = [];
         // 是否已实名1是，0不是
-        $returnData['validate'] = $user->audit_status;
+        $audit_status = $user->audit_status;
+        $returnData['validate'] = $audit_status;
         $returnData['detail'] = (object)[];
         if (empty($userRecord)) {
             return $returnData;
@@ -160,6 +161,15 @@ class TMemberValidates extends BaseModel
             default:
                 $content = '待审核';
         }
+        if ($userRecord['status'] == 2) {
+            if ($audit_status == 0) {
+                // 进行修改
+                $user->audit_status = 1;
+                $user->save();
+            }
+            $audit_status = 1;
+        }
+        $returnData['validate'] = $audit_status;
         $returnData['detail'] = [
             'validateId' => $userRecord['validateId'],
             'trueName' => $userRecord['true_name'],
