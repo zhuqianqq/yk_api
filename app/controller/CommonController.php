@@ -174,14 +174,15 @@ class CommonController extends BaseController
     /**
      * 微信配置选项
      */
-    public function wxconfig(){
+    public function wxconfig()
+    {
 
         $appid = 'wxc0e579df306a9447';
         $appsecret = 'dc136c3a1fbb60b52d91d00e65df75e4';
         $jssdk = new JSSDK($appid, $appsecret);
         $url = $this->request->param("url", '', "trim");
         $signPackage = $jssdk->getSignPackage($url);
-        $config =  array(
+        $config = array(
             'debug' => true,
             'appId' => $signPackage['appId'],
             'timestamp' => $signPackage['timestamp'],
@@ -197,8 +198,8 @@ class CommonController extends BaseController
                 'showMenuItems'
             )
         );
-        echo json_encode(['code' => 0,'data' => $config ,'msg' => 'ok']);
-
+//        echo json_encode(['code' => 0,'data' => $config ,'msg' => 'ok']);
+        return $this->outJson(0, "配置成功！", $config);
     }
 
     /**
