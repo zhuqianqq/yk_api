@@ -2,6 +2,7 @@
 namespace app\controller;
 
 use app\model\TMember;
+use app\model\TMemberValidates;
 use app\model\TPrebroadcast;
 use app\util\AccessKeyHelper;
 use think\facade\Db;
@@ -63,5 +64,54 @@ class MemberController extends BaseController
         TMember::setOtherInfo($data);
         //$data["access_key"] = AccessKeyHelper::generateAccessKey($user_id); //生成access_key
         return $this->outJson(0, "刷新用户会话标识成功！", $data);
+    }
+
+    /**
+     * 实名认证-添加
+     * @return array
+     */
+    public function userValidate()
+    {
+        try {
+            $type = input('param.type/d'); // 类型 1 添加 2 修改
+            if ($type == 2) {
+                return $this->userValidateEdit();
+            }
+            $m = new TMemberValidates();
+            $id = $m->add();
+            return $this->outJson(0, "success", ['validateId' => $id]);
+        } catch (\Exception $e) {
+            return $this->outJson(100, $e->getMessage());
+        }
+    }
+
+    /**
+     * 实名认证-修改
+     * @return array
+     */
+    public function userValidateEdit()
+    {
+        try {
+            $validateId = input('param.validateId/d'); // 认证ID
+            $m = new TMemberValidates();
+            $m->edit($validateId);
+            return $this->outJson(0, "success");
+        } catch (\Exception $e) {
+            return $this->outJson(100, $e->getMessage());
+        }
+    }
+
+    /**
+     * 详情
+     */
+    public function userValidateDetail()
+    {
+        try {
+            $m = new TMemberValidates();
+            $data = $m->pageQuery();
+            return $this->outJson(0, "success", $data);
+        } catch (\Exception $e) {
+            return $this->outJson(100, $e->getMessage());
+        }
     }
 }

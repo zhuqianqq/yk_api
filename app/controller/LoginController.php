@@ -90,59 +90,97 @@ class LoginController extends BaseController
 //        if (APP_ENV == "test") {
 //            Tools::addLog("wechat", "微信登陆请求参数：" .var_dump(Request::param()));
 //        }
-        $code = $this->request->post("code", '', "trim");
-        $avatar = $this->request->post("avatar", '', "trim");
-        $city = $this->request->post("city", '', "trim");
-        $country = $this->request->post("country", '', "trim");
-        $gender = $this->request->post("gender", 0, "intval");
-        $nick_name = $this->request->post("nick_name", '', "trim");
-        $province = $this->request->post("province", '', "trim");
-        $iv = $this->request->post("iv", '', "trim");
-        $encryptedData = $this->request->post("encryptedData", '', "trim");
-        $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
-        $loginInfo = json_decode($loginInfo, true);
-        if (empty($loginInfo)) {
-            return $this->outJson(200, "获取微信信息失败！");
-        }
-        if (empty($loginInfo['unionId'])) {
-            return $this->outJson(200, "获取微信unionId失败！");
-        }
-        $data = TMember::getByUnionId($loginInfo["unionId"]);
-
-        if (!$data) {
-            $user_id = TMember::registerByUnionId($loginInfo["unionId"]);
-            if ($user_id <= 0) {
-                return $this->outJson(200, "注册失败");
+        Db::startTrans();
+        try {
+            $code = $this->request->post("code", '', "trim");
+            $avatar = $this->request->post("avatar", '', "trim");
+            $city = $this->request->post("city", '', "trim");
+            $country = $this->request->post("country", '', "trim");
+            $gender = $this->request->post("gender", 0, "intval");
+            $nick_name = $this->request->post("nick_name", '', "trim");
+            $province = $this->request->post("province", '', "trim");
+            $iv = $this->request->post("iv", '', "trim");
+            $encryptedData = $this->request->post("encryptedData", '', "trim");
+            if (empty($iv) && empty($encryptedData)) {
+                $loginInfo = WechatHelper::getOpenidByCode($code); //以code换取openid
+                $openId = isset($loginInfo['openid']) ? $loginInfo['openid'] : '';
+                $unionId = '';
+            } else {
+                $loginInfo = WechatHelper::getWechatLoginInfo($code, $iv, $encryptedData); //以code换取openid
+                $loginInfo = json_decode($loginInfo, true);
+                $unionId = isset($loginInfo['unionId']) ? $loginInfo['unionId'] : '';
+                $openId = isset($loginInfo['openId']) ? $loginInfo['openId'] : '';
             }
-            $data = TMember::getByUnionId($loginInfo["unionId"]);
-            $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
-            $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
-            $data["sex"] = $gender > 0 ? $gender : $data['sex'];
-            $mall_user_id = MallUser::register($data); //注册商城用户
-        } else {
-            $mall_user_id = $data['user_id'];
+
+            if (empty($loginInfo)) {
+                return $this->outJson(200, "获取微信信息失败！");
+            }
+            if (empty($openId)) {
+                return $this->outJson(200, "获取微信openId失败！");
+            }
+            if (!empty($unionId)) {
+                $data = TMember::getByUnionId($unionId);
+                if (empty($data)) {
+                    // 如果unionID没有找到，则找openid
+                    $data = TMember::getByOpenId($openId);
+                }
+            } else {
+                $data = TMember::getByOpenId($openId);
+            }
+
+            if (empty($data)) {
+                // 没有没有unionid存在，则新建
+                if (!empty($unionId)) {
+                    $user_id = TMember::registerByUnionId($unionId);
+                    $data = TMember::getByUnionId($unionId);
+                } else {
+                    $user_id = TMember::registerByOpenId($openId);
+                    $data = TMember::getByOpenId($openId);
+                }
+
+                if ($user_id <= 0) {
+                    return $this->outJson(200, "注册失败");
+                }
+
+                $data["nick_name"] = empty($nick_name) ? $data['nick_name'] : $nick_name;
+                $data["avatar"] = empty($avatar) ? $data['avatar'] : $avatar;
+                $data["sex"] = $gender > 0 ? $gender : $data['sex'];
+                $mall_user_id = MallUser::register($data); //注册商城用户
+            } else {
+                $mall_user_id = $data['user_id'];
+            }
+
+            if ($data["is_lock"] == 1) {
+                return $this->outJson(200, "账号已被锁定");
+            }
+
+            TMember::where([
+                "user_id" => $data["user_id"],
+            ])->update([
+                'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
+                'avatar' => empty($avatar) ? $data['avatar'] : $avatar,
+                'city' => empty($city) ? $data['city'] : $city,
+                'country' => empty($country) ? $data['country'] : $country,
+                'sex' => $gender > 0 ? $gender : $data['sex'],
+                'province' => empty($province) ? $data['province'] : $province,
+                'openid' => empty($openId) ? $data['openid'] : $openId,
+                'unionid' => empty($unionId) ? $data['unionid'] : $unionId,
+                "last_login_time" => date("Y-m-d H:i:s"),
+            ]);
+
+            if (!empty($unionId)) {
+                $data = TMember::getByUnionId($unionId);
+            } else {
+                $data = TMember::getByOpenId($openId);
+            }
+
+            $data['mall_user_id'] = $mall_user_id;
+            TMember::setOtherInfo($data);
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            return $this->outJson(0, "登录失败", $e->getMessage() ?? '接口异常');
         }
-
-        if ($data["is_lock"] == 1) {
-            return $this->outJson(200, "账号已被锁定");
-        }
-
-        TMember::where([
-            "user_id" => $data["user_id"],
-        ])->update([
-            'nick_name' => empty($nick_name) ? $data['nick_name'] : $nick_name,
-            'avatar' => empty($avatar) ? $data['avatar'] : $avatar,
-            'city' => empty($city) ? $data['city'] : $city,
-            'country' => empty($country) ? $data['country'] : $country,
-            'sex' => $gender > 0 ? $gender : $data['sex'],
-            'province' => empty($province) ? $data['province'] : $province,
-            'openid' => empty($loginInfo["openId"]) ? $data['openid'] : $loginInfo["openId"],
-            "last_login_time" => date("Y-m-d H:i:s"),
-        ]);
-
-        $data = TMember::getByUnionId($loginInfo["unionId"]);
-        $data['mall_user_id'] = $mall_user_id;
-        TMember::setOtherInfo($data);
 
         return $this->outJson(0, "登录成功", $data);
     }
