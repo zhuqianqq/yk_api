@@ -4,6 +4,8 @@
 namespace app\util;
 
 
+use stdClass;
+
 class JSSDK
 {
     private $appId;
