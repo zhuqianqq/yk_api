@@ -139,8 +139,12 @@ class TMemberValidates extends BaseModel
             throw new \Exception('没有该记录');
         }
         $userRecord = $this->where("user_id = {$userid}")->find();
+        $returnData = [];
+        // 是否已实名1是，0不是
+        $returnData['validate'] = $user->audit_status;
+        $returnData['detail'] = (object)[];
         if (empty($userRecord)) {
-            throw new \Exception('没有数据');
+            return $returnData;
         }
         switch ($userRecord['status']) {
             // 0 待审核 1 审核中 2 审核通过 3 审核失败
@@ -156,7 +160,7 @@ class TMemberValidates extends BaseModel
             default:
                 $content = '待审核';
         }
-        $data = [
+        $returnData['detail'] = [
             'validateId' => $userRecord['validateId'],
             'trueName' => $userRecord['true_name'],
             'idCard' => $userRecord['id_card'],
@@ -165,6 +169,6 @@ class TMemberValidates extends BaseModel
             'reason' => $userRecord['remark'],
             'tip' => $content,
         ];
-        return $data;
+        return $returnData;
     }
 }
