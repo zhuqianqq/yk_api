@@ -179,7 +179,7 @@ class CommonController extends BaseController
         $appid = 'wxc0e579df306a9447';
         $appsecret = 'dc136c3a1fbb60b52d91d00e65df75e4';
         $jssdk = new JSSDK($appid, $appsecret);
-        $url = $_GET['url'];
+        $url = $this->request->param("url", '', "trim");
         $signPackage = $jssdk->getSignPackage($url);
         $config =  array(
             'debug' => true,
