@@ -3,18 +3,21 @@
 
 namespace app\util;
 
-
 use stdClass;
+use think\facade\Cache;
 
 class JSSDK
 {
     private $appId;
     private $appSecret;
 
+    private $_redis;
+
     public function __construct($appId, $appSecret)
     {
         $this->appId = $appId;
         $this->appSecret = $appSecret;
+        $this->_redis = Cache::handler();
     }
 
     public function getSignPackage($url)
@@ -47,26 +50,21 @@ class JSSDK
         return $str;
     }
 
-    private function getJsApiTicket()
-    {
-        $file = 'jsapi_ticket.json';
-        if (!file_exists($file)) {
-            file_put_contents($file, '');
-        }
-        $data = json_decode(file_get_contents($file));
-        if (empty($data) || $data->expire_time < time()) {
+    private function getJsApiTicket() {
+        // jsapi_ticket 应该全局存储与更新
+        $redisKeyJsApiTicket = 'weixin-jsApiTicket';
+        if($this->_redis->get($redisKeyJsApiTicket)){
+            $ticket = $this->_redis->get($redisKeyJsApiTicket);
+        }else{
             $accessToken = $this->getAccessToken();
+            // 如果是企业号用以下 URL 获取 ticket
+            // $url = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=$accessToken";
             $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=$accessToken";
             $res = json_decode($this->httpGet($url));
             $ticket = $res->ticket;
             if ($ticket) {
-                $data = new stdClass();
-                $data->expire_time = time() + 4000;
-                $data->jsapi_ticket = $ticket;
-                file_put_contents($file, json_encode($data));
+                $this->_redis->setex($redisKeyJsApiTicket, 110 * 60 ,$ticket);
             }
-        } else {
-            $ticket = $data->jsapi_ticket;
         }
 
         return $ticket;
@@ -74,29 +72,33 @@ class JSSDK
 
     private function getAccessToken()
     {
-        $file = 'access_token.json';
-        if (!file_exists($file)) {
-            file_put_contents($file, '');
-        }
-        $data = json_decode(file_get_contents($file));
-        if (empty($data) || $data->expire_time < time()) {
+        $redisKeyAccess = 'weixin-access-token';
+        if($this->_redis->get($redisKeyAccess)){
+            $access_token = $this->_redis->get($redisKeyAccess);
+        }else{
+            // 如果是企业号用以下URL获取access_token
+            // $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=$this->appId&corpsecret=$this->appSecret";
             $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$this->appId&secret=$this->appSecret";
             $res = json_decode($this->httpGet($url));
             $access_token = $res->access_token;
             if ($access_token) {
-                $data = new stdClass();
-                $data->expire_time = time() + 4000;
-                $data->access_token = $access_token;
-                file_put_contents($file, json_encode($data));
+                $this->_redis->setex($redisKeyAccess, 110 * 60 , $access_token);
             }
-        } else {
-            $access_token = $data->access_token;
         }
         return $access_token;
     }
 
-    private function httpGet($url)
-    {
-        return file_get_contents($url);
+    private function httpGet($url) {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 500);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_URL, $url);
+
+        $res = curl_exec($curl);
+        curl_close($curl);
+
+        return $res;
     }
 }
