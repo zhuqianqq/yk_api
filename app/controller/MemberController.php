@@ -114,4 +114,33 @@ class MemberController extends BaseController
             return $this->outJson(100, $e->getMessage());
         }
     }
+
+    /**
+     * 实名认证-IOS 安卓同步
+     */
+    public function userAuditStatus()
+    {
+        try {
+            $userid = input('param.user_id/d'); // 用户ID
+            $audit_status = input('param.audit_status/d'); // 是否已实名1是，0不是
+            $m = new TMember();
+            $member = $m::where("user_id", $userid)->find();
+            if ($member == null) {
+                return $this->outJson(1, "指定的用户不存在！");
+            }
+            $audit_status_arr = [0, 1];
+            if (!in_array($audit_status, $audit_status_arr)) {
+                $audit_status = 0;
+            }
+            $member->audit_status = $audit_status;
+            $rs = $member->save();
+            if (false !== $rs) {
+                return $this->outJson(0, "success");
+            }
+
+            return $this->outJson(1, "修改失败！");
+        } catch (\Exception $e) {
+            return $this->outJson(100, $e->getMessage());
+        }
+    }
 }
