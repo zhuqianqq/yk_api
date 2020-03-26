@@ -69,9 +69,9 @@ class SmsHelper
      */
     public static function checkVcode($phone,$vcode,$type = "login")
     {
-        if(APP_ENV == "test"){
-            return true;
-        }
+        // if(APP_ENV == "test"){
+        //     return true;
+        // }
         $cache_key = self::getCacheKey($phone,$type);
         $cache_vcode = Cache::get($cache_key);
 
