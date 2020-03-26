@@ -25,10 +25,10 @@ class PayController extends BaseController
         //首先必需验证签名，然后验证是否是支付宝发来的通知。
         Tools::addLog("alipay_notify", "支付宝回调0");
 
-        $verify_result = $aliPay->verifyNotify();
+        //$verify_result = $aliPay->verifyNotify();
         Tools::addLog("alipay_notify", "支付宝回调1");
 
-        if ($verify_result) {
+        //if ($verify_result) {
             $result = $aliPay->alipayNotify($this->request->param());
             Tools::addLog("alipay_notify", "支付宝回调2");
 
@@ -39,12 +39,12 @@ class PayController extends BaseController
                 Tools::addLog("alipay_notify", "支付宝回调通知处理失败");
                 exit("failed");
             }
-        } else {
-            Tools::addLog("alipay_notify", "支付宝回调3");
+       // } else {
+            // Tools::addLog("alipay_notify", "支付宝回调3");
 
-            Tools::addLog("alipay_notify", "支付宝回调验证签名失败");
-            exit("failed");
-        }
+            // Tools::addLog("alipay_notify", "支付宝回调验证签名失败");
+            // exit("failed");
+        //}
     }
 
     /*
