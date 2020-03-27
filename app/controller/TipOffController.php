@@ -22,6 +22,9 @@ class TipOffController extends BaseController
         $reason = $this->request->param("reason");
         $detail = $this->request->param("detail");
         $from_phone = $this->request->param("from_phone");
+        if (!$from_phone) {
+            return $this->outJson(100, "手机号码必需填写");
+        }
         $img_list = $this->request->param("img_list");
 
         $nowTime = time();
