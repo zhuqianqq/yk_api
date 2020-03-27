@@ -43,7 +43,10 @@ class LiveCheckCommand extends BaseCommand
 
             if(!empty($not_online_list)){
                 $not_online_list = $not_online_list->toArray();
+                $nowTime = time();
                 foreach($not_online_list as &$item){
+                    $update_time = strtotime($item['update_time']) + 15;
+                    if ($update_time < $nowTime) continue;
                     $ret = TRoom::closeRoom($item["room_id"],$item["user_id"],"system"); //系统自动下播
                     $this->log("close_room:{$item['room_id']},user_id:{$item['user_id']},ret:".json_encode($ret,JSON_UNESCAPED_UNICODE));
                 }

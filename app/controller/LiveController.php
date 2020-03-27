@@ -240,6 +240,7 @@ class LiveController extends BaseController
         }
         $room->like_count = $like_count;
         $room->view_count = $view_count;
+        $room->update_time = date('Y-m-d H:i:s', time());
         $room->save();
 
         return $this->outJson(0, "success");
